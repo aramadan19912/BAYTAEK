@@ -261,6 +261,117 @@ public class ProviderController : BaseApiController
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Get all services offered by the provider
+    /// </summary>
+    [HttpGet("services")]
+    public async Task<IActionResult> GetMyServices([FromQuery] bool? isActive)
+    {
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var query = new Application.Queries.ProviderService.GetProviderServicesQuery
+        {
+            ProviderId = providerId,
+            IsActive = isActive
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Create a new service (requires admin approval)
+    /// </summary>
+    [HttpPost("services")]
+    public async Task<IActionResult> CreateService([FromBody] CreateServiceRequest request)
+    {
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.ProviderService.CreateProviderServiceCommand
+        {
+            ProviderId = providerId,
+            CategoryId = request.CategoryId,
+            NameEn = request.NameEn,
+            NameAr = request.NameAr,
+            DescriptionEn = request.DescriptionEn,
+            DescriptionAr = request.DescriptionAr,
+            BasePrice = request.BasePrice,
+            Currency = request.Currency,
+            EstimatedDurationMinutes = request.EstimatedDurationMinutes,
+            AvailableRegions = request.AvailableRegions,
+            RequiredMaterials = request.RequiredMaterials,
+            WarrantyInfo = request.WarrantyInfo,
+            ImageUrls = request.ImageUrls,
+            VideoUrl = request.VideoUrl
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return CreatedAtAction(nameof(GetMyServices), new { }, result);
+    }
+
+    /// <summary>
+    /// Update an existing service
+    /// </summary>
+    [HttpPut("services/{serviceId}")]
+    public async Task<IActionResult> UpdateService(Guid serviceId, [FromBody] UpdateServiceRequest request)
+    {
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.ProviderService.UpdateProviderServiceCommand
+        {
+            ServiceId = serviceId,
+            ProviderId = providerId,
+            NameEn = request.NameEn,
+            NameAr = request.NameAr,
+            DescriptionEn = request.DescriptionEn,
+            DescriptionAr = request.DescriptionAr,
+            BasePrice = request.BasePrice,
+            EstimatedDurationMinutes = request.EstimatedDurationMinutes,
+            AvailableRegions = request.AvailableRegions,
+            RequiredMaterials = request.RequiredMaterials,
+            WarrantyInfo = request.WarrantyInfo,
+            ImageUrls = request.ImageUrls,
+            VideoUrl = request.VideoUrl
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Delete a service (only if no active bookings)
+    /// </summary>
+    [HttpDelete("services/{serviceId}")]
+    public async Task<IActionResult> DeleteService(Guid serviceId)
+    {
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.ProviderService.DeleteProviderServiceCommand
+        {
+            ServiceId = serviceId,
+            ProviderId = providerId
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
 }
 
 // Request DTOs
@@ -270,3 +381,29 @@ public record UpdateBookingStatusRequest(string Status, string? Notes, List<stri
 public record UpdateAvailabilityRequest(bool IsAvailable, DateTime? AvailableFrom, DateTime? AvailableUntil);
 public record ToggleStatusRequest(bool IsOnline);
 public record RequestPayoutRequest(decimal Amount, bool IsInstant);
+public record CreateServiceRequest(
+    Guid CategoryId,
+    string NameEn,
+    string NameAr,
+    string DescriptionEn,
+    string DescriptionAr,
+    decimal BasePrice,
+    string Currency,
+    int EstimatedDurationMinutes,
+    List<HomeService.Domain.Enums.Region> AvailableRegions,
+    string? RequiredMaterials,
+    string? WarrantyInfo,
+    List<string>? ImageUrls,
+    string? VideoUrl);
+public record UpdateServiceRequest(
+    string? NameEn,
+    string? NameAr,
+    string? DescriptionEn,
+    string? DescriptionAr,
+    decimal? BasePrice,
+    int? EstimatedDurationMinutes,
+    List<HomeService.Domain.Enums.Region>? AvailableRegions,
+    string? RequiredMaterials,
+    string? WarrantyInfo,
+    List<string>? ImageUrls,
+    string? VideoUrl);
