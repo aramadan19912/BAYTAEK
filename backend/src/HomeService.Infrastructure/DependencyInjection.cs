@@ -1,5 +1,7 @@
 using HomeService.Domain.Interfaces;
+using HomeService.Infrastructure.AI.Services;
 using HomeService.Infrastructure.Data;
+using HomeService.Infrastructure.Identity;
 using HomeService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +22,17 @@ public static class DependencyInjection
         // Repositories
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Identity & Authentication
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+        // AI Services (Semantic Kernel)
+        services.AddSingleton<SemanticKernelService>();
+        services.AddScoped<ChatbotService>();
+        services.AddScoped<RecommendationService>();
+        services.AddScoped<SentimentAnalysisService>();
+        services.AddScoped<SemanticSearchService>();
 
         // Redis Cache
         var redisConnection = configuration.GetConnectionString("Redis");

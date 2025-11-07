@@ -28,12 +28,28 @@
       "last_name": "Last Name",
       "email": "Email Address",
       "phone": "Phone Number",
+      "region": "Region",
       "password": "Password",
       "confirm_password": "Confirm Password",
       "submit": "Create Account",
       "have_account": "Already have an account?",
       "sign_in": "Sign In"
+    },
+    "validation": {
+      "email_required": "Email is required",
+      "password_required": "Password is required"
     }
+  },
+  "home": {
+    "why_choose_us": "Why Choose Us?",
+    "professional_service": "Professional Services",
+    "professional_service_desc": "Verified and experienced service providers",
+    "fast_booking": "Quick Booking",
+    "fast_booking_desc": "Book services in minutes",
+    "quality_guarantee": "Quality Guaranteed",
+    "quality_guarantee_desc": "100% satisfaction guarantee",
+    "secure_payment": "Secure Payment",
+    "secure_payment_desc": "Multiple secure payment options"
   },
   "services": {
     "title": "Our Services",
@@ -41,21 +57,29 @@
     "categories": "Categories",
     "featured": "Featured Services",
     "book_now": "Book Now",
-    "view_details": "View Details"
+    "view_details": "View Details",
+    "details": "Service Details",
+    "no_results": "No services found"
   },
   "bookings": {
     "title": "My Bookings",
     "status": {
       "pending": "Pending",
       "confirmed": "Confirmed",
-      "in_progress": "In Progress",
+      "inprogress": "In Progress",
       "completed": "Completed",
       "cancelled": "Cancelled",
       "disputed": "Disputed"
     },
     "details": "Booking Details",
+    "date": "Date",
+    "amount": "Amount",
+    "address": "Address",
+    "view_details": "View Details",
     "cancel": "Cancel Booking",
-    "rate": "Rate Service"
+    "rate": "Rate Service",
+    "no_bookings": "No bookings found",
+    "browse_services": "Browse Services"
   },
   "common": {
     "loading": "Loading...",
