@@ -59,8 +59,19 @@ public class ProviderController : BaseApiController
     [HttpGet("bookings/active")]
     public async Task<IActionResult> GetActiveBookings()
     {
-        // To be implemented
-        return Ok(new { message = "Provider active bookings endpoint" });
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var query = new GetProviderActiveBookingsQuery
+        {
+            ProviderId = providerId
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -117,8 +128,23 @@ public class ProviderController : BaseApiController
     [HttpPut("bookings/{bookingId}/status")]
     public async Task<IActionResult> UpdateBookingStatus(Guid bookingId, [FromBody] UpdateBookingStatusRequest request)
     {
-        // To be implemented
-        return Ok(new { message = "Update booking status endpoint" });
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Booking.UpdateBookingStatusCommand
+        {
+            BookingId = bookingId,
+            ProviderId = providerId,
+            Status = request.Status,
+            Notes = request.Notes,
+            PhotoUrls = request.PhotoUrls
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>

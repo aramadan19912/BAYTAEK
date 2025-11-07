@@ -26,9 +26,19 @@ public class ServicesController : BaseApiController
     /// </summary>
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetServiceById(Guid id)
+    public async Task<IActionResult> GetServiceById(Guid id, [FromQuery] string? language = "en")
     {
-        // Implementation will be added with handler
-        return Ok(new { message = $"Get service {id}" });
+        var query = new Application.Queries.Service.GetServiceByIdQuery
+        {
+            ServiceId = id,
+            PreferredLanguage = language
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return NotFound(result);
+
+        return Ok(result);
     }
 }
