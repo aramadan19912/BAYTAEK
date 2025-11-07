@@ -396,6 +396,35 @@ public class ProviderController : BaseApiController
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Get comprehensive analytics and reports for provider
+    /// </summary>
+    [HttpGet("analytics")]
+    public async Task<IActionResult> GetAnalytics(
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate)
+    {
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        // Default to last 30 days if not specified
+        var start = startDate ?? DateTime.UtcNow.AddDays(-30);
+        var end = endDate ?? DateTime.UtcNow;
+
+        var query = new Application.Queries.ProviderAnalytics.GetProviderAnalyticsQuery
+        {
+            ProviderId = providerId,
+            StartDate = start,
+            EndDate = end
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
 }
 
 // Request DTOs
