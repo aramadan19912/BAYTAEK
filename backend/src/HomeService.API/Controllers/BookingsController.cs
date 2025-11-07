@@ -59,6 +59,61 @@ public class BookingsController : BaseApiController
     }
 
     /// <summary>
+    /// Get customer's booking history with advanced filtering and statistics
+    /// </summary>
+    [HttpGet("history")]
+    public async Task<IActionResult> GetBookingHistory(
+        [FromQuery] HomeService.Domain.Enums.BookingStatus? status,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        [FromQuery] string? searchTerm,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
+    {
+        var customerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var query = new Application.Queries.CustomerBooking.GetCustomerBookingsQuery
+        {
+            CustomerId = customerId,
+            Status = status,
+            StartDate = startDate,
+            EndDate = endDate,
+            SearchTerm = searchTerm,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get detailed booking information with timeline
+    /// </summary>
+    [HttpGet("{id}/details")]
+    public async Task<IActionResult> GetBookingDetails(Guid id)
+    {
+        var customerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var query = new Application.Queries.CustomerBooking.GetBookingDetailQuery
+        {
+            BookingId = id,
+            CustomerId = customerId
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Cancel a booking
     /// </summary>
     [HttpPost("{id}/cancel")]
