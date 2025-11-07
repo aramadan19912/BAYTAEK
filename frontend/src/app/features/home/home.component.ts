@@ -1,159 +1,208 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../core/services/auth.service';
+
+interface ServiceCategory {
+  id: string;
+  name: string;
+  icon: string;
+  route: string;
+}
+
+interface FeaturedService {
+  id: string;
+  name: string;
+  imageUrl: string;
+  price: number;
+  rating: number;
+  reviewCount: number;
+}
+
+interface RecentBooking {
+  id: string;
+  serviceName: string;
+  providerName: string;
+  scheduledDate: Date;
+  status: string;
+}
+
+interface PromoBanner {
+  id: string;
+  imageUrl: string;
+  title: string;
+  description: string;
+  link?: string;
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule],
-  template: `
-    <div class="home-container">
-      <section class="hero">
-        <div class="hero-content">
-          <h1>{{ 'app.title' | translate }}</h1>
-          <p>{{ 'app.description' | translate }}</p>
-          <div class="cta-buttons">
-            <button routerLink="/services" class="btn btn-primary">
-              {{ 'nav.services' | translate }}
-            </button>
-            <button routerLink="/auth/register" class="btn btn-secondary">
-              {{ 'nav.register' | translate }}
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section class="features">
-        <h2>{{ 'home.why_choose_us' | translate }}</h2>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="icon">🔧</div>
-            <h3>{{ 'home.professional_service' | translate }}</h3>
-            <p>{{ 'home.professional_service_desc' | translate }}</p>
-          </div>
-          <div class="feature-card">
-            <div class="icon">⚡</div>
-            <h3>{{ 'home.fast_booking' | translate }}</h3>
-            <p>{{ 'home.fast_booking_desc' | translate }}</p>
-          </div>
-          <div class="feature-card">
-            <div class="icon">💯</div>
-            <h3>{{ 'home.quality_guarantee' | translate }}</h3>
-            <p>{{ 'home.quality_guarantee_desc' | translate }}</p>
-          </div>
-          <div class="feature-card">
-            <div class="icon">💳</div>
-            <h3>{{ 'home.secure_payment' | translate }}</h3>
-            <p>{{ 'home.secure_payment_desc' | translate }}</p>
-          </div>
-        </div>
-      </section>
-    </div>
-  `,
-  styles: [`
-    .home-container {
-      min-height: calc(100vh - 100px);
-    }
-
-    .hero {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 6rem 2rem;
-      text-align: center;
-    }
-
-    .hero-content h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      font-weight: bold;
-    }
-
-    .hero-content p {
-      font-size: 1.5rem;
-      margin-bottom: 2rem;
-      opacity: 0.9;
-    }
-
-    .cta-buttons {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 1rem 2rem;
-      border: none;
-      border-radius: 4px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .btn-primary {
-      background: white;
-      color: #667eea;
-    }
-
-    .btn-secondary {
-      background: transparent;
-      color: white;
-      border: 2px solid white;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .features {
-      padding: 4rem 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .features h2 {
-      text-align: center;
-      font-size: 2.5rem;
-      margin-bottom: 3rem;
-      color: #333;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-    }
-
-    .feature-card {
-      text-align: center;
-      padding: 2rem;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .feature-card h3 {
-      color: #667eea;
-      margin-bottom: 0.5rem;
-    }
-
-    .feature-card p {
-      color: #666;
-    }
-  `]
+  imports: [CommonModule, RouterModule, TranslateModule, FormsModule],
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss']
 })
-export class HomeComponent {}
+export class HomeComponent implements OnInit {
+  currentLocation = 'Riyadh, Saudi Arabia';
+  notificationCount = 3;
+  searchQuery = '';
+  recentSearches: string[] = ['Cleaning', 'Plumbing', 'AC Repair'];
+  currentBannerIndex = 0;
+  isLoggedIn = false;
+
+  categories: ServiceCategory[] = [
+    { id: '1', name: 'Cleaning Services', icon: '🧹', route: '/services?category=cleaning' },
+    { id: '2', name: 'Plumbing', icon: '🔧', route: '/services?category=plumbing' },
+    { id: '3', name: 'Electrical', icon: '⚡', route: '/services?category=electrical' },
+    { id: '4', name: 'Carpentry', icon: '🪚', route: '/services?category=carpentry' },
+    { id: '5', name: 'Appliance Repair', icon: '🔌', route: '/services?category=appliance' },
+    { id: '6', name: 'Painting', icon: '🎨', route: '/services?category=painting' },
+    { id: '7', name: 'Pest Control', icon: '🐛', route: '/services?category=pest-control' },
+    { id: '8', name: 'AC Maintenance', icon: '❄️', route: '/services?category=ac' },
+    { id: '9', name: 'Moving & Packing', icon: '📦', route: '/services?category=moving' },
+  ];
+
+  promoBanners: PromoBanner[] = [
+    {
+      id: '1',
+      imageUrl: 'assets/images/promo1.jpg',
+      title: 'First Booking 20% Off',
+      description: 'Book your first service and get instant discount',
+      link: '/services'
+    },
+    {
+      id: '2',
+      imageUrl: 'assets/images/promo2.jpg',
+      title: 'AC Cleaning Special',
+      description: 'Summer Special - Get your AC cleaned at discounted rates',
+      link: '/services?category=ac'
+    },
+    {
+      id: '3',
+      imageUrl: 'assets/images/promo3.jpg',
+      title: 'Refer & Earn',
+      description: 'Invite friends and earn rewards',
+      link: '/profile/referral'
+    }
+  ];
+
+  featuredServices: FeaturedService[] = [
+    {
+      id: '1',
+      name: 'Deep Home Cleaning',
+      imageUrl: 'assets/images/cleaning.jpg',
+      price: 299,
+      rating: 4.8,
+      reviewCount: 1234
+    },
+    {
+      id: '2',
+      name: 'AC Installation & Repair',
+      imageUrl: 'assets/images/ac-service.jpg',
+      price: 199,
+      rating: 4.9,
+      reviewCount: 892
+    },
+    {
+      id: '3',
+      name: 'Plumbing Services',
+      imageUrl: 'assets/images/plumbing.jpg',
+      price: 149,
+      rating: 4.7,
+      reviewCount: 654
+    },
+    {
+      id: '4',
+      name: 'Electrical Services',
+      imageUrl: 'assets/images/electrical.jpg',
+      price: 179,
+      rating: 4.8,
+      reviewCount: 543
+    }
+  ];
+
+  recentBookings: RecentBooking[] = [];
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.isLoggedIn = this.authService.isAuthenticated();
+
+    if (this.isLoggedIn) {
+      this.loadRecentBookings();
+    }
+
+    // Auto-rotate banners every 5 seconds
+    setInterval(() => {
+      this.nextBanner();
+    }, 5000);
+  }
+
+  onSearch(): void {
+    if (this.searchQuery.trim()) {
+      // Add to recent searches
+      if (!this.recentSearches.includes(this.searchQuery)) {
+        this.recentSearches.unshift(this.searchQuery);
+        if (this.recentSearches.length > 5) {
+          this.recentSearches.pop();
+        }
+      }
+      // Navigate to search results
+      // this.router.navigate(['/services'], { queryParams: { q: this.searchQuery } });
+    }
+  }
+
+  changeLocation(): void {
+    // Open location picker dialog
+    console.log('Change location clicked');
+  }
+
+  previousBanner(): void {
+    this.currentBannerIndex =
+      this.currentBannerIndex === 0
+        ? this.promoBanners.length - 1
+        : this.currentBannerIndex - 1;
+  }
+
+  nextBanner(): void {
+    this.currentBannerIndex =
+      this.currentBannerIndex === this.promoBanners.length - 1
+        ? 0
+        : this.currentBannerIndex + 1;
+  }
+
+  goToBanner(index: number): void {
+    this.currentBannerIndex = index;
+  }
+
+  loadRecentBookings(): void {
+    // Mock data - would normally come from API
+    this.recentBookings = [
+      {
+        id: '1',
+        serviceName: 'Home Cleaning',
+        providerName: 'Ahmad Khan',
+        scheduledDate: new Date('2025-11-15T10:00:00'),
+        status: 'Upcoming'
+      },
+      {
+        id: '2',
+        serviceName: 'AC Repair',
+        providerName: 'Mohamed Ali',
+        scheduledDate: new Date('2025-11-05T14:00:00'),
+        status: 'Completed'
+      }
+    ];
+  }
+
+  bookAgain(bookingId: string): void {
+    console.log('Book again:', bookingId);
+    // Navigate to booking flow with pre-filled data
+  }
+
+  getStarArray(rating: number): boolean[] {
+    return Array(5).fill(false).map((_, i) => i < Math.floor(rating));
+  }
+}
