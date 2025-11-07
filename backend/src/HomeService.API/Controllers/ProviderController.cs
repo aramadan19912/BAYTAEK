@@ -153,8 +153,19 @@ public class ProviderController : BaseApiController
     [HttpGet("profile")]
     public async Task<IActionResult> GetProfile()
     {
-        // To be implemented
-        return Ok(new { message = "Provider profile endpoint" });
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var query = new GetProviderProfileQuery
+        {
+            ProviderId = providerId
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -163,8 +174,22 @@ public class ProviderController : BaseApiController
     [HttpPut("availability")]
     public async Task<IActionResult> UpdateAvailability([FromBody] UpdateAvailabilityRequest request)
     {
-        // To be implemented
-        return Ok(new { message = "Update availability endpoint" });
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Provider.UpdateProviderAvailabilityCommand
+        {
+            ProviderId = providerId,
+            IsAvailable = request.IsAvailable,
+            AvailableFrom = request.AvailableFrom,
+            AvailableUntil = request.AvailableUntil
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -173,8 +198,20 @@ public class ProviderController : BaseApiController
     [HttpPut("status/toggle")]
     public async Task<IActionResult> ToggleOnlineStatus([FromBody] ToggleStatusRequest request)
     {
-        // To be implemented
-        return Ok(new { message = "Toggle online status endpoint" });
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Provider.ToggleOnlineStatusCommand
+        {
+            ProviderId = providerId,
+            IsOnline = request.IsOnline
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
