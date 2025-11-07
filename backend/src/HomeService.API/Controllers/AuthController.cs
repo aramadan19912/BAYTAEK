@@ -50,20 +50,30 @@ public class AuthController : BaseApiController
     /// Verify email with OTP
     /// </summary>
     [HttpPost("verify-email")]
-    public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailCommand command)
+    [Authorize]
+    public async Task<IActionResult> VerifyEmail([FromBody] Application.Handlers.Auth.VerifyEmailCommand command)
     {
-        // To be implemented
-        return Ok(new { message = "Email verification endpoint" });
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
     /// Verify phone with OTP
     /// </summary>
     [HttpPost("verify-phone")]
-    public async Task<IActionResult> VerifyPhone([FromBody] VerifyPhoneCommand command)
+    [Authorize]
+    public async Task<IActionResult> VerifyPhone([FromBody] Application.Handlers.Auth.VerifyPhoneCommand command)
     {
-        // To be implemented
-        return Ok(new { message = "Phone verification endpoint" });
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -118,10 +128,14 @@ public class AuthController : BaseApiController
     /// </summary>
     [HttpPost("forgot-password")]
     [AllowAnonymous]
-    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
+    public async Task<IActionResult> ForgotPassword([FromBody] Application.Handlers.Auth.ForgotPasswordCommand command)
     {
-        // To be implemented
-        return Ok(new { message = "Password reset email sent" });
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -129,16 +143,16 @@ public class AuthController : BaseApiController
     /// </summary>
     [HttpPost("reset-password")]
     [AllowAnonymous]
-    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
+    public async Task<IActionResult> ResetPassword([FromBody] Application.Handlers.Auth.ResetPasswordCommand command)
     {
-        // To be implemented
-        return Ok(new { message = "Password reset successful" });
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 }
 
 // Placeholder commands for future implementation
 public record RefreshTokenCommand(string Token, string RefreshToken) : IRequest<Result<LoginResponse>>;
-public record VerifyEmailCommand(string Email, string OtpCode) : IRequest<Result>;
-public record VerifyPhoneCommand(string PhoneNumber, string OtpCode) : IRequest<Result>;
-public record ForgotPasswordCommand(string Email) : IRequest<Result>;
-public record ResetPasswordCommand(string Email, string Token, string NewPassword) : IRequest<Result>;

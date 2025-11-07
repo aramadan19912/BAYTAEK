@@ -28,7 +28,54 @@ public class UsersController : BaseApiController
     [Authorize]
     public async Task<IActionResult> GetProfile()
     {
-        // Implementation will be added with handler
-        return Ok(new { message = "Profile endpoint" });
+        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var query = new Application.Queries.User.GetUserProfileQuery
+        {
+            UserId = userId
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Update current user profile
+    /// </summary>
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+    {
+        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.User.UpdateUserProfileCommand
+        {
+            UserId = userId,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            PhoneNumber = request.PhoneNumber,
+            PreferredLanguage = request.PreferredLanguage,
+            ProfileImageUrl = request.ProfileImageUrl
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 }
+
+// Request DTOs
+public record UpdateProfileRequest(
+    string? FirstName,
+    string? LastName,
+    string? PhoneNumber,
+    string? PreferredLanguage,
+    string? ProfileImageUrl
+);
