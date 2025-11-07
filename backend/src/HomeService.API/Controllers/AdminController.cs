@@ -298,9 +298,100 @@ public class AdminController : BaseApiController
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Get all support tickets (Admin)
+    /// </summary>
+    [HttpGet("tickets")]
+    public async Task<IActionResult> GetAllTickets(
+        [FromQuery] HomeService.Domain.Enums.TicketStatus? status,
+        [FromQuery] HomeService.Domain.Enums.TicketCategory? category,
+        [FromQuery] HomeService.Domain.Enums.TicketPriority? priority,
+        [FromQuery] Guid? userId,
+        [FromQuery] Guid? assignedToUserId,
+        [FromQuery] string? searchTerm,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var query = new Application.Queries.SupportTicket.GetAdminTicketsQuery
+        {
+            Status = status,
+            Category = category,
+            Priority = priority,
+            UserId = userId,
+            AssignedToUserId = assignedToUserId,
+            SearchTerm = searchTerm,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Update ticket status (Admin)
+    /// </summary>
+    [HttpPut("tickets/{ticketId}/status")]
+    public async Task<IActionResult> UpdateTicketStatus(Guid ticketId, [FromBody] UpdateTicketStatusRequest request)
+    {
+        var adminUserId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.SupportTicket.UpdateTicketStatusCommand
+        {
+            TicketId = ticketId,
+            AdminUserId = adminUserId,
+            Status = request.Status,
+            Notes = request.Notes,
+            AssignToUserId = request.AssignToUserId
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Add admin response to ticket
+    /// </summary>
+    [HttpPost("tickets/{ticketId}/messages")]
+    public async Task<IActionResult> AddAdminTicketMessage(Guid ticketId, [FromBody] AddAdminTicketMessageRequest request)
+    {
+        var adminUserId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.SupportTicket.AddTicketMessageCommand
+        {
+            TicketId = ticketId,
+            UserId = adminUserId,
+            Message = request.Message,
+            Attachments = request.Attachments,
+            IsFromUser = false
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
 }
 
 public record UpdateUserStatusRequest(bool IsSuspended, string? Reason);
 public record UpdateServiceStatusRequest(bool IsActive, string? Reason);
 public record ApproveVerificationRequest(string? Notes);
 public record RejectVerificationRequest(string Reason);
+public record UpdateTicketStatusRequest(
+    HomeService.Domain.Enums.TicketStatus Status,
+    string? Notes,
+    Guid? AssignToUserId);
+public record AddAdminTicketMessageRequest(
+    string Message,
+    List<string>? Attachments);
