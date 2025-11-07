@@ -67,10 +67,24 @@ public class ProviderController : BaseApiController
     /// Accept job request
     /// </summary>
     [HttpPost("bookings/{bookingId}/accept")]
-    public async Task<IActionResult> AcceptJob(Guid bookingId)
+    public async Task<IActionResult> AcceptJob(Guid bookingId, [FromBody] AcceptJobRequest? request)
     {
-        // To be implemented
-        return Ok(new { message = "Accept job endpoint" });
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Booking.AcceptBookingCommand
+        {
+            BookingId = bookingId,
+            ProviderId = providerId,
+            EstimatedArrivalTime = request?.EstimatedArrivalTime,
+            Notes = request?.Notes
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -79,8 +93,22 @@ public class ProviderController : BaseApiController
     [HttpPost("bookings/{bookingId}/decline")]
     public async Task<IActionResult> DeclineJob(Guid bookingId, [FromBody] DeclineJobRequest request)
     {
-        // To be implemented
-        return Ok(new { message = "Decline job endpoint" });
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Booking.DeclineBookingCommand
+        {
+            BookingId = bookingId,
+            ProviderId = providerId,
+            Reason = request.Reason,
+            Notes = request.Notes
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -147,6 +175,7 @@ public class ProviderController : BaseApiController
 }
 
 // Request DTOs
+public record AcceptJobRequest(DateTime? EstimatedArrivalTime, string? Notes);
 public record DeclineJobRequest(string Reason, string? Notes);
 public record UpdateBookingStatusRequest(string Status, string? Notes, List<string>? PhotoUrls);
 public record UpdateAvailabilityRequest(bool IsAvailable, DateTime? AvailableFrom, DateTime? AvailableUntil);
