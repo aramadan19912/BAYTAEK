@@ -1,241 +1,310 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../../core/services/api.service';
-import { Service } from '../../../shared/models/service.model';
+import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { ServiceService, Service, ServiceSearchParams } from '../../../core/services/service.service';
+import { CategoryService, Category } from '../../../core/services/category.service';
+import { FavoritesService } from '../../../core/services/favorites.service';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-services-list',
   standalone: true,
   imports: [CommonModule, RouterModule, TranslateModule, FormsModule],
-  template: `
-    <div class="services-container">
-      <div class="services-header">
-        <h1>{{ 'services.title' | translate }}</h1>
-
-        <div class="search-box">
-          <input
-            type="text"
-            [(ngModel)]="searchTerm"
-            (ngModelChange)="onSearchChange()"
-            [placeholder]="'services.search' | translate"
-            class="search-input"
-          />
-        </div>
-      </div>
-
-      <div class="filters">
-        <button
-          *ngFor="let filter of filters"
-          (click)="applyFilter(filter)"
-          [class.active]="selectedFilter === filter"
-          class="filter-btn"
-        >
-          {{ filter }}
-        </button>
-      </div>
-
-      <div class="services-grid" *ngIf="!loading">
-        <div *ngFor="let service of services" class="service-card">
-          <img [src]="service.imageUrls[0] || 'assets/placeholder.jpg'" [alt]="service.name" />
-          <div class="service-content">
-            <h3>{{ service.name }}</h3>
-            <p class="service-description">{{ service.description }}</p>
-            <div class="service-footer">
-              <span class="price">{{ service.basePrice }} {{ service.currency }}</span>
-              <span class="duration">{{ service.estimatedDurationMinutes }} min</span>
-            </div>
-            <button [routerLink]="['/services', service.id]" class="btn-book">
-              {{ 'services.book_now' | translate }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <app-loading-spinner *ngIf="loading"></app-loading-spinner>
-
-      <div *ngIf="!loading && services.length === 0" class="no-results">
-        <p>{{ 'services.no_results' | translate }}</p>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .services-container {
-      padding: 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .services-header {
-      margin-bottom: 2rem;
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 1rem;
-    }
-
-    .search-box {
-      margin-bottom: 1.5rem;
-    }
-
-    .search-input {
-      width: 100%;
-      max-width: 500px;
-      padding: 0.75rem 1rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    .filters {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .filter-btn {
-      padding: 0.5rem 1rem;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .filter-btn:hover,
-    .filter-btn.active {
-      background: #007bff;
-      color: white;
-      border-color: #007bff;
-    }
-
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 2rem;
-    }
-
-    .service-card {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .service-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .service-card img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-    }
-
-    .service-content {
-      padding: 1.5rem;
-    }
-
-    .service-content h3 {
-      margin: 0 0 0.5rem 0;
-      color: #333;
-    }
-
-    .service-description {
-      color: #666;
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .service-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid #eee;
-    }
-
-    .price {
-      font-weight: bold;
-      color: #007bff;
-      font-size: 1.2rem;
-    }
-
-    .duration {
-      color: #666;
-      font-size: 0.9rem;
-    }
-
-    .btn-book {
-      width: 100%;
-      padding: 0.75rem;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background 0.3s;
-    }
-
-    .btn-book:hover {
-      background: #0056b3;
-    }
-
-    .no-results {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-  `]
+  templateUrl: './services-list.component.html',
+  styleUrls: ['./services-list.component.scss']
 })
-export class ServicesListComponent implements OnInit {
-  services: Service[] = [];
-  loading = false;
-  searchTerm = '';
-  selectedFilter = 'All';
-  filters = ['All', 'Cleaning', 'Plumbing', 'Electrical', 'Carpentry'];
+export class ServicesListComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  private searchSubject$ = new Subject<string>();
 
-  constructor(private apiService: ApiService) {}
+  services: Service[] = [];
+  categories: Category[] = [];
+  loading = false;
+  currentLanguage = 'en';
+
+  // Search and Filter state
+  searchTerm = '';
+  selectedCategoryId: string | null = null;
+  selectedRegion: string | null = null;
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+  minRating: number | null = null;
+  sortBy: string = 'rating';
+  sortOrder: 'asc' | 'desc' = 'desc';
+
+  // Pagination
+  currentPage = 1;
+  pageSize = 12;
+  totalCount = 0;
+  totalPages = 0;
+
+  // Available options
+  regions = [
+    { value: 'Riyadh', label: 'Riyadh' },
+    { value: 'Jeddah', label: 'Jeddah' },
+    { value: 'Makkah', label: 'Makkah' },
+    { value: 'Madinah', label: 'Madinah' },
+    { value: 'Dammam', label: 'Dammam' },
+    { value: 'Khobar', label: 'Khobar' }
+  ];
+
+  sortOptions = [
+    { value: 'rating', label: 'Highest Rated' },
+    { value: 'price', label: 'Price' },
+    { value: 'name', label: 'Name' }
+  ];
+
+  ratingOptions = [
+    { value: 4, label: '4+ Stars' },
+    { value: 3, label: '3+ Stars' },
+    { value: 2, label: '2+ Stars' }
+  ];
+
+  // Favorites tracking
+  favoriteServiceIds = new Set<string>();
+
+  constructor(
+    private serviceService: ServiceService,
+    private categoryService: CategoryService,
+    private favoritesService: FavoritesService,
+    private languageService: LanguageService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.loadServices();
+    // Get current language
+    this.currentLanguage = this.languageService.getCurrentLanguage();
+
+    // Subscribe to language changes
+    this.languageService.currentLanguage$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(lang => {
+        this.currentLanguage = lang;
+      });
+
+    // Load categories
+    this.loadCategories();
+
+    // Subscribe to favorite service IDs
+    this.favoritesService.favoriteServiceIds$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ids => {
+        this.favoriteServiceIds = ids;
+      });
+
+    // Subscribe to query params
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        this.searchTerm = params['q'] || '';
+        this.selectedCategoryId = params['category'] || null;
+        this.selectedRegion = params['region'] || null;
+        this.loadServices();
+      });
+
+    // Debounced search
+    this.searchSubject$
+      .pipe(debounceTime(500), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.loadServices();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadCategories(): void {
+    this.categoryService.getActiveCategories()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.categories = result.categories;
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+        }
+      });
   }
 
   loadServices(): void {
     this.loading = true;
-    this.apiService.get<any>('services', {
-      searchTerm: this.searchTerm,
-      pageSize: 20
-    }).subscribe({
-      next: (response) => {
-        this.services = response.data?.items || [];
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading services', error);
-        this.loading = false;
-      }
-    });
+
+    const params: ServiceSearchParams = {
+      searchTerm: this.searchTerm || undefined,
+      categoryId: this.selectedCategoryId || undefined,
+      region: this.selectedRegion || undefined,
+      minPrice: this.minPrice || undefined,
+      maxPrice: this.maxPrice || undefined,
+      minRating: this.minRating || undefined,
+      sortBy: this.sortBy,
+      sortOrder: this.sortOrder,
+      pageNumber: this.currentPage,
+      pageSize: this.pageSize
+    };
+
+    this.serviceService.searchServices(params)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.services = result.services;
+          this.totalCount = result.totalCount;
+          this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading services:', error);
+          this.loading = false;
+        }
+      });
   }
 
   onSearchChange(): void {
+    this.searchSubject$.next(this.searchTerm);
+  }
+
+  onCategoryChange(categoryId: string | null): void {
+    this.selectedCategoryId = categoryId;
+    this.currentPage = 1;
+    this.updateQueryParams();
     this.loadServices();
   }
 
-  applyFilter(filter: string): void {
-    this.selectedFilter = filter;
+  onRegionChange(): void {
+    this.currentPage = 1;
+    this.updateQueryParams();
     this.loadServices();
+  }
+
+  onPriceFilterChange(): void {
+    this.currentPage = 1;
+    this.loadServices();
+  }
+
+  onRatingChange(): void {
+    this.currentPage = 1;
+    this.loadServices();
+  }
+
+  onSortChange(): void {
+    this.currentPage = 1;
+    this.loadServices();
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedCategoryId = null;
+    this.selectedRegion = null;
+    this.minPrice = null;
+    this.maxPrice = null;
+    this.minRating = null;
+    this.sortBy = 'rating';
+    this.sortOrder = 'desc';
+    this.currentPage = 1;
+    this.updateQueryParams();
+    this.loadServices();
+  }
+
+  updateQueryParams(): void {
+    const queryParams: any = {};
+
+    if (this.searchTerm) queryParams.q = this.searchTerm;
+    if (this.selectedCategoryId) queryParams.category = this.selectedCategoryId;
+    if (this.selectedRegion) queryParams.region = this.selectedRegion;
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  // Pagination
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.loadServices();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.goToPage(this.currentPage - 1);
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.goToPage(this.currentPage + 1);
+    }
+  }
+
+  get paginationPages(): number[] {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(this.totalPages, start + maxVisible - 1);
+
+    if (end - start < maxVisible - 1) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  // Favorites
+  toggleFavorite(serviceId: string, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.favoritesService.toggleServiceFavorite(serviceId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          // State is automatically updated via BehaviorSubject
+        },
+        error: (error) => {
+          console.error('Error toggling favorite:', error);
+        }
+      });
+  }
+
+  isFavorite(serviceId: string): boolean {
+    return this.favoriteServiceIds.has(serviceId);
+  }
+
+  // Helper methods
+  getServiceName(service: Service): string {
+    return this.currentLanguage === 'ar' ? service.nameAr : service.nameEn;
+  }
+
+  getCategoryName(category: Category): string {
+    return this.categoryService.getLocalizedName(category, this.currentLanguage);
+  }
+
+  formatPrice(price: number): string {
+    return `SAR ${price.toFixed(2)}`;
+  }
+
+  getStarArray(rating: number): boolean[] {
+    return Array(5).fill(false).map((_, i) => i < Math.floor(rating));
+  }
+
+  trackByServiceId(index: number, service: Service): string {
+    return service.serviceId;
+  }
+
+  trackByCategoryId(index: number, category: Category): string {
+    return category.categoryId;
   }
 }

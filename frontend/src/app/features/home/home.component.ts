@@ -1,32 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { CategoryService, Category } from '../../core/services/category.service';
+import { ServiceService, Service } from '../../core/services/service.service';
+import { BookingService, Booking } from '../../core/services/booking.service';
+import { NotificationService } from '../../core/services/notification.service';
+import { LanguageService } from '../../core/services/language.service';
 
 interface ServiceCategory {
   id: string;
   name: string;
   icon: string;
   route: string;
-}
-
-interface FeaturedService {
-  id: string;
-  name: string;
-  imageUrl: string;
-  price: number;
-  rating: number;
-  reviewCount: number;
-}
-
-interface RecentBooking {
-  id: string;
-  serviceName: string;
-  providerName: string;
-  scheduledDate: Date;
-  status: string;
 }
 
 interface PromoBanner {
@@ -44,25 +33,25 @@ interface PromoBanner {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   currentLocation = 'Riyadh, Saudi Arabia';
-  notificationCount = 3;
+  notificationCount = 0;
   searchQuery = '';
-  recentSearches: string[] = ['Cleaning', 'Plumbing', 'AC Repair'];
+  recentSearches: string[] = [];
   currentBannerIndex = 0;
   isLoggedIn = false;
+  currentLanguage = 'en';
 
-  categories: ServiceCategory[] = [
-    { id: '1', name: 'Cleaning Services', icon: '🧹', route: '/services?category=cleaning' },
-    { id: '2', name: 'Plumbing', icon: '🔧', route: '/services?category=plumbing' },
-    { id: '3', name: 'Electrical', icon: '⚡', route: '/services?category=electrical' },
-    { id: '4', name: 'Carpentry', icon: '🪚', route: '/services?category=carpentry' },
-    { id: '5', name: 'Appliance Repair', icon: '🔌', route: '/services?category=appliance' },
-    { id: '6', name: 'Painting', icon: '🎨', route: '/services?category=painting' },
-    { id: '7', name: 'Pest Control', icon: '🐛', route: '/services?category=pest-control' },
-    { id: '8', name: 'AC Maintenance', icon: '❄️', route: '/services?category=ac' },
-    { id: '9', name: 'Moving & Packing', icon: '📦', route: '/services?category=moving' },
-  ];
+  // Loading states
+  isLoadingCategories = true;
+  isLoadingFeaturedServices = true;
+  isLoadingBookings = false;
+
+  categories: ServiceCategory[] = [];
+  featuredServices: Service[] = [];
+  recentBookings: Booking[] = [];
 
   promoBanners: PromoBanner[] = [
     {
@@ -88,56 +77,125 @@ export class HomeComponent implements OnInit {
     }
   ];
 
-  featuredServices: FeaturedService[] = [
-    {
-      id: '1',
-      name: 'Deep Home Cleaning',
-      imageUrl: 'assets/images/cleaning.jpg',
-      price: 299,
-      rating: 4.8,
-      reviewCount: 1234
-    },
-    {
-      id: '2',
-      name: 'AC Installation & Repair',
-      imageUrl: 'assets/images/ac-service.jpg',
-      price: 199,
-      rating: 4.9,
-      reviewCount: 892
-    },
-    {
-      id: '3',
-      name: 'Plumbing Services',
-      imageUrl: 'assets/images/plumbing.jpg',
-      price: 149,
-      rating: 4.7,
-      reviewCount: 654
-    },
-    {
-      id: '4',
-      name: 'Electrical Services',
-      imageUrl: 'assets/images/electrical.jpg',
-      price: 179,
-      rating: 4.8,
-      reviewCount: 543
+  constructor(
+    private authService: AuthService,
+    private categoryService: CategoryService,
+    private serviceService: ServiceService,
+    private bookingService: BookingService,
+    private notificationService: NotificationService,
+    private languageService: LanguageService,
+    private router: Router
+  ) {
+    // Load recent searches from localStorage
+    const savedSearches = localStorage.getItem('recentSearches');
+    if (savedSearches) {
+      this.recentSearches = JSON.parse(savedSearches);
     }
-  ];
-
-  recentBookings: RecentBooking[] = [];
-
-  constructor(private authService: AuthService) {}
+  }
 
   ngOnInit(): void {
     this.isLoggedIn = this.authService.isAuthenticated();
 
+    // Get current language
+    this.currentLanguage = this.languageService.getCurrentLanguage();
+
+    // Subscribe to language changes
+    this.languageService.currentLanguage$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(lang => {
+        this.currentLanguage = lang;
+        this.loadCategories(); // Reload categories when language changes
+      });
+
+    // Load initial data
+    this.loadCategories();
+    this.loadFeaturedServices();
+
     if (this.isLoggedIn) {
       this.loadRecentBookings();
+      this.loadNotificationCount();
     }
 
     // Auto-rotate banners every 5 seconds
     setInterval(() => {
       this.nextBanner();
     }, 5000);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadCategories(): void {
+    this.isLoadingCategories = true;
+    this.categoryService.getActiveCategories()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.categories = result.categories.map((cat: Category) => ({
+            id: cat.categoryId,
+            name: this.categoryService.getLocalizedName(cat, this.currentLanguage),
+            icon: this.categoryService.getCategoryIcon(cat),
+            route: this.categoryService.getCategoryRoute(cat.categoryId)
+          }));
+          this.categories = this.categories.slice(0, 9); // Show only top 9
+          this.isLoadingCategories = false;
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+          this.isLoadingCategories = false;
+          // Keep empty array, template will handle empty state
+        }
+      });
+  }
+
+  loadFeaturedServices(): void {
+    this.isLoadingFeaturedServices = true;
+    this.serviceService.searchServices({
+      sortBy: 'rating',
+      sortOrder: 'desc',
+      pageSize: 8
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.featuredServices = result.services;
+          this.isLoadingFeaturedServices = false;
+        },
+        error: (error) => {
+          console.error('Error loading featured services:', error);
+          this.isLoadingFeaturedServices = false;
+        }
+      });
+  }
+
+  loadRecentBookings(): void {
+    this.isLoadingBookings = true;
+    this.bookingService.getBookingHistory({
+      pageSize: 3,
+      sortBy: 'scheduledDateTime',
+      sortOrder: 'desc'
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.recentBookings = result.bookings;
+          this.isLoadingBookings = false;
+        },
+        error: (error) => {
+          console.error('Error loading recent bookings:', error);
+          this.isLoadingBookings = false;
+        }
+      });
+  }
+
+  loadNotificationCount(): void {
+    this.notificationService.unreadCount$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(count => {
+        this.notificationCount = count;
+      });
   }
 
   onSearch(): void {
@@ -148,15 +206,23 @@ export class HomeComponent implements OnInit {
         if (this.recentSearches.length > 5) {
           this.recentSearches.pop();
         }
+        // Save to localStorage
+        localStorage.setItem('recentSearches', JSON.stringify(this.recentSearches));
       }
       // Navigate to search results
-      // this.router.navigate(['/services'], { queryParams: { q: this.searchQuery } });
+      this.router.navigate(['/services'], { queryParams: { q: this.searchQuery } });
     }
+  }
+
+  searchFromRecent(searchTerm: string): void {
+    this.searchQuery = searchTerm;
+    this.onSearch();
   }
 
   changeLocation(): void {
     // Open location picker dialog
     console.log('Change location clicked');
+    // TODO: Implement location picker modal
   }
 
   previousBanner(): void {
@@ -177,32 +243,71 @@ export class HomeComponent implements OnInit {
     this.currentBannerIndex = index;
   }
 
-  loadRecentBookings(): void {
-    // Mock data - would normally come from API
-    this.recentBookings = [
-      {
-        id: '1',
-        serviceName: 'Home Cleaning',
-        providerName: 'Ahmad Khan',
-        scheduledDate: new Date('2025-11-15T10:00:00'),
-        status: 'Upcoming'
-      },
-      {
-        id: '2',
-        serviceName: 'AC Repair',
-        providerName: 'Mohamed Ali',
-        scheduledDate: new Date('2025-11-05T14:00:00'),
-        status: 'Completed'
-      }
-    ];
+  bookAgain(booking: Booking): void {
+    // Navigate to service detail to book again
+    this.router.navigate(['/services', booking.serviceId]);
   }
 
-  bookAgain(bookingId: string): void {
-    console.log('Book again:', bookingId);
-    // Navigate to booking flow with pre-filled data
+  viewBookingDetails(bookingId: string): void {
+    this.router.navigate(['/bookings', bookingId]);
   }
 
   getStarArray(rating: number): boolean[] {
     return Array(5).fill(false).map((_, i) => i < Math.floor(rating));
+  }
+
+  getServiceName(service: Service): string {
+    return this.currentLanguage === 'ar' ? service.nameAr : service.nameEn;
+  }
+
+  formatPrice(price: number): string {
+    return `SAR ${price.toFixed(2)}`;
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(this.currentLanguage === 'ar' ? 'ar-SA' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getBookingStatusClass(status: string): string {
+    const statusMap: Record<string, string> = {
+      'Pending': 'badge-warning',
+      'Confirmed': 'badge-info',
+      'InProgress': 'badge-primary',
+      'Completed': 'badge-success',
+      'Cancelled': 'badge-danger',
+      'Rejected': 'badge-danger'
+    };
+    return statusMap[status] || 'badge-secondary';
+  }
+
+  getBookingStatusLabel(status: string): string {
+    const statusMap: Record<string, string> = {
+      'Pending': 'Pending',
+      'Confirmed': 'Confirmed',
+      'InProgress': 'In Progress',
+      'Completed': 'Completed',
+      'Cancelled': 'Cancelled',
+      'Rejected': 'Rejected'
+    };
+    return statusMap[status] || status;
+  }
+
+  trackByServiceId(index: number, service: Service): string {
+    return service.serviceId;
+  }
+
+  trackByBookingId(index: number, booking: Booking): string {
+    return booking.bookingId;
+  }
+
+  trackByCategoryId(index: number, category: ServiceCategory): string {
+    return category.id;
   }
 }
