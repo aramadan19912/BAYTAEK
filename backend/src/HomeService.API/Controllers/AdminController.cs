@@ -498,6 +498,88 @@ public class AdminController : BaseApiController
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Get all reports (Admin)
+    /// </summary>
+    [HttpGet("reports")]
+    public async Task<IActionResult> GetReports(
+        [FromQuery] HomeService.Domain.Enums.ReportStatus? status,
+        [FromQuery] HomeService.Domain.Enums.ReportType? type,
+        [FromQuery] HomeService.Domain.Enums.ReportReason? reason,
+        [FromQuery] Guid? reporterId,
+        [FromQuery] Guid? reportedUserId,
+        [FromQuery] string? searchTerm,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var query = new Application.Queries.Report.GetReportsQuery
+        {
+            Status = status,
+            Type = type,
+            Reason = reason,
+            ReporterId = reporterId,
+            ReportedUserId = reportedUserId,
+            SearchTerm = searchTerm,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get report details (Admin)
+    /// </summary>
+    [HttpGet("reports/{reportId}")]
+    public async Task<IActionResult> GetReportDetail(Guid reportId)
+    {
+        var query = new Application.Queries.Report.GetReportDetailQuery
+        {
+            ReportId = reportId
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return NotFound(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Review and take action on a report (Admin)
+    /// </summary>
+    [HttpPut("reports/{reportId}/review")]
+    public async Task<IActionResult> ReviewReport(Guid reportId, [FromBody] ReviewReportRequest request)
+    {
+        var adminUserId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Report.ReviewReportCommand
+        {
+            ReportId = reportId,
+            AdminUserId = adminUserId,
+            Status = request.Status,
+            ActionTaken = request.ActionTaken,
+            AdminNotes = request.AdminNotes,
+            SuspendUser = request.SuspendUser,
+            SuspensionDays = request.SuspensionDays,
+            SendWarning = request.SendWarning,
+            WarningMessage = request.WarningMessage
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
 }
 
 public record UpdateUserStatusRequest(bool IsSuspended, string? Reason);
@@ -536,3 +618,11 @@ public record UpdateContentRequest(
     string? MetaDescriptionAr,
     bool? IsPublished,
     int? DisplayOrder);
+public record ReviewReportRequest(
+    HomeService.Domain.Enums.ReportStatus Status,
+    HomeService.Domain.Enums.ModerationAction? ActionTaken,
+    string? AdminNotes,
+    bool SuspendUser,
+    int? SuspensionDays,
+    bool SendWarning,
+    string? WarningMessage);
