@@ -252,7 +252,55 @@ public class AdminController : BaseApiController
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Approve provider verification request
+    /// </summary>
+    [HttpPost("providers/{providerId}/verify")]
+    public async Task<IActionResult> ApproveProviderVerification(Guid providerId, [FromBody] ApproveVerificationRequest request)
+    {
+        var adminUserId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.ProviderVerification.ApproveVerificationCommand
+        {
+            ProviderId = providerId,
+            AdminUserId = adminUserId,
+            Notes = request.Notes
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Reject provider verification request
+    /// </summary>
+    [HttpPost("providers/{providerId}/reject")]
+    public async Task<IActionResult> RejectProviderVerification(Guid providerId, [FromBody] RejectVerificationRequest request)
+    {
+        var adminUserId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.ProviderVerification.RejectVerificationCommand
+        {
+            ProviderId = providerId,
+            AdminUserId = adminUserId,
+            Reason = request.Reason
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
 }
 
 public record UpdateUserStatusRequest(bool IsSuspended, string? Reason);
 public record UpdateServiceStatusRequest(bool IsActive, string? Reason);
+public record ApproveVerificationRequest(string? Notes);
+public record RejectVerificationRequest(string Reason);

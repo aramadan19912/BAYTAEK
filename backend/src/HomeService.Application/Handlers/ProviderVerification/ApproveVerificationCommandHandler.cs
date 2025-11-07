@@ -1,0 +1,115 @@
+using HomeService.Application.Commands.ProviderVerification;
+using HomeService.Application.Common.Models;
+using HomeService.Application.Interfaces;
+using HomeService.Domain.Entities;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace HomeService.Application.Handlers.ProviderVerification;
+
+public class ApproveVerificationCommandHandler : IRequestHandler<ApproveVerificationCommand, Result<bool>>
+{
+    private readonly IRepository<ServiceProvider> _providerRepository;
+    private readonly IRepository<User> _userRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IEmailService _emailService;
+    private readonly IPushNotificationService _pushNotificationService;
+    private readonly ILogger<ApproveVerificationCommandHandler> _logger;
+
+    public ApproveVerificationCommandHandler(
+        IRepository<ServiceProvider> providerRepository,
+        IRepository<User> userRepository,
+        IUnitOfWork unitOfWork,
+        IEmailService emailService,
+        IPushNotificationService pushNotificationService,
+        ILogger<ApproveVerificationCommandHandler> logger)
+    {
+        _providerRepository = providerRepository;
+        _userRepository = userRepository;
+        _unitOfWork = unitOfWork;
+        _emailService = emailService;
+        _pushNotificationService = pushNotificationService;
+        _logger = logger;
+    }
+
+    public async Task<Result<bool>> Handle(ApproveVerificationCommand request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Get provider
+            var provider = await _providerRepository.GetByIdAsync(request.ProviderId, cancellationToken);
+            if (provider == null)
+            {
+                return Result<bool>.Failure("Provider not found");
+            }
+
+            // Check if already verified
+            if (provider.IsVerified)
+            {
+                return Result<bool>.Failure("Provider is already verified");
+            }
+
+            // Approve verification
+            provider.IsVerified = true;
+            provider.VerificationStatus = "Approved";
+            provider.VerifiedAt = DateTime.UtcNow;
+            provider.VerifiedBy = request.AdminUserId.ToString();
+            provider.UpdatedAt = DateTime.UtcNow;
+            provider.UpdatedBy = request.AdminUserId.ToString();
+
+            await _providerRepository.UpdateAsync(provider, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Provider {ProviderId} verified by admin {AdminId}",
+                request.ProviderId, request.AdminUserId);
+
+            // Get user for notifications
+            var user = await _userRepository.GetByIdAsync(provider.UserId, cancellationToken);
+
+            // Send email notification
+            if (user != null)
+            {
+                try
+                {
+                    await _emailService.SendProviderVerificationApprovedEmailAsync(
+                        user.Email,
+                        provider.BusinessName ?? user.FirstName,
+                        user.PreferredLanguage,
+                        cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send verification approval email to provider {ProviderId}",
+                        request.ProviderId);
+                }
+
+                // Send push notification
+                try
+                {
+                    await _pushNotificationService.SendNotificationAsync(
+                        provider.UserId,
+                        "Verification Approved",
+                        "Congratulations! Your provider account has been verified.",
+                        new Dictionary<string, string>
+                        {
+                            { "type", "verification_approved" },
+                            { "providerId", provider.Id.ToString() }
+                        },
+                        cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send push notification to provider {ProviderId}",
+                        request.ProviderId);
+                }
+            }
+
+            return Result<bool>.Success(true, "Provider verification approved successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error approving verification for provider {ProviderId}", request.ProviderId);
+            return Result<bool>.Failure("An error occurred while approving verification");
+        }
+    }
+}

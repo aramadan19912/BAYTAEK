@@ -372,6 +372,30 @@ public class ProviderController : BaseApiController
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Request provider verification
+    /// </summary>
+    [HttpPost("verification/request")]
+    public async Task<IActionResult> RequestVerification([FromBody] RequestVerificationRequest request)
+    {
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.ProviderVerification.RequestVerificationCommand
+        {
+            ProviderId = providerId,
+            LicenseNumber = request.LicenseNumber,
+            CertificationDocuments = request.CertificationDocuments,
+            AdditionalNotes = request.AdditionalNotes
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
 }
 
 // Request DTOs
@@ -407,3 +431,7 @@ public record UpdateServiceRequest(
     string? WarrantyInfo,
     List<string>? ImageUrls,
     string? VideoUrl);
+public record RequestVerificationRequest(
+    string LicenseNumber,
+    List<string> CertificationDocuments,
+    string? AdditionalNotes);
