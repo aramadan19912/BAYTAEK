@@ -1,0 +1,72 @@
+{
+  "app": {
+    "title": "الخدمة المنزلية",
+    "description": "منصة خدمات منزلية عند الطلب"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "services": "الخدمات",
+    "bookings": "حجوزاتي",
+    "profile": "الملف الشخصي",
+    "login": "تسجيل الدخول",
+    "register": "التسجيل",
+    "logout": "تسجيل الخروج"
+  },
+  "auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "submit": "تسجيل الدخول",
+      "forgot_password": "نسيت كلمة المرور؟",
+      "no_account": "ليس لديك حساب؟",
+      "sign_up": "إنشاء حساب"
+    },
+    "register": {
+      "title": "إنشاء حساب",
+      "first_name": "الاسم الأول",
+      "last_name": "اسم العائلة",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "password": "كلمة المرور",
+      "confirm_password": "تأكيد كلمة المرور",
+      "submit": "إنشاء الحساب",
+      "have_account": "لديك حساب بالفعل؟",
+      "sign_in": "تسجيل الدخول"
+    }
+  },
+  "services": {
+    "title": "خدماتنا",
+    "search": "البحث عن الخدمات...",
+    "categories": "الفئات",
+    "featured": "الخدمات المميزة",
+    "book_now": "احجز الآن",
+    "view_details": "عرض التفاصيل"
+  },
+  "bookings": {
+    "title": "حجوزاتي",
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "in_progress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "cancelled": "ملغي",
+      "disputed": "متنازع عليه"
+    },
+    "details": "تفاصيل الحجز",
+    "cancel": "إلغاء الحجز",
+    "rate": "تقييم الخدمة"
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ",
+    "success": "نجح",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "search": "بحث",
+    "filter": "تصفية",
+    "sort": "ترتيب"
+  }
+}
