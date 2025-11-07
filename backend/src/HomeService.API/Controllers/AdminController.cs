@@ -382,6 +382,122 @@ public class AdminController : BaseApiController
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Create content (Admin)
+    /// </summary>
+    [HttpPost("content")]
+    public async Task<IActionResult> CreateContent([FromBody] CreateContentRequest request)
+    {
+        var adminUserId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Content.CreateContentCommand
+        {
+            AdminUserId = adminUserId,
+            Type = request.Type,
+            TitleEn = request.TitleEn,
+            TitleAr = request.TitleAr,
+            ContentEn = request.ContentEn,
+            ContentAr = request.ContentAr,
+            Slug = request.Slug,
+            Category = request.Category,
+            Tags = request.Tags,
+            MetaDescriptionEn = request.MetaDescriptionEn,
+            MetaDescriptionAr = request.MetaDescriptionAr,
+            IsPublished = request.IsPublished,
+            DisplayOrder = request.DisplayOrder
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return CreatedAtAction(nameof(GetAllContent), new { }, result);
+    }
+
+    /// <summary>
+    /// Update content (Admin)
+    /// </summary>
+    [HttpPut("content/{contentId}")]
+    public async Task<IActionResult> UpdateContent(Guid contentId, [FromBody] UpdateContentRequest request)
+    {
+        var adminUserId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Content.UpdateContentCommand
+        {
+            ContentId = contentId,
+            AdminUserId = adminUserId,
+            TitleEn = request.TitleEn,
+            TitleAr = request.TitleAr,
+            ContentEn = request.ContentEn,
+            ContentAr = request.ContentAr,
+            Slug = request.Slug,
+            Category = request.Category,
+            Tags = request.Tags,
+            MetaDescriptionEn = request.MetaDescriptionEn,
+            MetaDescriptionAr = request.MetaDescriptionAr,
+            IsPublished = request.IsPublished,
+            DisplayOrder = request.DisplayOrder
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Delete content (Admin)
+    /// </summary>
+    [HttpDelete("content/{contentId}")]
+    public async Task<IActionResult> DeleteContent(Guid contentId)
+    {
+        var adminUserId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Content.DeleteContentCommand
+        {
+            ContentId = contentId,
+            AdminUserId = adminUserId
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get all content (Admin - includes unpublished)
+    /// </summary>
+    [HttpGet("content")]
+    public async Task<IActionResult> GetAllContent(
+        [FromQuery] HomeService.Domain.Enums.ContentType? type,
+        [FromQuery] string? category,
+        [FromQuery] bool? isPublished,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var query = new Application.Queries.Content.GetContentByTypeQuery
+        {
+            Type = type ?? HomeService.Domain.Enums.ContentType.FAQ,
+            Category = category,
+            IsPublished = isPublished,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
 }
 
 public record UpdateUserStatusRequest(bool IsSuspended, string? Reason);
@@ -395,3 +511,28 @@ public record UpdateTicketStatusRequest(
 public record AddAdminTicketMessageRequest(
     string Message,
     List<string>? Attachments);
+public record CreateContentRequest(
+    HomeService.Domain.Enums.ContentType Type,
+    string TitleEn,
+    string TitleAr,
+    string ContentEn,
+    string ContentAr,
+    string? Slug,
+    string? Category,
+    List<string>? Tags,
+    string? MetaDescriptionEn,
+    string? MetaDescriptionAr,
+    bool IsPublished,
+    int DisplayOrder);
+public record UpdateContentRequest(
+    string? TitleEn,
+    string? TitleAr,
+    string? ContentEn,
+    string? ContentAr,
+    string? Slug,
+    string? Category,
+    List<string>? Tags,
+    string? MetaDescriptionEn,
+    string? MetaDescriptionAr,
+    bool? IsPublished,
+    int? DisplayOrder);
