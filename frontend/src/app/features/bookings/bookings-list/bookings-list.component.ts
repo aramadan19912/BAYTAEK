@@ -1,284 +1,288 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ApiService } from '../../../core/services/api.service';
+import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
+import { BookingService, Booking, BookingHistory } from '../../../core/services/booking.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Booking, BookingStatus } from '../../../shared/models/booking.model';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-bookings-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule],
-  template: `
-    <div class="bookings-container">
-      <h1>{{ 'bookings.title' | translate }}</h1>
-
-      <div class="status-filters">
-        <button
-          *ngFor="let status of statuses"
-          (click)="filterByStatus(status)"
-          [class.active]="selectedStatus === status"
-          class="status-btn"
-        >
-          {{ 'bookings.status.' + status.toLowerCase() | translate }}
-        </button>
-      </div>
-
-      <div class="bookings-list" *ngIf="!loading">
-        <div *ngFor="let booking of bookings" class="booking-card">
-          <div class="booking-header">
-            <h3>{{ booking.serviceName }}</h3>
-            <span class="status-badge" [class]="'status-' + booking.status.toLowerCase()">
-              {{ 'bookings.status.' + booking.status.toLowerCase() | translate }}
-            </span>
-          </div>
-
-          <div class="booking-details">
-            <div class="detail-row">
-              <span class="label">{{ 'bookings.date' | translate }}:</span>
-              <span>{{ booking.scheduledAt | date:'medium' }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">{{ 'bookings.amount' | translate }}:</span>
-              <span class="amount">{{ booking.totalAmount }} {{ booking.currency }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">{{ 'bookings.address' | translate }}:</span>
-              <span>{{ booking.address.street }}, {{ booking.address.city }}</span>
-            </div>
-          </div>
-
-          <div class="booking-actions">
-            <button [routerLink]="['/bookings', booking.id]" class="btn btn-view">
-              {{ 'bookings.view_details' | translate }}
-            </button>
-            <button
-              *ngIf="booking.status === 'Pending' || booking.status === 'Confirmed'"
-              (click)="cancelBooking(booking.id)"
-              class="btn btn-cancel"
-            >
-              {{ 'bookings.cancel' | translate }}
-            </button>
-            <button
-              *ngIf="booking.status === 'Completed'"
-              [routerLink]="['/bookings', booking.id, 'review']"
-              class="btn btn-review"
-            >
-              {{ 'bookings.rate' | translate }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <app-loading-spinner *ngIf="loading"></app-loading-spinner>
-
-      <div *ngIf="!loading && bookings.length === 0" class="no-bookings">
-        <p>{{ 'bookings.no_bookings' | translate }}</p>
-        <button routerLink="/services" class="btn btn-primary">
-          {{ 'bookings.browse_services' | translate }}
-        </button>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .bookings-container {
-      padding: 2rem;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 2rem;
-    }
-
-    .status-filters {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .status-btn {
-      padding: 0.5rem 1rem;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .status-btn:hover,
-    .status-btn.active {
-      background: #007bff;
-      color: white;
-      border-color: #007bff;
-    }
-
-    .bookings-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .booking-card {
-      background: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .booking-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #eee;
-    }
-
-    .booking-header h3 {
-      margin: 0;
-      color: #333;
-    }
-
-    .status-badge {
-      padding: 0.25rem 0.75rem;
-      border-radius: 12px;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-
-    .status-pending { background: #fff3cd; color: #856404; }
-    .status-confirmed { background: #d1ecf1; color: #0c5460; }
-    .status-inprogress { background: #d4edda; color: #155724; }
-    .status-completed { background: #d4edda; color: #155724; }
-    .status-cancelled { background: #f8d7da; color: #721c24; }
-    .status-disputed { background: #f8d7da; color: #721c24; }
-
-    .booking-details {
-      margin-bottom: 1rem;
-    }
-
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.5rem 0;
-    }
-
-    .label {
-      color: #666;
-      font-weight: 500;
-    }
-
-    .amount {
-      color: #007bff;
-      font-weight: bold;
-    }
-
-    .booking-actions {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.3s;
-    }
-
-    .btn-view {
-      background: #007bff;
-      color: white;
-    }
-
-    .btn-cancel {
-      background: #dc3545;
-      color: white;
-    }
-
-    .btn-review {
-      background: #28a745;
-      color: white;
-    }
-
-    .btn:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-    }
-
-    .no-bookings {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    .no-bookings .btn-primary {
-      margin-top: 1rem;
-      background: #007bff;
-      color: white;
-    }
-  `]
+  imports: [CommonModule, RouterModule, TranslateModule, FormsModule],
+  templateUrl: './bookings-list.component.html',
+  styleUrls: ['./bookings-list.component.scss']
 })
-export class BookingsListComponent implements OnInit {
+export class BookingsListComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   bookings: Booking[] = [];
   loading = false;
+  currentLanguage = 'en';
+
+  // Filter states
   selectedStatus: string | null = null;
-  statuses = ['Pending', 'Confirmed', 'InProgress', 'Completed', 'Cancelled'];
+  startDate: string = '';
+  endDate: string = '';
+  searchTerm: string = '';
+
+  // Pagination
+  currentPage = 1;
+  pageSize = 10;
+  totalCount = 0;
+  totalPages = 0;
+
+  // Statistics
+  totalBookings = 0;
+  activeBookings = 0;
+  completedBookings = 0;
+  cancelledBookings = 0;
+  totalSpent = 0;
+
+  // Available statuses
+  statuses = [
+    { value: 'Pending', label: 'Pending', count: 0 },
+    { value: 'Confirmed', label: 'Confirmed', count: 0 },
+    { value: 'InProgress', label: 'In Progress', count: 0 },
+    { value: 'Completed', label: 'Completed', count: 0 },
+    { value: 'Cancelled', label: 'Cancelled', count: 0 }
+  ];
 
   constructor(
-    private apiService: ApiService,
-    private authService: AuthService
+    private bookingService: BookingService,
+    private authService: AuthService,
+    private languageService: LanguageService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/auth/login'], {
+        queryParams: { returnUrl: '/bookings' }
+      });
+      return;
+    }
+
+    this.currentLanguage = this.languageService.getCurrentLanguage();
+
+    // Subscribe to language changes
+    this.languageService.currentLanguage$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(lang => {
+        this.currentLanguage = lang;
+      });
+
     this.loadBookings();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadBookings(): void {
-    const user = this.authService.getCurrentUser();
-    if (!user) return;
-
     this.loading = true;
-    const params: any = { userId: user.id };
-    if (this.selectedStatus) {
-      params.status = this.selectedStatus;
-    }
 
-    this.apiService.get<any>('bookings', params).subscribe({
-      next: (response) => {
-        this.bookings = response.data?.items || [];
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading bookings', error);
-        this.loading = false;
+    this.bookingService.getBookingHistory({
+      status: this.selectedStatus || undefined,
+      startDate: this.startDate || undefined,
+      endDate: this.endDate || undefined,
+      searchTerm: this.searchTerm || undefined,
+      pageNumber: this.currentPage,
+      pageSize: this.pageSize
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result: BookingHistory) => {
+          this.bookings = result.bookings;
+          this.totalCount = result.totalCount;
+          this.totalPages = result.totalPages;
+          this.totalBookings = result.totalBookings;
+          this.activeBookings = result.activeBookings;
+          this.completedBookings = result.completedBookings;
+          this.cancelledBookings = result.cancelledBookings;
+          this.totalSpent = result.totalSpent;
+          this.loading = false;
+
+          // Update status counts
+          this.updateStatusCounts(result);
+        },
+        error: (error) => {
+          console.error('Error loading bookings:', error);
+          this.loading = false;
+        }
+      });
+  }
+
+  updateStatusCounts(result: BookingHistory): void {
+    // Reset counts
+    this.statuses.forEach(s => s.count = 0);
+
+    // Count bookings by status
+    this.bookings.forEach(booking => {
+      const status = this.statuses.find(s => s.value === booking.status);
+      if (status) {
+        status.count++;
       }
     });
   }
 
-  filterByStatus(status: string): void {
+  filterByStatus(status: string | null): void {
     this.selectedStatus = this.selectedStatus === status ? null : status;
+    this.currentPage = 1;
     this.loadBookings();
   }
 
-  cancelBooking(bookingId: string): void {
-    if (confirm('Are you sure you want to cancel this booking?')) {
-      this.apiService.post(`bookings/${bookingId}/cancel`, {
-        reason: 'Customer cancellation'
-      }).subscribe({
+  onDateFilterChange(): void {
+    this.currentPage = 1;
+    this.loadBookings();
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1;
+    this.loadBookings();
+  }
+
+  clearFilters(): void {
+    this.selectedStatus = null;
+    this.startDate = '';
+    this.endDate = '';
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.loadBookings();
+  }
+
+  // Pagination
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.loadBookings();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.goToPage(this.currentPage - 1);
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.goToPage(this.currentPage + 1);
+    }
+  }
+
+  get paginationPages(): number[] {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(this.totalPages, start + maxVisible - 1);
+
+    if (end - start < maxVisible - 1) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  // Actions
+  viewBookingDetails(bookingId: string): void {
+    this.router.navigate(['/bookings', bookingId]);
+  }
+
+  cancelBooking(booking: Booking): void {
+    if (!confirm(`Are you sure you want to cancel the booking for ${booking.serviceName}?`)) {
+      return;
+    }
+
+    const reason = prompt('Please provide a cancellation reason (optional):') || 'Customer requested cancellation';
+
+    this.bookingService.cancelBooking(booking.bookingId, reason)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: () => {
+          // Reload bookings to show updated status
           this.loadBookings();
         },
         error: (error) => {
-          console.error('Error cancelling booking', error);
+          console.error('Error cancelling booking:', error);
+          alert('Failed to cancel booking. Please try again.');
         }
       });
-    }
+  }
+
+  bookAgain(booking: Booking): void {
+    // Navigate to service detail to book again
+    this.router.navigate(['/services', booking.serviceId]);
+  }
+
+  // Helper methods
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(this.currentLanguage === 'ar' ? 'ar-SA' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  formatPrice(price: number): string {
+    return `SAR ${price.toFixed(2)}`;
+  }
+
+  getBookingStatusClass(status: string): string {
+    const statusMap: Record<string, string> = {
+      'Pending': 'status-pending',
+      'Confirmed': 'status-confirmed',
+      'InProgress': 'status-inprogress',
+      'Completed': 'status-completed',
+      'Cancelled': 'status-cancelled',
+      'Rejected': 'status-rejected'
+    };
+    return statusMap[status] || 'status-default';
+  }
+
+  getBookingStatusLabel(status: string): string {
+    const statusMap: Record<string, string> = {
+      'Pending': 'Pending',
+      'Confirmed': 'Confirmed',
+      'InProgress': 'In Progress',
+      'Completed': 'Completed',
+      'Cancelled': 'Cancelled',
+      'Rejected': 'Rejected'
+    };
+    return statusMap[status] || status;
+  }
+
+  canCancelBooking(booking: Booking): boolean {
+    return booking.status === 'Pending' || booking.status === 'Confirmed';
+  }
+
+  canReviewBooking(booking: Booking): boolean {
+    return booking.status === 'Completed';
+  }
+
+  trackByBookingId(index: number, booking: Booking): string {
+    return booking.bookingId;
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.selectedStatus || this.startDate || this.endDate || this.searchTerm);
+  }
+
+  getActiveFilterCount(): number {
+    let count = 0;
+    if (this.selectedStatus) count++;
+    if (this.startDate || this.endDate) count++;
+    if (this.searchTerm) count++;
+    return count;
   }
 }
