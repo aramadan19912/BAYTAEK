@@ -1,8 +1,10 @@
+using HomeService.Application.Interfaces;
 using HomeService.Domain.Interfaces;
 using HomeService.Infrastructure.AI.Services;
 using HomeService.Infrastructure.Data;
 using HomeService.Infrastructure.Identity;
 using HomeService.Infrastructure.Repositories;
+using HomeService.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +28,14 @@ public static class DependencyInjection
         // Identity & Authentication
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+        // Payment Services
+        services.AddScoped<IStripePaymentService, StripePaymentService>();
+        services.AddScoped<IPaymentGatewayService, StripePaymentService>();
+
+        // Communication Services
+        services.AddScoped<ISmsService, TwilioSmsService>();
+        services.AddScoped<IOtpService, OtpService>();
 
         // AI Services (Semantic Kernel)
         services.AddSingleton<SemanticKernelService>();
