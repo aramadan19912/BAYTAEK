@@ -42,17 +42,46 @@ public class BookingsController : BaseApiController
     [HttpGet("{id}")]
     public async Task<IActionResult> GetBookingById(Guid id)
     {
-        // Implementation will be added with handler
-        return Ok(new { message = $"Get booking {id}" });
+        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var query = new Application.Queries.Booking.GetBookingByIdQuery
+        {
+            BookingId = id,
+            UserId = userId
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
     /// Cancel a booking
     /// </summary>
     [HttpPost("{id}/cancel")]
-    public async Task<IActionResult> CancelBooking(Guid id, [FromBody] string reason)
+    public async Task<IActionResult> CancelBooking(Guid id, [FromBody] CancelBookingRequest request)
     {
-        // Implementation will be added with handler
-        return Ok(new { message = $"Cancel booking {id}" });
+        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Booking.CancelBookingCommand
+        {
+            BookingId = id,
+            UserId = userId,
+            Reason = request.Reason,
+            IsCustomerCancellation = true
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 }
+
+// Request DTOs
+public record CancelBookingRequest(string Reason);
