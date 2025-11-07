@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<ISmsService, TwilioSmsService>();
         services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<IEmailService, SendGridEmailService>();
+        services.AddSingleton<IPushNotificationService, FirebasePushNotificationService>();
 
         // AI Services (Semantic Kernel)
         services.AddSingleton<SemanticKernelService>();
