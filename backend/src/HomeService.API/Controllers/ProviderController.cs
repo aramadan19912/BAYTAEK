@@ -220,8 +220,21 @@ public class ProviderController : BaseApiController
     [HttpPost("payouts/request")]
     public async Task<IActionResult> RequestPayout([FromBody] RequestPayoutRequest request)
     {
-        // To be implemented
-        return Ok(new { message = "Request payout endpoint" });
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var command = new Application.Commands.Provider.RequestPayoutCommand
+        {
+            ProviderId = providerId,
+            Amount = request.Amount,
+            IsInstant = request.IsInstant
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -232,8 +245,21 @@ public class ProviderController : BaseApiController
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20)
     {
-        // To be implemented
-        return Ok(new { message = "Payout history endpoint" });
+        var providerId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+
+        var query = new GetPayoutHistoryQuery
+        {
+            ProviderId = providerId,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 }
 
