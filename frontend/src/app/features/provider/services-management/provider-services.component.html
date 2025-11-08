@@ -1,0 +1,263 @@
+<div class="provider-services-container">
+  <!-- Header -->
+  <div class="services-header">
+    <div class="header-content">
+      <h1>My Services</h1>
+      <p>Manage your service offerings</p>
+    </div>
+    <button class="btn btn-primary" (click)="addNewService()">
+      Add New Service
+    </button>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <!-- Search -->
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search services..."
+        class="search-input">
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Status</label>
+        <select [(ngModel)]="selectedStatus" (ngModelChange)="onStatusChange()" class="filter-select">
+          <option value="">All Status</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="Pending">Pending</option>
+          <option value="Rejected">Rejected</option>
+          <option value="Suspended">Suspended</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Category</label>
+        <select [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange()" class="filter-select">
+          <option value="">All Categories</option>
+          <option *ngFor="let category of categories" [value]="category.categoryId">
+            {{ category.nameEn }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Sort By</label>
+        <select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()" class="filter-select">
+          <option value="createdAt">Date Created</option>
+          <option value="name">Name</option>
+          <option value="price">Price</option>
+          <option value="totalBookings">Bookings</option>
+          <option value="averageRating">Rating</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Order</label>
+        <select [(ngModel)]="sortOrder" (ngModelChange)="onSortChange()" class="filter-select">
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <button class="clear-btn" (click)="clearFilters()">Clear Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Info -->
+  <div class="results-info" *ngIf="!isLoading">
+    <p>Showing {{ services.length }} of {{ totalCount }} services</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading services...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && services.length === 0" class="empty-state">
+    <div class="empty-icon">🛎️</div>
+    <h2>No Services Found</h2>
+    <p *ngIf="searchTerm || selectedStatus || selectedCategory">
+      Try adjusting your filters to find what you're looking for.
+    </p>
+    <p *ngIf="!searchTerm && !selectedStatus && !selectedCategory">
+      Start adding services to attract customers and grow your business.
+    </p>
+    <div class="empty-actions">
+      <button class="btn btn-primary" (click)="addNewService()">Add Your First Service</button>
+      <button class="btn btn-secondary" (click)="clearFilters()" *ngIf="searchTerm || selectedStatus || selectedCategory">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Services Grid -->
+  <div *ngIf="!isLoading && services.length > 0" class="services-grid">
+    <div *ngFor="let service of services" class="service-card">
+      <!-- Service Image -->
+      <div class="service-image">
+        <img [src]="getServiceImage(service)" [alt]="service.name">
+        <span class="status-badge" [class]="getStatusClass(service.status)">
+          {{ getStatusLabel(service.status) }}
+        </span>
+      </div>
+
+      <!-- Service Content -->
+      <div class="service-content">
+        <h3>{{ service.name }}</h3>
+
+        <div class="service-meta">
+          <span class="category">{{ getCategoryName(service.categoryId) }}</span>
+          <span class="price">{{ formatCurrency(service.price) }}</span>
+        </div>
+
+        <p class="service-description">{{ service.description }}</p>
+
+        <div class="service-stats">
+          <div class="stat">
+            <span class="stat-icon">⭐</span>
+            <span class="stat-value">{{ service.averageRating || 0 }}</span>
+            <span class="stat-label">({{ service.totalReviews || 0 }})</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">📅</span>
+            <span class="stat-value">{{ service.totalBookings || 0 }}</span>
+            <span class="stat-label">bookings</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">🕐</span>
+            <span class="stat-value">{{ service.duration }}</span>
+            <span class="stat-label">min</span>
+          </div>
+        </div>
+
+        <div class="service-dates">
+          <p class="created-date">Created: {{ formatDate(service.createdAt) }}</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="service-actions">
+          <button class="btn btn-sm btn-primary" (click)="viewServiceDetail(service.serviceId)">
+            View
+          </button>
+          <button class="btn btn-sm btn-secondary" (click)="editService(service.serviceId)"
+            [disabled]="!canEditService(service)">
+            Edit
+          </button>
+          <button class="btn btn-sm btn-warning" (click)="openStatusModal(service)"
+            *ngIf="canChangeStatus(service)">
+            {{ service.status === 'Active' ? 'Deactivate' : 'Activate' }}
+          </button>
+          <button class="btn btn-sm btn-secondary" (click)="duplicateService(service)">
+            Duplicate
+          </button>
+          <button class="btn btn-sm btn-danger" (click)="openDeleteModal(service)">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && totalPages > 1" class="pagination">
+    <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+      Previous
+    </button>
+
+    <button *ngIf="paginationPages[0] > 1" class="page-btn" (click)="goToPage(1)">
+      1
+    </button>
+    <span *ngIf="paginationPages[0] > 2" class="page-dots">...</span>
+
+    <button
+      *ngFor="let page of paginationPages"
+      class="page-btn"
+      [class.active]="page === currentPage"
+      (click)="goToPage(page)">
+      {{ page }}
+    </button>
+
+    <span *ngIf="paginationPages[paginationPages.length - 1] < totalPages - 1" class="page-dots">...</span>
+    <button *ngIf="paginationPages[paginationPages.length - 1] < totalPages" class="page-btn" (click)="goToPage(totalPages)">
+      {{ totalPages }}
+    </button>
+
+    <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+      Next
+    </button>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Delete Service</h2>
+      <button class="close-btn" (click)="closeDeleteModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p>Are you sure you want to delete <strong>{{ selectedService?.name }}</strong>?</p>
+      <p class="warning-text">This action cannot be undone. All bookings and reviews associated with this service will remain, but the service will no longer be available for new bookings.</p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="isDeleting">
+        Cancel
+      </button>
+      <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="isDeleting">
+        {{ isDeleting ? 'Deleting...' : 'Delete Service' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Status Change Modal -->
+<div *ngIf="showStatusModal" class="modal-overlay" (click)="closeStatusModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Change Service Status</h2>
+      <button class="close-btn" (click)="closeStatusModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p>Change the status of <strong>{{ selectedService?.name }}</strong></p>
+
+      <div class="form-group">
+        <label>New Status</label>
+        <select [(ngModel)]="newStatus" class="form-control">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+
+      <div class="status-info">
+        <p *ngIf="newStatus === 'Active'" class="info-text success">
+          ✓ Service will be visible to customers and available for booking
+        </p>
+        <p *ngIf="newStatus === 'Inactive'" class="info-text warning">
+          ⚠ Service will be hidden from customers and unavailable for new bookings
+        </p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeStatusModal()">
+        Cancel
+      </button>
+      <button class="btn btn-primary" (click)="confirmStatusChange()">
+        Update Status
+      </button>
+    </div>
+  </div>
+</div>
