@@ -1,0 +1,584 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoadingProfile && !currentUser" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading profile...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="currentUser" class="profile-content">
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="user-info">
+        <img [src]="currentUser.profileImageUrl || 'assets/images/default-avatar.png'" alt="Profile" class="profile-avatar">
+        <div class="user-details">
+          <h1>{{ currentUser.firstName }} {{ currentUser.lastName }}</h1>
+          <p class="user-email">{{ currentUser.email }}</p>
+          <p class="user-role">{{ currentUser.role }}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" (click)="startEditingProfile()" *ngIf="!isEditingProfile">
+          Edit Profile
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'profile'"
+        (click)="switchTab('profile')">
+        Profile
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'addresses'"
+        (click)="switchTab('addresses')">
+        Addresses
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'payment'"
+        (click)="switchTab('payment')">
+        Payment Methods
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'notifications'"
+        (click)="switchTab('notifications')">
+        Notifications
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'security'"
+        (click)="switchTab('security')">
+        Security
+      </button>
+      <button
+        *ngIf="isProvider"
+        class="tab-btn"
+        [class.active]="activeTab === 'provider'"
+        (click)="switchTab('provider')">
+        Provider Info
+      </button>
+    </div>
+
+    <!-- Profile Tab -->
+    <div *ngIf="activeTab === 'profile'" class="tab-content">
+      <!-- View Mode -->
+      <div *ngIf="!isEditingProfile" class="profile-view">
+        <div class="info-card">
+          <h2>Personal Information</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">First Name</span>
+              <span class="value">{{ currentUser.firstName }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Last Name</span>
+              <span class="value">{{ currentUser.lastName }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Email</span>
+              <span class="value">{{ currentUser.email }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Phone Number</span>
+              <span class="value">{{ currentUser.phoneNumber || 'Not provided' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Date of Birth</span>
+              <span class="value">{{ formatDate(currentUser.dateOfBirth) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Gender</span>
+              <span class="value">{{ currentUser.gender || 'Not specified' }}</span>
+            </div>
+            <div class="info-item full-width">
+              <span class="label">Bio</span>
+              <span class="value">{{ currentUser.bio || 'No bio provided' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Preferred Language</span>
+              <span class="value">{{ currentUser.preferredLanguage === 'ar' ? 'Arabic' : 'English' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Member Since</span>
+              <span class="value">{{ formatDate(currentUser.createdAt) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Mode -->
+      <div *ngIf="isEditingProfile" class="profile-edit">
+        <div class="info-card">
+          <h2>Edit Profile</h2>
+
+          <!-- Profile Image Upload -->
+          <div class="form-group image-upload">
+            <label>Profile Image</label>
+            <div class="image-preview">
+              <img
+                [src]="profileImagePreview || currentUser.profileImageUrl || 'assets/images/default-avatar.png'"
+                alt="Profile Preview">
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onProfileImageSelected($event)"
+                id="profileImageInput"
+                style="display: none;">
+              <button type="button" class="btn btn-secondary" (click)="document.getElementById('profileImageInput').click()">
+                Change Image
+              </button>
+            </div>
+          </div>
+
+          <!-- Edit Form -->
+          <div class="edit-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>First Name *</label>
+                <input type="text" [(ngModel)]="profileForm.firstName" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Last Name *</label>
+                <input type="text" [(ngModel)]="profileForm.lastName" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" [(ngModel)]="profileForm.phoneNumber" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" [(ngModel)]="profileForm.dateOfBirth" class="form-control">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Gender</label>
+                <select [(ngModel)]="profileForm.gender" class="form-control">
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Preferred Language</label>
+                <select [(ngModel)]="profileForm.preferredLanguage" class="form-control">
+                  <option value="en">English</option>
+                  <option value="ar">Arabic</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Bio</label>
+              <textarea [(ngModel)]="profileForm.bio" class="form-control" rows="4"
+                placeholder="Tell us about yourself..."></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-secondary" (click)="cancelEditingProfile()" [disabled]="isLoadingProfile">
+                Cancel
+              </button>
+              <button class="btn btn-primary" (click)="saveProfile()" [disabled]="isLoadingProfile">
+                {{ isLoadingProfile ? 'Saving...' : 'Save Changes' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Tab -->
+    <div *ngIf="activeTab === 'security'" class="tab-content">
+      <div class="info-card">
+        <h2>Change Password</h2>
+
+        <div *ngIf="!isChangingPassword" class="security-actions">
+          <button class="btn btn-primary" (click)="startChangingPassword()">
+            Change Password
+          </button>
+        </div>
+
+        <div *ngIf="isChangingPassword" class="password-form">
+          <div class="form-group">
+            <label>Current Password *</label>
+            <input type="password" [(ngModel)]="passwordForm.currentPassword" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label>New Password *</label>
+            <input type="password" [(ngModel)]="passwordForm.newPassword" class="form-control" required>
+            <small class="form-text">Password must be at least 8 characters long</small>
+          </div>
+
+          <div class="form-group">
+            <label>Confirm New Password *</label>
+            <input type="password" [(ngModel)]="passwordForm.confirmPassword" class="form-control" required>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-secondary" (click)="cancelChangingPassword()" [disabled]="isLoadingProfile">
+              Cancel
+            </button>
+            <button class="btn btn-primary" (click)="changePassword()" [disabled]="isLoadingProfile">
+              {{ isLoadingProfile ? 'Changing...' : 'Change Password' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Addresses Tab -->
+    <div *ngIf="activeTab === 'addresses'" class="tab-content">
+      <div class="info-card">
+        <div class="card-header">
+          <h2>My Addresses</h2>
+          <button class="btn btn-primary" (click)="startAddingAddress()" *ngIf="!isAddingAddress">
+            Add New Address
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoadingAddresses" class="loading-container">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Address List -->
+        <div *ngIf="!isLoadingAddresses && !isAddingAddress" class="addresses-list">
+          <div *ngIf="addresses.length === 0" class="empty-state">
+            <p>No addresses found</p>
+            <button class="btn btn-primary" (click)="startAddingAddress()">Add Your First Address</button>
+          </div>
+
+          <div *ngFor="let address of addresses" class="address-card">
+            <div class="address-header">
+              <span class="address-label" *ngIf="address.label">{{ address.label }}</span>
+              <span class="badge badge-primary" *ngIf="address.isDefault">Default</span>
+            </div>
+            <div class="address-details">
+              <p class="address-line">{{ address.addressLine }}</p>
+              <p>{{ address.city }}, {{ address.region }} {{ address.postalCode }}</p>
+              <p>{{ address.country }}</p>
+              <p *ngIf="address.additionalInfo" class="additional-info">{{ address.additionalInfo }}</p>
+            </div>
+            <div class="address-actions">
+              <button class="btn btn-sm btn-secondary" (click)="editAddress(address)">Edit</button>
+              <button class="btn btn-sm btn-secondary" (click)="setDefaultAddress(address.addressId)"
+                *ngIf="!address.isDefault">
+                Set as Default
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deleteAddress(address.addressId)">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add/Edit Address Form -->
+        <div *ngIf="isAddingAddress" class="address-form">
+          <h3>{{ editingAddress ? 'Edit Address' : 'Add New Address' }}</h3>
+
+          <div class="form-group">
+            <label>Label (Optional)</label>
+            <input type="text" [(ngModel)]="addressForm.label" class="form-control"
+              placeholder="e.g., Home, Office">
+          </div>
+
+          <div class="form-group">
+            <label>Address Line *</label>
+            <input type="text" [(ngModel)]="addressForm.addressLine" class="form-control"
+              placeholder="Street address, building, apartment" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>City *</label>
+              <input type="text" [(ngModel)]="addressForm.city" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Region *</label>
+              <input type="text" [(ngModel)]="addressForm.region" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Postal Code</label>
+              <input type="text" [(ngModel)]="addressForm.postalCode" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Country *</label>
+              <input type="text" [(ngModel)]="addressForm.country" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Additional Information</label>
+            <textarea [(ngModel)]="addressForm.additionalInfo" class="form-control" rows="2"
+              placeholder="Landmarks, special instructions, etc."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="addressForm.isDefault">
+              Set as default address
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-secondary" (click)="cancelAddingAddress()" [disabled]="isLoadingAddresses">
+              Cancel
+            </button>
+            <button class="btn btn-primary" (click)="saveAddress()" [disabled]="isLoadingAddresses">
+              {{ isLoadingAddresses ? 'Saving...' : 'Save Address' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Methods Tab -->
+    <div *ngIf="activeTab === 'payment'" class="tab-content">
+      <div class="info-card">
+        <div class="card-header">
+          <h2>Payment Methods</h2>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoadingPaymentMethods" class="loading-container">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Payment Methods List -->
+        <div *ngIf="!isLoadingPaymentMethods" class="payment-methods-list">
+          <div *ngIf="paymentMethods.length === 0" class="empty-state">
+            <p>No saved payment methods</p>
+            <p class="info-text">Your payment methods will be saved when you make a booking</p>
+          </div>
+
+          <div *ngFor="let method of paymentMethods" class="payment-card">
+            <div class="payment-info">
+              <span class="payment-icon">💳</span>
+              <div class="payment-details">
+                <p class="card-info">
+                  <strong>{{ method.cardBrand }} •••• {{ method.cardLast4 }}</strong>
+                </p>
+                <p class="expiry">Expires {{ method.cardExpMonth }}/{{ method.cardExpYear }}</p>
+              </div>
+              <span class="badge badge-primary" *ngIf="method.isDefault">Default</span>
+            </div>
+            <div class="payment-actions">
+              <button class="btn btn-sm btn-secondary" (click)="setDefaultPaymentMethod(method.paymentMethodId)"
+                *ngIf="!method.isDefault">
+                Set as Default
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deletePaymentMethod(method.paymentMethodId)">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Tab -->
+    <div *ngIf="activeTab === 'notifications'" class="tab-content">
+      <div class="info-card">
+        <h2>Notification Preferences</h2>
+
+        <!-- Loading -->
+        <div *ngIf="isLoadingNotificationSettings" class="loading-container">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Notification Settings -->
+        <div *ngIf="!isLoadingNotificationSettings" class="notification-settings">
+          <div class="settings-group">
+            <h3>Communication Channels</h3>
+            <div class="setting-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="notificationSettings.emailNotifications">
+                <div class="label-text">
+                  <strong>Email Notifications</strong>
+                  <p>Receive notifications via email</p>
+                </div>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="notificationSettings.smsNotifications">
+                <div class="label-text">
+                  <strong>SMS Notifications</strong>
+                  <p>Receive notifications via SMS</p>
+                </div>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="notificationSettings.pushNotifications">
+                <div class="label-text">
+                  <strong>Push Notifications</strong>
+                  <p>Receive push notifications in browser</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3>Notification Types</h3>
+            <div class="setting-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="notificationSettings.bookingUpdates">
+                <div class="label-text">
+                  <strong>Booking Updates</strong>
+                  <p>Get notified about booking status changes</p>
+                </div>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="notificationSettings.reminderNotifications">
+                <div class="label-text">
+                  <strong>Reminders</strong>
+                  <p>Receive reminders about upcoming bookings</p>
+                </div>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="notificationSettings.messageNotifications">
+                <div class="label-text">
+                  <strong>Messages</strong>
+                  <p>Get notified when you receive new messages</p>
+                </div>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="notificationSettings.reviewRequests">
+                <div class="label-text">
+                  <strong>Review Requests</strong>
+                  <p>Receive requests to review completed services</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3>Marketing & Promotions</h3>
+            <div class="setting-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="notificationSettings.promotionalEmails">
+                <div class="label-text">
+                  <strong>Promotional Emails</strong>
+                  <p>Receive special offers and promotions</p>
+                </div>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="notificationSettings.newsletterSubscription">
+                <div class="label-text">
+                  <strong>Newsletter</strong>
+                  <p>Subscribe to our newsletter</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" (click)="saveNotificationSettings()"
+              [disabled]="isLoadingNotificationSettings">
+              {{ isLoadingNotificationSettings ? 'Saving...' : 'Save Preferences' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Provider Tab -->
+    <div *ngIf="activeTab === 'provider' && isProvider" class="tab-content">
+      <div class="info-card">
+        <h2>Provider Information</h2>
+
+        <!-- Loading -->
+        <div *ngIf="isLoadingProviderProfile" class="loading-container">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Provider Profile -->
+        <div *ngIf="!isLoadingProviderProfile && providerProfile" class="provider-info">
+          <div class="verification-status">
+            <span class="status-badge" [class]="getVerificationStatusClass(providerProfile.verificationStatus)">
+              {{ getVerificationStatusLabel(providerProfile.verificationStatus) }}
+            </span>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Business Name</span>
+              <span class="value">{{ providerProfile.businessName || 'Not provided' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Business Type</span>
+              <span class="value">{{ providerProfile.businessType || 'Not specified' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Commercial Registration</span>
+              <span class="value">{{ providerProfile.commercialRegistrationNumber || 'Not provided' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Tax Number</span>
+              <span class="value">{{ providerProfile.taxNumber || 'Not provided' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Experience Years</span>
+              <span class="value">{{ providerProfile.experienceYears || 0 }} years</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Service Regions</span>
+              <span class="value">{{ providerProfile.serviceRegions?.join(', ') || 'Not specified' }}</span>
+            </div>
+            <div class="info-item full-width">
+              <span class="label">Business Description</span>
+              <span class="value">{{ providerProfile.businessDescription || 'No description provided' }}</span>
+            </div>
+          </div>
+
+          <div class="provider-stats">
+            <div class="stat-card">
+              <span class="stat-value">{{ providerProfile.totalServices || 0 }}</span>
+              <span class="stat-label">Total Services</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value">{{ providerProfile.activeServices || 0 }}</span>
+              <span class="stat-label">Active Services</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value">{{ providerProfile.totalBookings || 0 }}</span>
+              <span class="stat-label">Total Bookings</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value">{{ providerProfile.averageRating || 0 }}</span>
+              <span class="stat-label">Average Rating</span>
+            </div>
+          </div>
+
+          <div *ngIf="providerProfile.verificationStatus === 'Rejected'" class="rejection-notice">
+            <h3>Verification Rejected</h3>
+            <p>{{ providerProfile.verificationNotes }}</p>
+            <p class="info-text">Please update your information and resubmit for verification.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
