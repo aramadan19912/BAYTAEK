@@ -1,0 +1,380 @@
+<div class="booking-detail-container" *ngIf="!loading && booking">
+  <!-- Header -->
+  <div class="booking-header">
+    <button class="back-btn" routerLink="/bookings">
+      ← Back to Bookings
+    </button>
+    <div class="booking-title">
+      <h1>{{ getServiceName() }}</h1>
+      <span class="booking-number">{{ booking.bookingNumber }}</span>
+    </div>
+    <span class="status-badge" [ngClass]="getStatusClass(booking.status)">
+      {{ getStatusLabel(booking.status) }}
+    </span>
+  </div>
+
+  <!-- Main Content -->
+  <div class="booking-content">
+    <!-- Left Column -->
+    <div class="main-info">
+      <!-- Service Info Card -->
+      <div class="info-card">
+        <h2>Service Details</h2>
+        <div class="service-info">
+          <img *ngIf="booking.service.images && booking.service.images.length > 0"
+               [src]="booking.service.images[0]"
+               [alt]="getServiceName()"
+               class="service-image"
+          />
+          <div class="service-details">
+            <h3>{{ getServiceName() }}</h3>
+            <div class="detail-row">
+              <span class="label">Price:</span>
+              <span class="value">{{ formatPrice(booking.pricing.basePrice) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Duration:</span>
+              <span class="value">{{ booking.service.estimatedDurationMinutes }} minutes</span>
+            </div>
+            <button class="btn btn-secondary" (click)="viewService()">
+              View Service Details
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Info Card -->
+      <div class="info-card">
+        <h2>Schedule Information</h2>
+        <div class="schedule-info">
+          <div class="detail-row">
+            <span class="icon">📅</span>
+            <div>
+              <span class="label">Scheduled for</span>
+              <span class="value">{{ formatDate(booking.scheduledDateTime) }}</span>
+            </div>
+          </div>
+          <div class="detail-row" *ngIf="booking.status === 'Confirmed' || booking.status === 'Pending'">
+            <span class="icon">⏰</span>
+            <div>
+              <span class="label">Time until appointment</span>
+              <span class="value">{{ getTimeUntilScheduled() }}</span>
+            </div>
+          </div>
+          <div class="detail-row" *ngIf="booking.startedAt">
+            <span class="icon">▶️</span>
+            <div>
+              <span class="label">Started at</span>
+              <span class="value">{{ formatDate(booking.startedAt) }}</span>
+            </div>
+          </div>
+          <div class="detail-row" *ngIf="booking.completedAt">
+            <span class="icon">✅</span>
+            <div>
+              <span class="label">Completed at</span>
+              <span class="value">{{ formatDate(booking.completedAt) }}</span>
+            </div>
+          </div>
+          <div class="detail-row" *ngIf="booking.status === 'InProgress'">
+            <span class="icon">🕐</span>
+            <div>
+              <span class="label">Estimated completion</span>
+              <span class="value">{{ getEstimatedCompletionTime() }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Info Card -->
+      <div class="info-card">
+        <h2>Service Location</h2>
+        <div class="address-info">
+          <span class="icon">📍</span>
+          <div class="address-details">
+            <p class="address-line">{{ booking.address.addressLine }}</p>
+            <p class="address-city">{{ booking.address.city }}, {{ booking.address.region }}</p>
+            <p class="address-additional" *ngIf="booking.address.additionalDetails">
+              {{ booking.address.additionalDetails }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Provider Info Card -->
+      <div class="info-card">
+        <h2>Service Provider</h2>
+        <div class="provider-info">
+          <div class="provider-header">
+            <h3>{{ booking.provider.name }}</h3>
+            <span class="verified" *ngIf="booking.provider.isVerified">✓ Verified</span>
+          </div>
+          <div class="provider-stats">
+            <div class="stat">
+              <span class="label">Rating:</span>
+              <span class="stars">
+                <span *ngFor="let filled of getStarArray(booking.provider.rating)" [class.filled]="filled">★</span>
+              </span>
+              <span>{{ booking.provider.rating.toFixed(1) }}</span>
+            </div>
+            <div class="stat">
+              <span class="label">Experience:</span>
+              <span>{{ booking.provider.yearsOfExperience }} years</span>
+            </div>
+          </div>
+          <button
+            class="btn btn-primary"
+            (click)="openMessageModal()"
+            *ngIf="canContactProvider()"
+          >
+            Contact Provider
+          </button>
+        </div>
+      </div>
+
+      <!-- Notes Card -->
+      <div class="info-card" *ngIf="booking.customerNotes || booking.providerNotes">
+        <h2>Notes</h2>
+        <div class="notes-section">
+          <div *ngIf="booking.customerNotes" class="note">
+            <strong>Your Notes:</strong>
+            <p>{{ booking.customerNotes }}</p>
+          </div>
+          <div *ngIf="booking.providerNotes" class="note">
+            <strong>Provider Notes:</strong>
+            <p>{{ booking.providerNotes }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="sidebar-info">
+      <!-- Payment Card -->
+      <div class="info-card">
+        <h2>Payment Details</h2>
+        <div class="payment-details">
+          <div class="price-row">
+            <span>Service Price:</span>
+            <span>{{ formatPrice(booking.pricing.basePrice) }}</span>
+          </div>
+          <div class="price-row discount" *ngIf="booking.pricing.promoDiscount > 0">
+            <span>Promo Discount:</span>
+            <span>-{{ formatPrice(booking.pricing.promoDiscount) }}</span>
+          </div>
+          <div class="price-row total">
+            <span>Total Amount:</span>
+            <span>{{ formatPrice(booking.pricing.totalAmount) }}</span>
+          </div>
+          <div class="payment-status">
+            <span class="label">Payment Status:</span>
+            <span class="badge" [ngClass]="getPaymentStatusClass(booking.payment.paymentStatus)">
+              {{ getPaymentStatusLabel(booking.payment.paymentStatus) }}
+            </span>
+          </div>
+          <div class="payment-method">
+            <span class="label">Payment Method:</span>
+            <span>{{ booking.payment.paymentMethod }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline Card -->
+      <div class="info-card">
+        <h2>Booking Timeline</h2>
+        <div class="timeline">
+          <div
+            *ngFor="let item of booking.timeline"
+            class="timeline-item"
+          >
+            <div class="timeline-icon">{{ getTimelineIcon(item) }}</div>
+            <div class="timeline-content">
+              <strong>{{ item.status }}</strong>
+              <span class="timeline-date">{{ formatDate(item.timestamp) }}</span>
+              <p *ngIf="item.notes" class="timeline-notes">{{ item.notes }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions Card -->
+      <div class="info-card actions-card">
+        <h2>Actions</h2>
+        <div class="action-buttons">
+          <button
+            class="btn btn-danger"
+            (click)="openCancelModal()"
+            *ngIf="canCancelBooking()"
+          >
+            Cancel Booking
+          </button>
+          <button
+            class="btn btn-success"
+            (click)="openReviewModal()"
+            *ngIf="canReviewBooking()"
+          >
+            Write Review
+          </button>
+          <button
+            class="btn btn-warning"
+            (click)="openReportModal()"
+          >
+            Report Issue
+          </button>
+          <button
+            class="btn btn-secondary"
+            (click)="bookAgain()"
+          >
+            Book Again
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading booking details...</p>
+</div>
+
+<!-- Cancel Booking Modal -->
+<div class="modal-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Cancel Booking</h2>
+      <button class="close-btn" (click)="closeCancelModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to cancel this booking?</p>
+      <div class="form-group">
+        <label>Cancellation Reason</label>
+        <select [(ngModel)]="cancellationReason" class="form-control">
+          <option value="">Select a reason...</option>
+          <option *ngFor="let reason of cancellationReasons" [value]="reason">{{ reason }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeCancelModal()">Keep Booking</button>
+      <button
+        class="btn btn-danger"
+        (click)="confirmCancellation()"
+        [disabled]="cancellingBooking || !cancellationReason"
+      >
+        {{ cancellingBooking ? 'Cancelling...' : 'Confirm Cancellation' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal-overlay" *ngIf="showReviewModal" (click)="closeReviewModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Write a Review</h2>
+      <button class="close-btn" (click)="closeReviewModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Rating</label>
+        <div class="star-rating">
+          <span
+            *ngFor="let star of getStarArray(5)"
+            class="star"
+            [class.filled]="star <= reviewRating"
+            (click)="setReviewRating(star)"
+          >★</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Your Review</label>
+        <textarea
+          [(ngModel)]="reviewComment"
+          placeholder="Share your experience..."
+          rows="5"
+          class="form-control"
+        ></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeReviewModal()">Cancel</button>
+      <button
+        class="btn btn-success"
+        (click)="submitReview()"
+        [disabled]="submittingReview"
+      >
+        {{ submittingReview ? 'Submitting...' : 'Submit Review' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Report an Issue</h2>
+      <button class="close-btn" (click)="closeReportModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Issue Type</label>
+        <select [(ngModel)]="reportReason" class="form-control">
+          <option value="">Select an issue...</option>
+          <option *ngFor="let reason of reportReasons" [value]="reason">{{ reason }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea
+          [(ngModel)]="reportDescription"
+          placeholder="Please describe the issue..."
+          rows="5"
+          class="form-control"
+        ></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeReportModal()">Cancel</button>
+      <button
+        class="btn btn-warning"
+        (click)="submitReport()"
+        [disabled]="submittingReport || !reportReason || !reportDescription"
+      >
+        {{ submittingReport ? 'Submitting...' : 'Submit Report' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Message Modal -->
+<div class="modal-overlay" *ngIf="showMessageModal" (click)="closeMessageModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Contact Provider</h2>
+      <button class="close-btn" (click)="closeMessageModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Message</label>
+        <textarea
+          [(ngModel)]="messageText"
+          placeholder="Type your message..."
+          rows="5"
+          class="form-control"
+        ></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeMessageModal()">Cancel</button>
+      <button
+        class="btn btn-primary"
+        (click)="sendMessage()"
+        [disabled]="sendingMessage || !messageText"
+      >
+        {{ sendingMessage ? 'Sending...' : 'Send Message' }}
+      </button>
+    </div>
+  </div>
+</div>
