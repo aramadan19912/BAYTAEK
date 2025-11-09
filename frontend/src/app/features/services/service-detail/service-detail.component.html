@@ -2,10 +2,10 @@
   <!-- Header -->
   <div class="service-header">
     <button class="back-btn" routerLink="/services">
-      ← Back to Services
+      ← {{ 'serviceDetail.backToServices' | translate }}
     </button>
     <button class="favorite-btn" (click)="toggleFavorite()" [class.active]="isFavorite">
-      {{ isFavorite ? '❤️' : '🤍' }} {{ isFavorite ? 'Saved' : 'Save' }}
+      {{ isFavorite ? '❤️' : '🤍' }} {{ isFavorite ? ('serviceDetail.saved' | translate) : ('serviceDetail.save' | translate) }}
     </button>
   </div>
 
@@ -34,33 +34,33 @@
         <span class="stars">
           <span *ngFor="let filled of getStarArray(service.averageRating)" [class.filled]="filled">★</span>
         </span>
-        <span class="rating-text">{{ service.averageRating.toFixed(1) }} ({{ service.totalReviews }} reviews)</span>
+        <span class="rating-text">{{ service.averageRating.toFixed(1) }} ({{ service.totalReviews }} {{ 'serviceDetail.reviews' | translate }})</span>
       </div>
       <p class="description">{{ getServiceDescription() }}</p>
 
       <div class="service-details">
         <div class="detail-item">
-          <span class="label">Price:</span>
+          <span class="label">{{ 'serviceDetail.price' | translate }}:</span>
           <span class="value price">{{ formatPrice(service.basePrice) }}</span>
         </div>
         <div class="detail-item">
-          <span class="label">Duration:</span>
+          <span class="label">{{ 'serviceDetail.duration' | translate }}:</span>
           <span class="value">{{ formatDuration(service.estimatedDurationMinutes) }}</span>
         </div>
       </div>
 
       <button class="book-btn" (click)="startBooking()">
-        Book Now
+        {{ 'serviceDetail.bookNow' | translate }}
       </button>
     </div>
 
     <!-- Provider Info -->
     <div class="provider-card">
-      <h3>Service Provider</h3>
+      <h3>{{ 'serviceDetail.serviceProvider' | translate }}</h3>
       <div class="provider-info">
         <div class="provider-header">
           <h4>{{ service.provider.name }}</h4>
-          <span class="verified" *ngIf="service.provider.isVerified">✓ Verified</span>
+          <span class="verified" *ngIf="service.provider.isVerified">✓ {{ 'serviceDetail.verified' | translate }}</span>
         </div>
         <div class="provider-stats">
           <div class="stat">
@@ -70,8 +70,8 @@
             <span>{{ service.provider.rating.toFixed(1) }}</span>
           </div>
           <div class="stat">
-            <span class="label">Experience:</span>
-            <span>{{ service.provider.yearsOfExperience }} years</span>
+            <span class="label">{{ 'serviceDetail.experience' | translate }}:</span>
+            <span>{{ service.provider.yearsOfExperience }} {{ 'serviceDetail.years' | translate }}</span>
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@
 
   <!-- Reviews -->
   <div class="reviews-section" *ngIf="reviews.length > 0">
-    <h2>Recent Reviews</h2>
+    <h2>{{ 'serviceDetail.recentReviews' | translate }}</h2>
     <div class="reviews-list">
       <div class="review-card" *ngFor="let review of reviews">
         <div class="review-header">
@@ -101,7 +101,7 @@
 <!-- Loading State -->
 <div class="loading-container" *ngIf="loading">
   <div class="spinner"></div>
-  <p>Loading service details...</p>
+  <p>{{ 'common.loading' | translate }}</p>
 </div>
 
 <!-- Booking Modal -->
@@ -109,7 +109,7 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>{{ getBookingStepTitle() }}</h2>
-      <span class="step-indicator">Step {{ getBookingStepNumber() }} of 4</span>
+      <span class="step-indicator">{{ 'serviceDetail.booking.step' | translate }} {{ getBookingStepNumber() }} {{ 'serviceDetail.booking.of' | translate }} 4</span>
       <button class="close-btn" (click)="closeBookingModal()">×</button>
     </div>
 
@@ -117,7 +117,7 @@
       <!-- Step 1: Date & Time -->
       <div *ngIf="bookingStep === 'datetime'" class="booking-step">
         <div class="form-group">
-          <label>Select Date</label>
+          <label>{{ 'serviceDetail.booking.selectDate' | translate }}</label>
           <input
             type="date"
             [(ngModel)]="scheduledDate"
@@ -126,7 +126,7 @@
           />
         </div>
         <div class="form-group">
-          <label>Select Time</label>
+          <label>{{ 'serviceDetail.booking.selectTime' | translate }}</label>
           <input
             type="time"
             [(ngModel)]="scheduledTime"
@@ -156,19 +156,19 @@
           </div>
         </div>
         <p *ngIf="addresses.length === 0" class="no-addresses">
-          No saved addresses. Please add an address in your profile.
+          {{ 'serviceDetail.booking.noAddresses' | translate }}
         </p>
       </div>
 
       <!-- Step 3: Promo Code -->
       <div *ngIf="bookingStep === 'promo'" class="booking-step">
         <div class="form-group">
-          <label>Promo Code (Optional)</label>
+          <label>{{ 'serviceDetail.booking.promoCode' | translate }}</label>
           <div class="promo-input-group">
             <input
               type="text"
               [(ngModel)]="promoCode"
-              placeholder="Enter promo code"
+              [placeholder]="'serviceDetail.booking.enterPromo' | translate"
               class="form-control"
             />
             <button
@@ -176,7 +176,7 @@
               (click)="validatePromoCode()"
               [disabled]="validatingPromoCode"
             >
-              {{ validatingPromoCode ? 'Validating...' : 'Apply' }}
+              {{ validatingPromoCode ? ('common.validating' | translate) : ('serviceDetail.booking.apply' | translate) }}
             </button>
           </div>
           <p class="promo-message" [class.valid]="promoCodeValid" [class.invalid]="!promoCodeValid && promoCodeMessage">
@@ -185,15 +185,15 @@
         </div>
         <div class="price-summary">
           <div class="price-row">
-            <span>Service Price:</span>
+            <span>{{ 'serviceDetail.booking.servicePrice' | translate }}:</span>
             <span>{{ formatPrice(basePrice) }}</span>
           </div>
           <div class="price-row discount" *ngIf="promoDiscount > 0">
-            <span>Promo Discount:</span>
+            <span>{{ 'serviceDetail.booking.promoDiscount' | translate }}:</span>
             <span>-{{ formatPrice(promoDiscount) }}</span>
           </div>
           <div class="price-row total">
-            <span>Total:</span>
+            <span>{{ 'serviceDetail.booking.total' | translate }}:</span>
             <span>{{ formatPrice(totalAmount) }}</span>
           </div>
         </div>
@@ -202,34 +202,34 @@
       <!-- Step 4: Confirm -->
       <div *ngIf="bookingStep === 'confirm'" class="booking-step">
         <div class="booking-summary">
-          <h3>Booking Summary</h3>
+          <h3>{{ 'serviceDetail.booking.summary' | translate }}</h3>
           <div class="summary-item">
-            <span class="label">Service:</span>
+            <span class="label">{{ 'serviceDetail.booking.service' | translate }}:</span>
             <span>{{ getServiceName() }}</span>
           </div>
           <div class="summary-item">
-            <span class="label">Date & Time:</span>
-            <span>{{ scheduledDate }} at {{ scheduledTime }}</span>
+            <span class="label">{{ 'serviceDetail.booking.dateTime' | translate }}:</span>
+            <span>{{ scheduledDate }} {{ 'serviceDetail.booking.at' | translate }} {{ scheduledTime }}</span>
           </div>
           <div class="summary-item">
-            <span class="label">Address:</span>
+            <span class="label">{{ 'serviceDetail.booking.address' | translate }}:</span>
             <span>{{ formatAddress(addresses.find(a => a.addressId === selectedAddressId)!) }}</span>
           </div>
           <div class="summary-item">
-            <span class="label">Duration:</span>
+            <span class="label">{{ 'serviceDetail.duration' | translate }}:</span>
             <span>{{ formatDuration(service!.estimatedDurationMinutes) }}</span>
           </div>
           <div class="summary-item total">
-            <span class="label">Total Amount:</span>
+            <span class="label">{{ 'serviceDetail.booking.totalAmount' | translate }}:</span>
             <span class="amount">{{ formatPrice(totalAmount) }}</span>
           </div>
         </div>
 
         <div class="form-group">
-          <label>Additional Notes (Optional)</label>
+          <label>{{ 'serviceDetail.booking.additionalNotes' | translate }}</label>
           <textarea
             [(ngModel)]="customerNotes"
-            placeholder="Any special instructions or requests..."
+            [placeholder]="'serviceDetail.booking.notesPlaceholder' | translate"
             rows="3"
             class="form-control"
           ></textarea>
@@ -243,7 +243,7 @@
         (click)="previousBookingStep()"
         *ngIf="bookingStep !== 'datetime'"
       >
-        Back
+        {{ 'serviceDetail.booking.back' | translate }}
       </button>
       <button
         class="btn btn-primary"
@@ -251,7 +251,7 @@
         *ngIf="bookingStep !== 'confirm'"
         [disabled]="!canGoToNextStep()"
       >
-        Next
+        {{ 'serviceDetail.booking.next' | translate }}
       </button>
       <button
         class="btn btn-success"
@@ -259,7 +259,7 @@
         *ngIf="bookingStep === 'confirm'"
         [disabled]="bookingInProgress"
       >
-        {{ bookingInProgress ? 'Processing...' : 'Confirm Booking' }}
+        {{ bookingInProgress ? ('common.processing' | translate) : ('serviceDetail.booking.confirm' | translate) }}
       </button>
     </div>
   </div>
@@ -269,12 +269,12 @@
 <div class="modal-overlay" *ngIf="showReviewForm" (click)="showReviewForm = false">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Write a Review</h2>
+      <h2>{{ 'serviceDetail.writeReview' | translate }}</h2>
       <button class="close-btn" (click)="showReviewForm = false">×</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Rating</label>
+        <label>{{ 'serviceDetail.rating' | translate }}</label>
         <div class="star-rating">
           <span
             *ngFor="let star of getRatingStars(5)"
@@ -285,23 +285,23 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Your Review</label>
+        <label>{{ 'serviceDetail.yourReview' | translate }}</label>
         <textarea
           [(ngModel)]="reviewComment"
-          placeholder="Share your experience..."
+          [placeholder]="'serviceDetail.reviewPlaceholder' | translate"
           rows="5"
           class="form-control"
         ></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="showReviewForm = false">Cancel</button>
+      <button class="btn btn-secondary" (click)="showReviewForm = false">{{ 'common.cancel' | translate }}</button>
       <button
         class="btn btn-primary"
         (click)="submitReview()"
         [disabled]="submittingReview"
       >
-        {{ submittingReview ? 'Submitting...' : 'Submit Review' }}
+        {{ submittingReview ? ('common.submitting' | translate) : ('serviceDetail.submitReview' | translate) }}
       </button>
     </div>
   </div>
