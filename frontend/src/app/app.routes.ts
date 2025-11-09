@@ -64,6 +64,11 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'admin/reports',
+    loadComponent: () => import('./features/admin/reports/reports-analytics.component').then(m => m.ReportsAnalyticsComponent),
+    canActivate: [adminGuard]
+  },
+  {
     path: '**',
     redirectTo: ''
   }
