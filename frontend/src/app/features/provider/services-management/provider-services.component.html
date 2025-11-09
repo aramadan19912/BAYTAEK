@@ -2,11 +2,11 @@
   <!-- Header -->
   <div class="services-header">
     <div class="header-content">
-      <h1>My Services</h1>
-      <p>Manage your service offerings</p>
+      <h1>{{ 'provider.services.title' | translate }}</h1>
+      <p>{{ 'provider.services.subtitle' | translate }}</p>
     </div>
     <button class="btn btn-primary" (click)="addNewService()">
-      Add New Service
+      {{ 'provider.services.addNew' | translate }}
     </button>
   </div>
 
@@ -18,28 +18,28 @@
         type="text"
         [(ngModel)]="searchTerm"
         (ngModelChange)="onSearchChange()"
-        placeholder="Search services..."
+        [placeholder]="'provider.services.search.placeholder' | translate"
         class="search-input">
     </div>
 
     <!-- Filters -->
     <div class="filter-bar">
       <div class="filter-group">
-        <label>Status</label>
+        <label>{{ 'provider.services.filters.status' | translate }}</label>
         <select [(ngModel)]="selectedStatus" (ngModelChange)="onStatusChange()" class="filter-select">
-          <option value="">All Status</option>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-          <option value="Pending">Pending</option>
-          <option value="Rejected">Rejected</option>
-          <option value="Suspended">Suspended</option>
+          <option value="">{{ 'provider.services.filters.allStatus' | translate }}</option>
+          <option value="Active">{{ 'status.active' | translate }}</option>
+          <option value="Inactive">{{ 'status.inactive' | translate }}</option>
+          <option value="Pending">{{ 'status.pending' | translate }}</option>
+          <option value="Rejected">{{ 'status.rejected' | translate }}</option>
+          <option value="Suspended">{{ 'status.suspended' | translate }}</option>
         </select>
       </div>
 
       <div class="filter-group">
-        <label>Category</label>
+        <label>{{ 'provider.services.filters.category' | translate }}</label>
         <select [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange()" class="filter-select">
-          <option value="">All Categories</option>
+          <option value="">{{ 'provider.services.filters.allCategories' | translate }}</option>
           <option *ngFor="let category of categories" [value]="category.categoryId">
             {{ category.nameEn }}
           </option>
@@ -47,55 +47,59 @@
       </div>
 
       <div class="filter-group">
-        <label>Sort By</label>
+        <label>{{ 'provider.services.filters.sortBy' | translate }}</label>
         <select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()" class="filter-select">
-          <option value="createdAt">Date Created</option>
-          <option value="name">Name</option>
-          <option value="price">Price</option>
-          <option value="totalBookings">Bookings</option>
-          <option value="averageRating">Rating</option>
+          <option value="createdAt">{{ 'provider.services.filters.sortDate' | translate }}</option>
+          <option value="name">{{ 'provider.services.filters.sortName' | translate }}</option>
+          <option value="price">{{ 'provider.services.filters.sortPrice' | translate }}</option>
+          <option value="totalBookings">{{ 'provider.services.filters.sortBookings' | translate }}</option>
+          <option value="averageRating">{{ 'provider.services.filters.sortRating' | translate }}</option>
         </select>
       </div>
 
       <div class="filter-group">
-        <label>Order</label>
+        <label>{{ 'provider.services.filters.order' | translate }}</label>
         <select [(ngModel)]="sortOrder" (ngModelChange)="onSortChange()" class="filter-select">
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
+          <option value="asc">{{ 'provider.services.filters.ascending' | translate }}</option>
+          <option value="desc">{{ 'provider.services.filters.descending' | translate }}</option>
         </select>
       </div>
 
       <div class="filter-group">
-        <button class="clear-btn" (click)="clearFilters()">Clear Filters</button>
+        <button class="clear-btn" (click)="clearFilters()">
+          {{ 'provider.services.filters.clear' | translate }}
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Results Info -->
   <div class="results-info" *ngIf="!isLoading">
-    <p>Showing {{ services.length }} of {{ totalCount }} services</p>
+    <p>{{ 'provider.services.results' | translate:{ count: services.length, total: totalCount } }}</p>
   </div>
 
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
     <div class="spinner"></div>
-    <p>Loading services...</p>
+    <p>{{ 'common.loading' | translate }}</p>
   </div>
 
   <!-- Empty State -->
   <div *ngIf="!isLoading && services.length === 0" class="empty-state">
     <div class="empty-icon">🛎️</div>
-    <h2>No Services Found</h2>
+    <h2>{{ 'provider.services.empty.title' | translate }}</h2>
     <p *ngIf="searchTerm || selectedStatus || selectedCategory">
-      Try adjusting your filters to find what you're looking for.
+      {{ 'provider.services.empty.filtered' | translate }}
     </p>
     <p *ngIf="!searchTerm && !selectedStatus && !selectedCategory">
-      Start adding services to attract customers and grow your business.
+      {{ 'provider.services.empty.noServices' | translate }}
     </p>
     <div class="empty-actions">
-      <button class="btn btn-primary" (click)="addNewService()">Add Your First Service</button>
+      <button class="btn btn-primary" (click)="addNewService()">
+        {{ 'provider.services.empty.addFirst' | translate }}
+      </button>
       <button class="btn btn-secondary" (click)="clearFilters()" *ngIf="searchTerm || selectedStatus || selectedCategory">
-        Clear Filters
+        {{ 'provider.services.filters.clear' | translate }}
       </button>
     </div>
   </div>
@@ -107,7 +111,7 @@
       <div class="service-image">
         <img [src]="getServiceImage(service)" [alt]="service.name">
         <span class="status-badge" [class]="getStatusClass(service.status)">
-          {{ getStatusLabel(service.status) }}
+          {{ 'status.' + service.status.toLowerCase() | translate }}
         </span>
       </div>
 
@@ -131,37 +135,37 @@
           <div class="stat">
             <span class="stat-icon">📅</span>
             <span class="stat-value">{{ service.totalBookings || 0 }}</span>
-            <span class="stat-label">bookings</span>
+            <span class="stat-label">{{ 'provider.services.stats.bookings' | translate }}</span>
           </div>
           <div class="stat">
             <span class="stat-icon">🕐</span>
             <span class="stat-value">{{ service.duration }}</span>
-            <span class="stat-label">min</span>
+            <span class="stat-label">{{ 'provider.services.stats.minutes' | translate }}</span>
           </div>
         </div>
 
         <div class="service-dates">
-          <p class="created-date">Created: {{ formatDate(service.createdAt) }}</p>
+          <p class="created-date">{{ 'provider.services.created' | translate }}: {{ formatDate(service.createdAt) }}</p>
         </div>
 
         <!-- Actions -->
         <div class="service-actions">
           <button class="btn btn-sm btn-primary" (click)="viewServiceDetail(service.serviceId)">
-            View
+            {{ 'provider.services.actions.view' | translate }}
           </button>
           <button class="btn btn-sm btn-secondary" (click)="editService(service.serviceId)"
             [disabled]="!canEditService(service)">
-            Edit
+            {{ 'provider.services.actions.edit' | translate }}
           </button>
           <button class="btn btn-sm btn-warning" (click)="openStatusModal(service)"
             *ngIf="canChangeStatus(service)">
-            {{ service.status === 'Active' ? 'Deactivate' : 'Activate' }}
+            {{ service.status === 'Active' ? ('provider.services.actions.deactivate' | translate) : ('provider.services.actions.activate' | translate) }}
           </button>
           <button class="btn btn-sm btn-secondary" (click)="duplicateService(service)">
-            Duplicate
+            {{ 'provider.services.actions.duplicate' | translate }}
           </button>
           <button class="btn btn-sm btn-danger" (click)="openDeleteModal(service)">
-            Delete
+            {{ 'provider.services.actions.delete' | translate }}
           </button>
         </div>
       </div>
@@ -171,12 +175,10 @@
   <!-- Pagination -->
   <div *ngIf="!isLoading && totalPages > 1" class="pagination">
     <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
-      Previous
+      {{ 'pagination.previous' | translate }}
     </button>
 
-    <button *ngIf="paginationPages[0] > 1" class="page-btn" (click)="goToPage(1)">
-      1
-    </button>
+    <button *ngIf="paginationPages[0] > 1" class="page-btn" (click)="goToPage(1)">1</button>
     <span *ngIf="paginationPages[0] > 2" class="page-dots">...</span>
 
     <button
@@ -193,7 +195,7 @@
     </button>
 
     <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
-      Next
+      {{ 'pagination.next' | translate }}
     </button>
   </div>
 </div>
@@ -202,21 +204,21 @@
 <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Delete Service</h2>
+      <h2>{{ 'provider.services.modals.delete.title' | translate }}</h2>
       <button class="close-btn" (click)="closeDeleteModal()">×</button>
     </div>
 
     <div class="modal-body">
-      <p>Are you sure you want to delete <strong>{{ selectedService?.name }}</strong>?</p>
-      <p class="warning-text">This action cannot be undone. All bookings and reviews associated with this service will remain, but the service will no longer be available for new bookings.</p>
+      <p>{{ 'provider.services.modals.delete.message' | translate:{ name: selectedService?.name } }}</p>
+      <p class="warning-text">{{ 'provider.services.modals.delete.warning' | translate }}</p>
     </div>
 
     <div class="modal-footer">
       <button class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="isDeleting">
-        Cancel
+        {{ 'common.cancel' | translate }}
       </button>
       <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="isDeleting">
-        {{ isDeleting ? 'Deleting...' : 'Delete Service' }}
+        {{ isDeleting ? ('common.processing' | translate) : ('common.delete' | translate) }}
       </button>
     </div>
   </div>
@@ -226,37 +228,37 @@
 <div *ngIf="showStatusModal" class="modal-overlay" (click)="closeStatusModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Change Service Status</h2>
+      <h2>{{ 'provider.services.modals.status.title' | translate }}</h2>
       <button class="close-btn" (click)="closeStatusModal()">×</button>
     </div>
 
     <div class="modal-body">
-      <p>Change the status of <strong>{{ selectedService?.name }}</strong></p>
+      <p>{{ 'provider.services.modals.status.message' | translate:{ name: selectedService?.name } }}</p>
 
       <div class="form-group">
-        <label>New Status</label>
+        <label>{{ 'provider.services.modals.status.newStatus' | translate }}</label>
         <select [(ngModel)]="newStatus" class="form-control">
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
+          <option value="Active">{{ 'status.active' | translate }}</option>
+          <option value="Inactive">{{ 'status.inactive' | translate }}</option>
         </select>
       </div>
 
       <div class="status-info">
         <p *ngIf="newStatus === 'Active'" class="info-text success">
-          ✓ Service will be visible to customers and available for booking
+          {{ 'provider.services.modals.status.activeInfo' | translate }}
         </p>
         <p *ngIf="newStatus === 'Inactive'" class="info-text warning">
-          ⚠ Service will be hidden from customers and unavailable for new bookings
+          {{ 'provider.services.modals.status.inactiveInfo' | translate }}
         </p>
       </div>
     </div>
 
     <div class="modal-footer">
       <button class="btn btn-secondary" (click)="closeStatusModal()">
-        Cancel
+        {{ 'common.cancel' | translate }}
       </button>
       <button class="btn btn-primary" (click)="confirmStatusChange()">
-        Update Status
+        {{ 'common.update' | translate }}
       </button>
     </div>
   </div>

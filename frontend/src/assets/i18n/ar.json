@@ -128,6 +128,15 @@
     "dashboard": {
       "title": "لوحة مزود الخدمة",
       "welcome": "مرحباً بعودتك، {{name}}!",
+      "verification": {
+        "pending": "يرجى إكمال ملفك الشخصي وإرسال مستندات التحقق للبدء في تقديم الخدمات.",
+        "rejected": "تم رفض التحقق. يرجى مراجعة الملاحظات وإعادة التقديم.",
+        "completeProfile": "إكمال الملف الشخصي"
+      },
+      "profileCompletion": {
+        "title": "اكتمال الملف الشخصي",
+        "description": "أكمل ملفك الشخصي لجذب المزيد من العملاء"
+      },
       "stats": {
         "todayBookings": "حجوزات اليوم",
         "pending": "الحجوزات المعلقة",
@@ -135,6 +144,44 @@
         "avgRating": "متوسط التقييم",
         "activeServices": "الخدمات النشطة",
         "completed": "إجمالي المكتمل"
+      },
+      "actions": {
+        "viewAll": "عرض الكل",
+        "details": "التفاصيل",
+        "viewReviews": "عرض التقييمات",
+        "manage": "إدارة",
+        "addService": "إضافة خدمة جديدة"
+      },
+      "sections": {
+        "recentBookings": "الحجوزات الأخيرة",
+        "activeServices": "الخدمات النشطة",
+        "quickActions": "إجراءات سريعة",
+        "performance": "نظرة عامة على الأداء"
+      },
+      "quickActions": {
+        "addService": "إضافة خدمة جديدة",
+        "viewBookings": "عرض الحجوزات",
+        "viewEarnings": "عرض الأرباح",
+        "manageReviews": "إدارة التقييمات"
+      },
+      "performance": {
+        "monthly": "إحصائيات شهرية",
+        "totalBookings": "إجمالي الحجوزات",
+        "completedBookings": "مكتملة",
+        "cancelledBookings": "ملغاة",
+        "earnings": "الأرباح",
+        "customerSatisfaction": "رضا العملاء",
+        "avgRating": "متوسط التقييم",
+        "totalReviews": "إجمالي التقييمات",
+        "positiveReviews": "التقييمات الإيجابية",
+        "responseRate": "معدل الاستجابة"
+      },
+      "empty": {
+        "noBookings": "لا توجد حجوزات حديثة",
+        "noBookingsDesc": "ستظهر طلبات الحجز الأخيرة هنا",
+        "noServices": "لا توجد خدمات نشطة",
+        "noServicesDesc": "ابدأ بإضافة الخدمات لتلقي طلبات الحجز",
+        "addFirst": "أضف خدمتك الأولى"
       }
     },
     "bookings": {

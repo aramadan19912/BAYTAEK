@@ -128,6 +128,15 @@
     "dashboard": {
       "title": "Provider Dashboard",
       "welcome": "Welcome back, {{name}}!",
+      "verification": {
+        "pending": "Please complete your profile and submit verification documents to start offering services.",
+        "rejected": "Your verification was rejected. Please review the notes and resubmit.",
+        "completeProfile": "Complete Profile"
+      },
+      "profileCompletion": {
+        "title": "Profile Completion",
+        "description": "Complete your profile to attract more customers"
+      },
       "stats": {
         "todayBookings": "Today's Bookings",
         "pending": "Pending Bookings",
@@ -135,6 +144,44 @@
         "avgRating": "Average Rating",
         "activeServices": "Active Services",
         "completed": "Total Completed"
+      },
+      "actions": {
+        "viewAll": "View All",
+        "details": "Details",
+        "viewReviews": "View Reviews",
+        "manage": "Manage",
+        "addService": "Add New Service"
+      },
+      "sections": {
+        "recentBookings": "Recent Bookings",
+        "activeServices": "Active Services",
+        "quickActions": "Quick Actions",
+        "performance": "Performance Overview"
+      },
+      "quickActions": {
+        "addService": "Add New Service",
+        "viewBookings": "View Bookings",
+        "viewEarnings": "View Earnings",
+        "manageReviews": "Manage Reviews"
+      },
+      "performance": {
+        "monthly": "Monthly Stats",
+        "totalBookings": "Total Bookings",
+        "completedBookings": "Completed",
+        "cancelledBookings": "Cancelled",
+        "earnings": "Earnings",
+        "customerSatisfaction": "Customer Satisfaction",
+        "avgRating": "Average Rating",
+        "totalReviews": "Total Reviews",
+        "positiveReviews": "Positive Reviews",
+        "responseRate": "Response Rate"
+      },
+      "empty": {
+        "noBookings": "No Recent Bookings",
+        "noBookingsDesc": "Your recent booking requests will appear here",
+        "noServices": "No Active Services",
+        "noServicesDesc": "Start adding services to receive booking requests",
+        "addFirst": "Add Your First Service"
       }
     },
     "bookings": {

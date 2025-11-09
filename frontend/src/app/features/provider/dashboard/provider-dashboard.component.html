@@ -2,8 +2,8 @@
   <!-- Header -->
   <div class="dashboard-header">
     <div class="welcome-section">
-      <h1>Provider Dashboard</h1>
-      <p *ngIf="profile">Welcome back, {{ profile.businessName }}!</p>
+      <h1>{{ 'provider.dashboard.title' | translate }}</h1>
+      <p *ngIf="profile">{{ 'provider.dashboard.welcome' | translate:{ name: profile.businessName } }}</p>
     </div>
 
     <!-- Verification Status Alert -->
@@ -12,25 +12,27 @@
       <div class="alert-content">
         <strong>{{ getVerificationStatusLabel(profile.verificationStatus) }}</strong>
         <p *ngIf="profile.verificationStatus === 'Pending'">
-          Please complete your profile and submit verification documents to start offering services.
+          {{ 'provider.dashboard.verification.pending' | translate }}
         </p>
         <p *ngIf="profile.verificationStatus === 'Rejected'">
           {{ profile.verificationNotes }}
         </p>
       </div>
-      <button class="btn btn-primary" routerLink="/profile">Complete Profile</button>
+      <button class="btn btn-primary" routerLink="/profile">
+        {{ 'provider.dashboard.verification.completeProfile' | translate }}
+      </button>
     </div>
 
     <!-- Profile Completion -->
     <div *ngIf="profile && getProfileCompletion() < 100" class="completion-card">
       <div class="completion-header">
-        <h3>Profile Completion</h3>
+        <h3>{{ 'provider.dashboard.profileCompletion.title' | translate }}</h3>
         <span class="completion-percentage">{{ getProfileCompletion() }}%</span>
       </div>
       <div class="progress-bar">
         <div class="progress-fill" [style.width.%]="getProfileCompletion()"></div>
       </div>
-      <p class="completion-text">Complete your profile to attract more customers</p>
+      <p class="completion-text">{{ 'provider.dashboard.profileCompletion.description' | translate }}</p>
     </div>
   </div>
 
@@ -39,7 +41,7 @@
     <div class="stat-card">
       <div class="stat-icon">📅</div>
       <div class="stat-content">
-        <span class="stat-label">Today's Bookings</span>
+        <span class="stat-label">{{ 'provider.dashboard.stats.todayBookings' | translate }}</span>
         <span class="stat-value">{{ todayBookings }}</span>
       </div>
     </div>
@@ -47,43 +49,51 @@
     <div class="stat-card">
       <div class="stat-icon">⏳</div>
       <div class="stat-content">
-        <span class="stat-label">Pending Bookings</span>
+        <span class="stat-label">{{ 'provider.dashboard.stats.pending' | translate }}</span>
         <span class="stat-value">{{ pendingBookings }}</span>
       </div>
-      <button class="stat-action" (click)="navigateToBookings()">View All</button>
+      <button class="stat-action" (click)="navigateToBookings()">
+        {{ 'provider.dashboard.actions.viewAll' | translate }}
+      </button>
     </div>
 
     <div class="stat-card">
       <div class="stat-icon">💰</div>
       <div class="stat-content">
-        <span class="stat-label">This Week's Earnings</span>
+        <span class="stat-label">{{ 'provider.dashboard.stats.weekEarnings' | translate }}</span>
         <span class="stat-value">{{ formatCurrency(weekEarnings) }}</span>
       </div>
-      <button class="stat-action" (click)="navigateToEarnings()">Details</button>
+      <button class="stat-action" (click)="navigateToEarnings()">
+        {{ 'provider.dashboard.actions.details' | translate }}
+      </button>
     </div>
 
     <div class="stat-card">
       <div class="stat-icon">⭐</div>
       <div class="stat-content">
-        <span class="stat-label">Average Rating</span>
+        <span class="stat-label">{{ 'provider.dashboard.stats.avgRating' | translate }}</span>
         <span class="stat-value">{{ stats?.averageRating || 0 }}</span>
       </div>
-      <button class="stat-action" (click)="navigateToReviews()">View Reviews</button>
+      <button class="stat-action" (click)="navigateToReviews()">
+        {{ 'provider.dashboard.actions.viewReviews' | translate }}
+      </button>
     </div>
 
     <div class="stat-card">
       <div class="stat-icon">🛎️</div>
       <div class="stat-content">
-        <span class="stat-label">Active Services</span>
+        <span class="stat-label">{{ 'provider.dashboard.stats.activeServices' | translate }}</span>
         <span class="stat-value">{{ activeServicesCount }}</span>
       </div>
-      <button class="stat-action" (click)="navigateToServices()">Manage</button>
+      <button class="stat-action" (click)="navigateToServices()">
+        {{ 'provider.dashboard.actions.manage' | translate }}
+      </button>
     </div>
 
     <div class="stat-card">
       <div class="stat-icon">✅</div>
       <div class="stat-content">
-        <span class="stat-label">Total Completed</span>
+        <span class="stat-label">{{ 'provider.dashboard.stats.completed' | translate }}</span>
         <span class="stat-value">{{ stats?.completedBookings || 0 }}</span>
       </div>
     </div>
@@ -94,21 +104,23 @@
     <!-- Recent Bookings -->
     <div class="content-section">
       <div class="section-header">
-        <h2>Recent Bookings</h2>
-        <button class="btn btn-secondary" (click)="navigateToBookings()">View All</button>
+        <h2>{{ 'provider.dashboard.sections.recentBookings' | translate }}</h2>
+        <button class="btn btn-secondary" (click)="navigateToBookings()">
+          {{ 'provider.dashboard.actions.viewAll' | translate }}
+        </button>
       </div>
 
       <!-- Loading State -->
       <div *ngIf="isLoadingBookings" class="loading-container">
         <div class="spinner"></div>
-        <p>Loading bookings...</p>
+        <p>{{ 'common.loading' | translate }}</p>
       </div>
 
       <!-- Empty State -->
       <div *ngIf="!isLoadingBookings && recentBookings.length === 0" class="empty-state">
         <div class="empty-icon">📋</div>
-        <h3>No Recent Bookings</h3>
-        <p>Your recent booking requests will appear here</p>
+        <h3>{{ 'provider.dashboard.empty.noBookings' | translate }}</h3>
+        <p>{{ 'provider.dashboard.empty.noBookingsDesc' | translate }}</p>
       </div>
 
       <!-- Bookings List -->
@@ -117,10 +129,10 @@
           <div class="booking-header">
             <div class="booking-info">
               <h4>{{ booking.serviceName }}</h4>
-              <p class="booking-number">Booking #{{ booking.bookingNumber }}</p>
+              <p class="booking-number">{{ 'provider.bookings.bookingNumber' | translate }} #{{ booking.bookingNumber }}</p>
             </div>
             <span class="status-badge" [class]="getBookingStatusClass(booking.status)">
-              {{ getBookingStatusLabel(booking.status) }}
+              {{ 'status.' + booking.status.toLowerCase() | translate }}
             </span>
           </div>
 
@@ -144,8 +156,12 @@
           </div>
 
           <div class="booking-actions" *ngIf="booking.status === 'Pending'">
-            <button class="btn btn-sm btn-success" (click)="$event.stopPropagation()">Accept</button>
-            <button class="btn btn-sm btn-danger" (click)="$event.stopPropagation()">Reject</button>
+            <button class="btn btn-sm btn-success" (click)="$event.stopPropagation()">
+              {{ 'provider.bookings.actions.accept' | translate }}
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="$event.stopPropagation()">
+              {{ 'provider.bookings.actions.reject' | translate }}
+            </button>
           </div>
         </div>
       </div>
@@ -154,25 +170,31 @@
     <!-- Active Services -->
     <div class="content-section">
       <div class="section-header">
-        <h2>Active Services</h2>
+        <h2>{{ 'provider.dashboard.sections.activeServices' | translate }}</h2>
         <div class="header-actions">
-          <button class="btn btn-primary" (click)="navigateToAddService()">Add New Service</button>
-          <button class="btn btn-secondary" (click)="navigateToServices()">View All</button>
+          <button class="btn btn-primary" (click)="navigateToAddService()">
+            {{ 'provider.dashboard.actions.addService' | translate }}
+          </button>
+          <button class="btn btn-secondary" (click)="navigateToServices()">
+            {{ 'provider.dashboard.actions.viewAll' | translate }}
+          </button>
         </div>
       </div>
 
       <!-- Loading State -->
       <div *ngIf="isLoadingServices" class="loading-container">
         <div class="spinner"></div>
-        <p>Loading services...</p>
+        <p>{{ 'common.loading' | translate }}</p>
       </div>
 
       <!-- Empty State -->
       <div *ngIf="!isLoadingServices && activeServices.length === 0" class="empty-state">
         <div class="empty-icon">🛎️</div>
-        <h3>No Active Services</h3>
-        <p>Start adding services to receive booking requests</p>
-        <button class="btn btn-primary" (click)="navigateToAddService()">Add Your First Service</button>
+        <h3>{{ 'provider.dashboard.empty.noServices' | translate }}</h3>
+        <p>{{ 'provider.dashboard.empty.noServicesDesc' | translate }}</p>
+        <button class="btn btn-primary" (click)="navigateToAddService()">
+          {{ 'provider.dashboard.empty.addFirst' | translate }}
+        </button>
       </div>
 
       <!-- Services Grid -->
@@ -180,7 +202,7 @@
         <div *ngFor="let service of activeServices" class="service-card" (click)="viewServiceDetail(service.serviceId)">
           <div class="service-image">
             <img [src]="service.images && service.images[0] || 'assets/images/default-service.png'" [alt]="service.name">
-            <span class="service-status">Active</span>
+            <span class="service-status">{{ 'status.active' | translate }}</span>
           </div>
           <div class="service-content">
             <h4>{{ service.name }}</h4>
@@ -192,8 +214,8 @@
               </span>
             </div>
             <div class="service-stats">
-              <span>{{ service.totalBookings || 0 }} bookings</span>
-              <span>{{ service.totalReviews || 0 }} reviews</span>
+              <span>{{ service.totalBookings || 0 }} {{ 'provider.services.stats.bookings' | translate }}</span>
+              <span>{{ service.totalReviews || 0 }} {{ 'provider.services.stats.reviews' | translate }}</span>
             </div>
           </div>
         </div>
@@ -203,70 +225,70 @@
 
   <!-- Quick Actions -->
   <div class="quick-actions">
-    <h2>Quick Actions</h2>
+    <h2>{{ 'provider.dashboard.sections.quickActions' | translate }}</h2>
     <div class="actions-grid">
       <button class="action-card" (click)="navigateToAddService()">
         <span class="action-icon">➕</span>
-        <span class="action-label">Add New Service</span>
+        <span class="action-label">{{ 'provider.dashboard.quickActions.addService' | translate }}</span>
       </button>
       <button class="action-card" (click)="navigateToBookings()">
         <span class="action-icon">📋</span>
-        <span class="action-label">View Bookings</span>
+        <span class="action-label">{{ 'provider.dashboard.quickActions.viewBookings' | translate }}</span>
       </button>
       <button class="action-card" (click)="navigateToEarnings()">
         <span class="action-icon">💰</span>
-        <span class="action-label">View Earnings</span>
+        <span class="action-label">{{ 'provider.dashboard.quickActions.viewEarnings' | translate }}</span>
       </button>
       <button class="action-card" (click)="navigateToReviews()">
         <span class="action-icon">⭐</span>
-        <span class="action-label">Manage Reviews</span>
+        <span class="action-label">{{ 'provider.dashboard.quickActions.manageReviews' | translate }}</span>
       </button>
     </div>
   </div>
 
   <!-- Performance Overview -->
   <div *ngIf="stats" class="performance-section">
-    <h2>Performance Overview</h2>
+    <h2>{{ 'provider.dashboard.sections.performance' | translate }}</h2>
     <div class="performance-grid">
       <div class="performance-card">
-        <h3>Monthly Stats</h3>
+        <h3>{{ 'provider.dashboard.performance.monthly' | translate }}</h3>
         <div class="stats-list">
           <div class="stat-row">
-            <span class="label">Total Bookings</span>
+            <span class="label">{{ 'provider.dashboard.performance.totalBookings' | translate }}</span>
             <span class="value">{{ stats.monthlyBookings || 0 }}</span>
           </div>
           <div class="stat-row">
-            <span class="label">Completed</span>
+            <span class="label">{{ 'provider.dashboard.performance.completedBookings' | translate }}</span>
             <span class="value success">{{ stats.completedBookings || 0 }}</span>
           </div>
           <div class="stat-row">
-            <span class="label">Cancelled</span>
+            <span class="label">{{ 'provider.dashboard.performance.cancelledBookings' | translate }}</span>
             <span class="value danger">{{ stats.cancelledBookings || 0 }}</span>
           </div>
           <div class="stat-row">
-            <span class="label">Earnings</span>
+            <span class="label">{{ 'provider.dashboard.performance.earnings' | translate }}</span>
             <span class="value">{{ formatCurrency(stats.monthlyEarnings || 0) }}</span>
           </div>
         </div>
       </div>
 
       <div class="performance-card">
-        <h3>Customer Satisfaction</h3>
+        <h3>{{ 'provider.dashboard.performance.customerSatisfaction' | translate }}</h3>
         <div class="stats-list">
           <div class="stat-row">
-            <span class="label">Average Rating</span>
+            <span class="label">{{ 'provider.dashboard.performance.avgRating' | translate }}</span>
             <span class="value">{{ stats.averageRating || 0 }} ⭐</span>
           </div>
           <div class="stat-row">
-            <span class="label">Total Reviews</span>
+            <span class="label">{{ 'provider.dashboard.performance.totalReviews' | translate }}</span>
             <span class="value">{{ stats.totalReviews || 0 }}</span>
           </div>
           <div class="stat-row">
-            <span class="label">Positive Reviews</span>
+            <span class="label">{{ 'provider.dashboard.performance.positiveReviews' | translate }}</span>
             <span class="value success">{{ stats.positiveReviews || 0 }}</span>
           </div>
           <div class="stat-row">
-            <span class="label">Response Rate</span>
+            <span class="label">{{ 'provider.dashboard.performance.responseRate' | translate }}</span>
             <span class="value">{{ stats.responseRate || 0 }}%</span>
           </div>
         </div>
