@@ -288,6 +288,38 @@ export interface DashboardStats {
   }>;
 }
 
+export interface BookingListItem {
+  bookingId: string;
+  bookingNumber: string;
+  customerName: string;
+  customerId: string;
+  serviceName: string;
+  serviceId: string;
+  providerName: string;
+  providerId: string;
+  scheduledDate: string;
+  totalAmount: number;
+  currency: string;
+  status: string;
+  paymentStatus: string;
+  createdAt: string;
+}
+
+export interface BookingStatistics {
+  totalBookings: number;
+  pendingBookings: number;
+  confirmedBookings: number;
+  completedBookings: number;
+  cancelledBookings: number;
+  totalRevenue: number;
+}
+
+export interface CancelBookingRequest {
+  reason: string;
+  notifyCustomer?: boolean;
+  refundAmount?: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -470,6 +502,27 @@ export class AdminService {
 
   updatePromoCodeStatus(promoCodeId: string, isActive: boolean): Observable<any> {
     return this.apiService.put(`admin/promocodes/${promoCodeId}/status`, { isActive });
+  }
+
+  // Booking Management
+  getBookings(params?: {
+    searchTerm?: string;
+    status?: string;
+    paymentStatus?: string;
+    startDate?: string;
+    endDate?: string;
+    pageNumber?: number;
+    pageSize?: number;
+  }): Observable<{ bookings: BookingListItem[]; totalCount: number; hasNextPage: boolean; hasPreviousPage: boolean }> {
+    return this.apiService.get('admin/bookings', params);
+  }
+
+  getBookingStatistics(): Observable<BookingStatistics> {
+    return this.apiService.get<BookingStatistics>('admin/bookings/statistics');
+  }
+
+  cancelBooking(bookingId: string, request: CancelBookingRequest): Observable<any> {
+    return this.apiService.post(`admin/bookings/${bookingId}/cancel`, request);
   }
 
   // Analytics

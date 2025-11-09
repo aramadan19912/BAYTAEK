@@ -59,6 +59,11 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'admin/bookings',
+    loadComponent: () => import('./features/admin/bookings/bookings-management.component').then(m => m.BookingsManagementComponent),
+    canActivate: [adminGuard]
+  },
+  {
     path: '**',
     redirectTo: ''
   }
