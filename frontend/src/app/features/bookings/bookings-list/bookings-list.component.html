@@ -1,23 +1,23 @@
 <div class="bookings-container">
   <!-- Header with Statistics -->
   <div class="bookings-header">
-    <h1>My Bookings</h1>
+    <h1>{{ 'bookingsList.title' | translate }}</h1>
     <div class="statistics" *ngIf="!loading">
       <div class="stat-card">
         <span class="stat-value">{{ totalBookings }}</span>
-        <span class="stat-label">Total Bookings</span>
+        <span class="stat-label">{{ 'bookingsList.stats.total' | translate }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ activeBookings }}</span>
-        <span class="stat-label">Active</span>
+        <span class="stat-label">{{ 'bookingsList.stats.active' | translate }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ completedBookings }}</span>
-        <span class="stat-label">Completed</span>
+        <span class="stat-label">{{ 'bookingsList.stats.completed' | translate }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ formatPrice(totalSpent) }}</span>
-        <span class="stat-label">Total Spent</span>
+        <span class="stat-label">{{ 'bookingsList.stats.totalSpent' | translate }}</span>
       </div>
     </div>
   </div>
@@ -31,7 +31,7 @@
         [class.active]="selectedStatus === null"
         (click)="filterByStatus(null)"
       >
-        All <span class="count">{{ totalCount }}</span>
+        {{ 'bookingsList.filters.all' | translate }} <span class="count">{{ totalCount }}</span>
       </button>
       <button
         *ngFor="let status of statuses"
@@ -50,7 +50,7 @@
           type="text"
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearchChange()"
-          placeholder="Search bookings..."
+          [placeholder]="'bookingsList.search' | translate"
           class="search-input"
         />
       </div>
@@ -60,15 +60,15 @@
           type="date"
           [(ngModel)]="startDate"
           (ngModelChange)="onDateFilterChange()"
-          placeholder="Start Date"
+          [placeholder]="'bookingsList.filters.startDate' | translate"
           class="date-input"
         />
-        <span>to</span>
+        <span>{{ 'bookingsList.filters.to' | translate }}</span>
         <input
           type="date"
           [(ngModel)]="endDate"
           (ngModelChange)="onDateFilterChange()"
-          placeholder="End Date"
+          [placeholder]="'bookingsList.filters.endDate' | translate"
           class="date-input"
         />
       </div>
@@ -78,7 +78,7 @@
         (click)="clearFilters()"
         *ngIf="hasActiveFilters()"
       >
-        Clear Filters ({{ getActiveFilterCount() }})
+        {{ 'bookingsList.filters.clearFilters' | translate:{ count: getActiveFilterCount() } }}
       </button>
     </div>
   </div>
@@ -106,7 +106,7 @@
         <div class="detail-row">
           <span class="icon">📅</span>
           <div class="detail-content">
-            <span class="label">Scheduled for</span>
+            <span class="label">{{ 'bookingsList.scheduledFor' | translate }}</span>
             <span class="value">{{ formatDate(booking.scheduledDateTime) }}</span>
           </div>
         </div>
@@ -114,7 +114,7 @@
         <div class="detail-row">
           <span class="icon">💰</span>
           <div class="detail-content">
-            <span class="label">Total Amount</span>
+            <span class="label">{{ 'bookingsList.totalAmount' | translate }}</span>
             <span class="value price">{{ formatPrice(booking.totalAmount) }}</span>
           </div>
         </div>
@@ -122,7 +122,7 @@
         <div class="detail-row">
           <span class="icon">📍</span>
           <div class="detail-content">
-            <span class="label">Location</span>
+            <span class="label">{{ 'bookingsList.location' | translate }}</span>
             <span class="value">{{ booking.address.city }}, {{ booking.address.region }}</span>
           </div>
         </div>
@@ -130,7 +130,7 @@
         <div class="detail-row">
           <span class="icon">💳</span>
           <div class="detail-content">
-            <span class="label">Payment</span>
+            <span class="label">{{ 'bookingsList.payment' | translate }}</span>
             <span class="value">{{ booking.paymentMethod }}</span>
           </div>
         </div>
@@ -142,7 +142,7 @@
           class="btn btn-primary"
           (click)="viewBookingDetails(booking.bookingId)"
         >
-          View Details
+          {{ 'bookingsList.actions.viewDetails' | translate }}
         </button>
 
         <button
@@ -150,7 +150,7 @@
           class="btn btn-danger"
           (click)="cancelBooking(booking)"
         >
-          Cancel Booking
+          {{ 'bookingsList.actions.cancel' | translate }}
         </button>
 
         <button
@@ -158,14 +158,14 @@
           class="btn btn-success"
           (click)="viewBookingDetails(booking.bookingId)"
         >
-          Write Review
+          {{ 'bookingsList.actions.review' | translate }}
         </button>
 
         <button
           class="btn btn-secondary"
           (click)="bookAgain(booking)"
         >
-          Book Again
+          {{ 'bookingsList.actions.bookAgain' | translate }}
         </button>
       </div>
     </div>
@@ -174,24 +174,24 @@
   <!-- Loading State -->
   <div class="loading-container" *ngIf="loading">
     <div class="spinner"></div>
-    <p>Loading bookings...</p>
+    <p>{{ 'common.loading' | translate }}</p>
   </div>
 
   <!-- Empty State -->
   <div class="empty-state" *ngIf="!loading && bookings.length === 0">
     <div class="empty-icon">📋</div>
-    <h2>No Bookings Found</h2>
+    <h2>{{ 'bookingsList.empty.title' | translate }}</h2>
     <p *ngIf="hasActiveFilters()">
-      Try adjusting your filters to see more results.
+      {{ 'bookingsList.empty.filtered' | translate }}
     </p>
     <p *ngIf="!hasActiveFilters()">
-      You haven't made any bookings yet.
+      {{ 'bookingsList.empty.noBookings' | translate }}
     </p>
     <button class="btn btn-primary" routerLink="/services" *ngIf="!hasActiveFilters()">
-      Browse Services
+      {{ 'bookingsList.empty.browseServices' | translate }}
     </button>
     <button class="btn btn-secondary" (click)="clearFilters()" *ngIf="hasActiveFilters()">
-      Clear Filters
+      {{ 'bookingsList.filters.clear' | translate }}
     </button>
   </div>
 
@@ -202,7 +202,7 @@
       (click)="previousPage()"
       [disabled]="currentPage === 1"
     >
-      ← Previous
+      ← {{ 'pagination.previous' | translate }}
     </button>
 
     <button
@@ -219,15 +219,14 @@
       (click)="nextPage()"
       [disabled]="currentPage === totalPages"
     >
-      Next →
+      {{ 'pagination.next' | translate }} →
     </button>
   </div>
 
   <!-- Results Info -->
   <div class="results-info" *ngIf="!loading && bookings.length > 0">
     <p>
-      Showing {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }}
-      of {{ totalCount }} bookings
+      {{ 'bookingsList.showing' | translate:{ start: (currentPage - 1) * pageSize + 1, end: Math.min(currentPage * pageSize, totalCount), total: totalCount } }}
     </p>
   </div>
 </div>
