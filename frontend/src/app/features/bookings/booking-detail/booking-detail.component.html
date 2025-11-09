@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="booking-header">
     <button class="back-btn" routerLink="/bookings">
-      ← Back to Bookings
+      ← {{ 'bookingDetail.backToBookings' | translate }}
     </button>
     <div class="booking-title">
       <h1>{{ getServiceName() }}</h1>
@@ -19,7 +19,7 @@
     <div class="main-info">
       <!-- Service Info Card -->
       <div class="info-card">
-        <h2>Service Details</h2>
+        <h2>{{ 'bookingDetail.service.title' | translate }}</h2>
         <div class="service-info">
           <img *ngIf="booking.service.images && booking.service.images.length > 0"
                [src]="booking.service.images[0]"
@@ -29,15 +29,15 @@
           <div class="service-details">
             <h3>{{ getServiceName() }}</h3>
             <div class="detail-row">
-              <span class="label">Price:</span>
+              <span class="label">{{ 'bookingDetail.service.price' | translate }}:</span>
               <span class="value">{{ formatPrice(booking.pricing.basePrice) }}</span>
             </div>
             <div class="detail-row">
-              <span class="label">Duration:</span>
-              <span class="value">{{ booking.service.estimatedDurationMinutes }} minutes</span>
+              <span class="label">{{ 'bookingDetail.service.duration' | translate }}:</span>
+              <span class="value">{{ booking.service.estimatedDurationMinutes }} {{ 'bookingDetail.service.minutes' | translate }}</span>
             </div>
             <button class="btn btn-secondary" (click)="viewService()">
-              View Service Details
+              {{ 'bookingDetail.service.viewDetails' | translate }}
             </button>
           </div>
         </div>
@@ -45,40 +45,40 @@
 
       <!-- Schedule Info Card -->
       <div class="info-card">
-        <h2>Schedule Information</h2>
+        <h2>{{ 'bookingDetail.schedule.title' | translate }}</h2>
         <div class="schedule-info">
           <div class="detail-row">
             <span class="icon">📅</span>
             <div>
-              <span class="label">Scheduled for</span>
+              <span class="label">{{ 'bookingDetail.schedule.scheduledFor' | translate }}</span>
               <span class="value">{{ formatDate(booking.scheduledDateTime) }}</span>
             </div>
           </div>
           <div class="detail-row" *ngIf="booking.status === 'Confirmed' || booking.status === 'Pending'">
             <span class="icon">⏰</span>
             <div>
-              <span class="label">Time until appointment</span>
+              <span class="label">{{ 'bookingDetail.schedule.timeUntil' | translate }}</span>
               <span class="value">{{ getTimeUntilScheduled() }}</span>
             </div>
           </div>
           <div class="detail-row" *ngIf="booking.startedAt">
             <span class="icon">▶️</span>
             <div>
-              <span class="label">Started at</span>
+              <span class="label">{{ 'bookingDetail.schedule.startedAt' | translate }}</span>
               <span class="value">{{ formatDate(booking.startedAt) }}</span>
             </div>
           </div>
           <div class="detail-row" *ngIf="booking.completedAt">
             <span class="icon">✅</span>
             <div>
-              <span class="label">Completed at</span>
+              <span class="label">{{ 'bookingDetail.schedule.completedAt' | translate }}</span>
               <span class="value">{{ formatDate(booking.completedAt) }}</span>
             </div>
           </div>
           <div class="detail-row" *ngIf="booking.status === 'InProgress'">
             <span class="icon">🕐</span>
             <div>
-              <span class="label">Estimated completion</span>
+              <span class="label">{{ 'bookingDetail.schedule.estimatedCompletion' | translate }}</span>
               <span class="value">{{ getEstimatedCompletionTime() }}</span>
             </div>
           </div>
@@ -87,7 +87,7 @@
 
       <!-- Address Info Card -->
       <div class="info-card">
-        <h2>Service Location</h2>
+        <h2>{{ 'bookingDetail.address.title' | translate }}</h2>
         <div class="address-info">
           <span class="icon">📍</span>
           <div class="address-details">
@@ -102,23 +102,23 @@
 
       <!-- Provider Info Card -->
       <div class="info-card">
-        <h2>Service Provider</h2>
+        <h2>{{ 'bookingDetail.provider.title' | translate }}</h2>
         <div class="provider-info">
           <div class="provider-header">
             <h3>{{ booking.provider.name }}</h3>
-            <span class="verified" *ngIf="booking.provider.isVerified">✓ Verified</span>
+            <span class="verified" *ngIf="booking.provider.isVerified">✓ {{ 'bookingDetail.provider.verified' | translate }}</span>
           </div>
           <div class="provider-stats">
             <div class="stat">
-              <span class="label">Rating:</span>
+              <span class="label">{{ 'bookingDetail.provider.rating' | translate }}:</span>
               <span class="stars">
                 <span *ngFor="let filled of getStarArray(booking.provider.rating)" [class.filled]="filled">★</span>
               </span>
               <span>{{ booking.provider.rating.toFixed(1) }}</span>
             </div>
             <div class="stat">
-              <span class="label">Experience:</span>
-              <span>{{ booking.provider.yearsOfExperience }} years</span>
+              <span class="label">{{ 'bookingDetail.provider.experience' | translate }}:</span>
+              <span>{{ booking.provider.yearsOfExperience }} {{ 'bookingDetail.provider.years' | translate }}</span>
             </div>
           </div>
           <button
@@ -126,21 +126,21 @@
             (click)="openMessageModal()"
             *ngIf="canContactProvider()"
           >
-            Contact Provider
+            {{ 'bookingDetail.provider.contact' | translate }}
           </button>
         </div>
       </div>
 
       <!-- Notes Card -->
       <div class="info-card" *ngIf="booking.customerNotes || booking.providerNotes">
-        <h2>Notes</h2>
+        <h2>{{ 'bookingDetail.notes.title' | translate }}</h2>
         <div class="notes-section">
           <div *ngIf="booking.customerNotes" class="note">
-            <strong>Your Notes:</strong>
+            <strong>{{ 'bookingDetail.notes.yourNotes' | translate }}:</strong>
             <p>{{ booking.customerNotes }}</p>
           </div>
           <div *ngIf="booking.providerNotes" class="note">
-            <strong>Provider Notes:</strong>
+            <strong>{{ 'bookingDetail.notes.providerNotes' | translate }}:</strong>
             <p>{{ booking.providerNotes }}</p>
           </div>
         </div>
@@ -151,28 +151,28 @@
     <div class="sidebar-info">
       <!-- Payment Card -->
       <div class="info-card">
-        <h2>Payment Details</h2>
+        <h2>{{ 'bookingDetail.payment.title' | translate }}</h2>
         <div class="payment-details">
           <div class="price-row">
-            <span>Service Price:</span>
+            <span>{{ 'bookingDetail.payment.servicePrice' | translate }}:</span>
             <span>{{ formatPrice(booking.pricing.basePrice) }}</span>
           </div>
           <div class="price-row discount" *ngIf="booking.pricing.promoDiscount > 0">
-            <span>Promo Discount:</span>
+            <span>{{ 'bookingDetail.payment.promoDiscount' | translate }}:</span>
             <span>-{{ formatPrice(booking.pricing.promoDiscount) }}</span>
           </div>
           <div class="price-row total">
-            <span>Total Amount:</span>
+            <span>{{ 'bookingDetail.payment.totalAmount' | translate }}:</span>
             <span>{{ formatPrice(booking.pricing.totalAmount) }}</span>
           </div>
           <div class="payment-status">
-            <span class="label">Payment Status:</span>
+            <span class="label">{{ 'bookingDetail.payment.paymentStatus' | translate }}:</span>
             <span class="badge" [ngClass]="getPaymentStatusClass(booking.payment.paymentStatus)">
               {{ getPaymentStatusLabel(booking.payment.paymentStatus) }}
             </span>
           </div>
           <div class="payment-method">
-            <span class="label">Payment Method:</span>
+            <span class="label">{{ 'bookingDetail.payment.paymentMethod' | translate }}:</span>
             <span>{{ booking.payment.paymentMethod }}</span>
           </div>
         </div>
@@ -180,7 +180,7 @@
 
       <!-- Timeline Card -->
       <div class="info-card">
-        <h2>Booking Timeline</h2>
+        <h2>{{ 'bookingDetail.timeline.title' | translate }}</h2>
         <div class="timeline">
           <div
             *ngFor="let item of booking.timeline"
@@ -198,33 +198,33 @@
 
       <!-- Actions Card -->
       <div class="info-card actions-card">
-        <h2>Actions</h2>
+        <h2>{{ 'bookingDetail.actions.title' | translate }}</h2>
         <div class="action-buttons">
           <button
             class="btn btn-danger"
             (click)="openCancelModal()"
             *ngIf="canCancelBooking()"
           >
-            Cancel Booking
+            {{ 'bookingDetail.actions.cancel' | translate }}
           </button>
           <button
             class="btn btn-success"
             (click)="openReviewModal()"
             *ngIf="canReviewBooking()"
           >
-            Write Review
+            {{ 'bookingDetail.actions.review' | translate }}
           </button>
           <button
             class="btn btn-warning"
             (click)="openReportModal()"
           >
-            Report Issue
+            {{ 'bookingDetail.actions.report' | translate }}
           </button>
           <button
             class="btn btn-secondary"
             (click)="bookAgain()"
           >
-            Book Again
+            {{ 'bookingDetail.actions.bookAgain' | translate }}
           </button>
         </div>
       </div>
@@ -235,34 +235,34 @@
 <!-- Loading State -->
 <div class="loading-container" *ngIf="loading">
   <div class="spinner"></div>
-  <p>Loading booking details...</p>
+  <p>{{ 'common.loading' | translate }}</p>
 </div>
 
 <!-- Cancel Booking Modal -->
 <div class="modal-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Cancel Booking</h2>
+      <h2>{{ 'bookingDetail.modals.cancel.title' | translate }}</h2>
       <button class="close-btn" (click)="closeCancelModal()">×</button>
     </div>
     <div class="modal-body">
-      <p>Are you sure you want to cancel this booking?</p>
+      <p>{{ 'bookingDetail.modals.cancel.message' | translate }}</p>
       <div class="form-group">
-        <label>Cancellation Reason</label>
+        <label>{{ 'bookingDetail.modals.cancel.reasonLabel' | translate }}</label>
         <select [(ngModel)]="cancellationReason" class="form-control">
-          <option value="">Select a reason...</option>
+          <option value="">{{ 'bookingDetail.modals.cancel.selectReason' | translate }}</option>
           <option *ngFor="let reason of cancellationReasons" [value]="reason">{{ reason }}</option>
         </select>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="closeCancelModal()">Keep Booking</button>
+      <button class="btn btn-secondary" (click)="closeCancelModal()">{{ 'bookingDetail.modals.cancel.keep' | translate }}</button>
       <button
         class="btn btn-danger"
         (click)="confirmCancellation()"
         [disabled]="cancellingBooking || !cancellationReason"
       >
-        {{ cancellingBooking ? 'Cancelling...' : 'Confirm Cancellation' }}
+        {{ cancellingBooking ? ('common.processing' | translate) : ('bookingDetail.modals.cancel.confirm' | translate) }}
       </button>
     </div>
   </div>
@@ -272,12 +272,12 @@
 <div class="modal-overlay" *ngIf="showReviewModal" (click)="closeReviewModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Write a Review</h2>
+      <h2>{{ 'bookingDetail.modals.review.title' | translate }}</h2>
       <button class="close-btn" (click)="closeReviewModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Rating</label>
+        <label>{{ 'bookingDetail.modals.review.rating' | translate }}</label>
         <div class="star-rating">
           <span
             *ngFor="let star of getStarArray(5)"
@@ -288,23 +288,23 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Your Review</label>
+        <label>{{ 'bookingDetail.modals.review.yourReview' | translate }}</label>
         <textarea
           [(ngModel)]="reviewComment"
-          placeholder="Share your experience..."
+          [placeholder]="'bookingDetail.modals.review.placeholder' | translate"
           rows="5"
           class="form-control"
         ></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="closeReviewModal()">Cancel</button>
+      <button class="btn btn-secondary" (click)="closeReviewModal()">{{ 'common.cancel' | translate }}</button>
       <button
         class="btn btn-success"
         (click)="submitReview()"
         [disabled]="submittingReview"
       >
-        {{ submittingReview ? 'Submitting...' : 'Submit Review' }}
+        {{ submittingReview ? ('common.submitting' | translate) : ('bookingDetail.modals.review.submit' | translate) }}
       </button>
     </div>
   </div>
@@ -314,35 +314,35 @@
 <div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Report an Issue</h2>
+      <h2>{{ 'bookingDetail.modals.report.title' | translate }}</h2>
       <button class="close-btn" (click)="closeReportModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Issue Type</label>
+        <label>{{ 'bookingDetail.modals.report.issueType' | translate }}</label>
         <select [(ngModel)]="reportReason" class="form-control">
-          <option value="">Select an issue...</option>
+          <option value="">{{ 'bookingDetail.modals.report.selectIssue' | translate }}</option>
           <option *ngFor="let reason of reportReasons" [value]="reason">{{ reason }}</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Description</label>
+        <label>{{ 'bookingDetail.modals.report.description' | translate }}</label>
         <textarea
           [(ngModel)]="reportDescription"
-          placeholder="Please describe the issue..."
+          [placeholder]="'bookingDetail.modals.report.placeholder' | translate"
           rows="5"
           class="form-control"
         ></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="closeReportModal()">Cancel</button>
+      <button class="btn btn-secondary" (click)="closeReportModal()">{{ 'common.cancel' | translate }}</button>
       <button
         class="btn btn-warning"
         (click)="submitReport()"
         [disabled]="submittingReport || !reportReason || !reportDescription"
       >
-        {{ submittingReport ? 'Submitting...' : 'Submit Report' }}
+        {{ submittingReport ? ('common.submitting' | translate) : ('bookingDetail.modals.report.submit' | translate) }}
       </button>
     </div>
   </div>
@@ -352,28 +352,28 @@
 <div class="modal-overlay" *ngIf="showMessageModal" (click)="closeMessageModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Contact Provider</h2>
+      <h2>{{ 'bookingDetail.modals.message.title' | translate }}</h2>
       <button class="close-btn" (click)="closeMessageModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Message</label>
+        <label>{{ 'bookingDetail.modals.message.label' | translate }}</label>
         <textarea
           [(ngModel)]="messageText"
-          placeholder="Type your message..."
+          [placeholder]="'bookingDetail.modals.message.placeholder' | translate"
           rows="5"
           class="form-control"
         ></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="closeMessageModal()">Cancel</button>
+      <button class="btn btn-secondary" (click)="closeMessageModal()">{{ 'common.cancel' | translate }}</button>
       <button
         class="btn btn-primary"
         (click)="sendMessage()"
         [disabled]="sendingMessage || !messageText"
       >
-        {{ sendingMessage ? 'Sending...' : 'Send Message' }}
+        {{ sendingMessage ? ('common.sending' | translate) : ('bookingDetail.modals.message.send' | translate) }}
       </button>
     </div>
   </div>
