@@ -1,8 +1,8 @@
 <div class="services-container">
   <!-- Header -->
   <div class="services-header">
-    <h1>Browse Services</h1>
-    <p class="subtitle">Find the perfect service for your needs</p>
+    <h1>{{ 'servicesList.title' | translate }}</h1>
+    <p class="subtitle">{{ 'servicesList.subtitle' | translate }}</p>
   </div>
 
   <!-- Search and Filters -->
@@ -13,7 +13,7 @@
         type="text"
         [(ngModel)]="searchTerm"
         (ngModelChange)="onSearchChange()"
-        placeholder="Search services..."
+        [placeholder]="'servicesList.search' | translate"
         class="search-input"
       />
     </div>
@@ -22,9 +22,9 @@
     <div class="filter-bar">
       <!-- Categories -->
       <div class="filter-group">
-        <label>Category</label>
+        <label>{{ 'servicesList.filters.category' | translate }}</label>
         <select [(ngModel)]="selectedCategoryId" (ngModelChange)="onCategoryChange($event)" class="filter-select">
-          <option [value]="null">All Categories</option>
+          <option [value]="null">{{ 'servicesList.filters.allCategories' | translate }}</option>
           <option *ngFor="let category of categories; trackBy: trackByCategoryId" [value]="category.categoryId">
             {{ getCategoryName(category) }}
           </option>
@@ -33,9 +33,9 @@
 
       <!-- Region -->
       <div class="filter-group">
-        <label>Region</label>
+        <label>{{ 'servicesList.filters.region' | translate }}</label>
         <select [(ngModel)]="selectedRegion" (ngModelChange)="onRegionChange()" class="filter-select">
-          <option [value]="null">All Regions</option>
+          <option [value]="null">{{ 'servicesList.filters.allRegions' | translate }}</option>
           <option *ngFor="let region of regions" [value]="region.value">
             {{ region.label }}
           </option>
@@ -44,32 +44,32 @@
 
       <!-- Price Range -->
       <div class="filter-group">
-        <label>Min Price</label>
+        <label>{{ 'servicesList.filters.minPrice' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="minPrice"
           (ngModelChange)="onPriceFilterChange()"
-          placeholder="Min"
+          [placeholder]="'servicesList.filters.min' | translate"
           class="filter-input"
         />
       </div>
 
       <div class="filter-group">
-        <label>Max Price</label>
+        <label>{{ 'servicesList.filters.maxPrice' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="maxPrice"
           (ngModelChange)="onPriceFilterChange()"
-          placeholder="Max"
+          [placeholder]="'servicesList.filters.max' | translate"
           class="filter-input"
         />
       </div>
 
       <!-- Rating -->
       <div class="filter-group">
-        <label>Min Rating</label>
+        <label>{{ 'servicesList.filters.minRating' | translate }}</label>
         <select [(ngModel)]="minRating" (ngModelChange)="onRatingChange()" class="filter-select">
-          <option [value]="null">Any Rating</option>
+          <option [value]="null">{{ 'servicesList.filters.anyRating' | translate }}</option>
           <option *ngFor="let rating of ratingOptions" [value]="rating.value">
             {{ rating.label }}
           </option>
@@ -78,7 +78,7 @@
 
       <!-- Sort -->
       <div class="filter-group">
-        <label>Sort By</label>
+        <label>{{ 'servicesList.filters.sortBy' | translate }}</label>
         <select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()" class="filter-select">
           <option *ngFor="let option of sortOptions" [value]="option.value">
             {{ option.label }}
@@ -90,7 +90,7 @@
       <div class="filter-group">
         <label>&nbsp;</label>
         <button class="clear-btn" (click)="clearFilters()">
-          Clear Filters
+          {{ 'servicesList.filters.clear' | translate }}
         </button>
       </div>
     </div>
@@ -98,7 +98,7 @@
 
   <!-- Results Info -->
   <div class="results-info" *ngIf="!loading">
-    <p>Found {{ totalCount }} service{{ totalCount !== 1 ? 's' : '' }}</p>
+    <p>{{ 'servicesList.found' | translate:{ count: totalCount } }}</p>
   </div>
 
   <!-- Services Grid -->
@@ -140,7 +140,7 @@
         <div class="service-footer">
           <div class="price-info">
             <span class="price">{{ formatPrice(service.basePrice) }}</span>
-            <span class="duration">~{{ service.estimatedDurationMinutes }} min</span>
+            <span class="duration">~{{ service.estimatedDurationMinutes }} {{ 'servicesList.min' | translate }}</span>
           </div>
 
           <div class="provider-info">
@@ -150,7 +150,7 @@
         </div>
 
         <button class="book-btn" (click)="$event.preventDefault(); $event.stopPropagation()">
-          Book Now
+          {{ 'servicesList.bookNow' | translate }}
         </button>
       </div>
     </div>
@@ -159,16 +159,16 @@
   <!-- Loading State -->
   <div class="loading-container" *ngIf="loading">
     <div class="spinner"></div>
-    <p>Loading services...</p>
+    <p>{{ 'common.loading' | translate }}</p>
   </div>
 
   <!-- Empty State -->
   <div class="empty-state" *ngIf="!loading && services.length === 0">
     <div class="empty-icon">🔍</div>
-    <h2>No Services Found</h2>
-    <p>Try adjusting your search criteria or filters.</p>
+    <h2>{{ 'servicesList.empty.title' | translate }}</h2>
+    <p>{{ 'servicesList.empty.description' | translate }}</p>
     <button class="btn btn-primary" (click)="clearFilters()">
-      Clear All Filters
+      {{ 'servicesList.empty.clearFilters' | translate }}
     </button>
   </div>
 
@@ -179,7 +179,7 @@
       (click)="previousPage()"
       [disabled]="currentPage === 1"
     >
-      ← Previous
+      ← {{ 'pagination.previous' | translate }}
     </button>
 
     <button
@@ -196,7 +196,7 @@
       (click)="nextPage()"
       [disabled]="currentPage === totalPages"
     >
-      Next →
+      {{ 'pagination.next' | translate }} →
     </button>
   </div>
 </div>
