@@ -2,7 +2,7 @@
   <!-- Loading State -->
   <div *ngIf="isLoadingProfile && !currentUser" class="loading-container">
     <div class="spinner"></div>
-    <p>Loading profile...</p>
+    <p>{{ 'common.loading' | translate }}</p>
   </div>
 
   <!-- Main Content -->
@@ -19,7 +19,7 @@
       </div>
       <div class="header-actions">
         <button class="btn btn-primary" (click)="startEditingProfile()" *ngIf="!isEditingProfile">
-          Edit Profile
+          {{ 'profile.actions.editProfile' | translate }}
         </button>
       </div>
     </div>
@@ -30,38 +30,38 @@
         class="tab-btn"
         [class.active]="activeTab === 'profile'"
         (click)="switchTab('profile')">
-        Profile
+        {{ 'profile.tabs.profile' | translate }}
       </button>
       <button
         class="tab-btn"
         [class.active]="activeTab === 'addresses'"
         (click)="switchTab('addresses')">
-        Addresses
+        {{ 'profile.tabs.addresses' | translate }}
       </button>
       <button
         class="tab-btn"
         [class.active]="activeTab === 'payment'"
         (click)="switchTab('payment')">
-        Payment Methods
+        {{ 'profile.tabs.payment' | translate }}
       </button>
       <button
         class="tab-btn"
         [class.active]="activeTab === 'notifications'"
         (click)="switchTab('notifications')">
-        Notifications
+        {{ 'profile.tabs.notifications' | translate }}
       </button>
       <button
         class="tab-btn"
         [class.active]="activeTab === 'security'"
         (click)="switchTab('security')">
-        Security
+        {{ 'profile.tabs.security' | translate }}
       </button>
       <button
         *ngIf="isProvider"
         class="tab-btn"
         [class.active]="activeTab === 'provider'"
         (click)="switchTab('provider')">
-        Provider Info
+        {{ 'profile.tabs.provider' | translate }}
       </button>
     </div>
 
@@ -70,42 +70,42 @@
       <!-- View Mode -->
       <div *ngIf="!isEditingProfile" class="profile-view">
         <div class="info-card">
-          <h2>Personal Information</h2>
+          <h2>{{ 'profile.personal.title' | translate }}</h2>
           <div class="info-grid">
             <div class="info-item">
-              <span class="label">First Name</span>
+              <span class="label">{{ 'profile.personal.firstName' | translate }}</span>
               <span class="value">{{ currentUser.firstName }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Last Name</span>
+              <span class="label">{{ 'profile.personal.lastName' | translate }}</span>
               <span class="value">{{ currentUser.lastName }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Email</span>
+              <span class="label">{{ 'profile.personal.email' | translate }}</span>
               <span class="value">{{ currentUser.email }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Phone Number</span>
-              <span class="value">{{ currentUser.phoneNumber || 'Not provided' }}</span>
+              <span class="label">{{ 'profile.personal.phone' | translate }}</span>
+              <span class="value">{{ currentUser.phoneNumber || ('common.notProvided' | translate) }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Date of Birth</span>
+              <span class="label">{{ 'profile.personal.dateOfBirth' | translate }}</span>
               <span class="value">{{ formatDate(currentUser.dateOfBirth) }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Gender</span>
-              <span class="value">{{ currentUser.gender || 'Not specified' }}</span>
+              <span class="label">{{ 'profile.personal.gender' | translate }}</span>
+              <span class="value">{{ currentUser.gender || ('common.notSpecified' | translate) }}</span>
             </div>
             <div class="info-item full-width">
-              <span class="label">Bio</span>
-              <span class="value">{{ currentUser.bio || 'No bio provided' }}</span>
+              <span class="label">{{ 'profile.personal.bio' | translate }}</span>
+              <span class="value">{{ currentUser.bio || ('profile.personal.noBio' | translate) }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Preferred Language</span>
-              <span class="value">{{ currentUser.preferredLanguage === 'ar' ? 'Arabic' : 'English' }}</span>
+              <span class="label">{{ 'profile.personal.language' | translate }}</span>
+              <span class="value">{{ currentUser.preferredLanguage === 'ar' ? ('common.arabic' | translate) : ('common.english' | translate) }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Member Since</span>
+              <span class="label">{{ 'profile.personal.memberSince' | translate }}</span>
               <span class="value">{{ formatDate(currentUser.createdAt) }}</span>
             </div>
           </div>
@@ -115,11 +115,11 @@
       <!-- Edit Mode -->
       <div *ngIf="isEditingProfile" class="profile-edit">
         <div class="info-card">
-          <h2>Edit Profile</h2>
+          <h2>{{ 'profile.edit.title' | translate }}</h2>
 
           <!-- Profile Image Upload -->
           <div class="form-group image-upload">
-            <label>Profile Image</label>
+            <label>{{ 'profile.edit.profileImage' | translate }}</label>
             <div class="image-preview">
               <img
                 [src]="profileImagePreview || currentUser.profileImageUrl || 'assets/images/default-avatar.png'"
@@ -131,7 +131,7 @@
                 id="profileImageInput"
                 style="display: none;">
               <button type="button" class="btn btn-secondary" (click)="document.getElementById('profileImageInput').click()">
-                Change Image
+                {{ 'profile.edit.changeImage' | translate }}
               </button>
             </div>
           </div>
@@ -140,57 +140,57 @@
           <div class="edit-form">
             <div class="form-row">
               <div class="form-group">
-                <label>First Name *</label>
+                <label>{{ 'profile.personal.firstName' | translate }} *</label>
                 <input type="text" [(ngModel)]="profileForm.firstName" class="form-control" required>
               </div>
               <div class="form-group">
-                <label>Last Name *</label>
+                <label>{{ 'profile.personal.lastName' | translate }} *</label>
                 <input type="text" [(ngModel)]="profileForm.lastName" class="form-control" required>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label>Phone Number *</label>
+                <label>{{ 'profile.personal.phone' | translate }} *</label>
                 <input type="tel" [(ngModel)]="profileForm.phoneNumber" class="form-control" required>
               </div>
               <div class="form-group">
-                <label>Date of Birth</label>
+                <label>{{ 'profile.personal.dateOfBirth' | translate }}</label>
                 <input type="date" [(ngModel)]="profileForm.dateOfBirth" class="form-control">
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label>Gender</label>
+                <label>{{ 'profile.personal.gender' | translate }}</label>
                 <select [(ngModel)]="profileForm.gender" class="form-control">
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
+                  <option value="">{{ 'profile.edit.selectGender' | translate }}</option>
+                  <option value="Male">{{ 'profile.edit.male' | translate }}</option>
+                  <option value="Female">{{ 'profile.edit.female' | translate }}</option>
+                  <option value="Other">{{ 'profile.edit.other' | translate }}</option>
                 </select>
               </div>
               <div class="form-group">
-                <label>Preferred Language</label>
+                <label>{{ 'profile.personal.language' | translate }}</label>
                 <select [(ngModel)]="profileForm.preferredLanguage" class="form-control">
-                  <option value="en">English</option>
-                  <option value="ar">Arabic</option>
+                  <option value="en">{{ 'common.english' | translate }}</option>
+                  <option value="ar">{{ 'common.arabic' | translate }}</option>
                 </select>
               </div>
             </div>
 
             <div class="form-group">
-              <label>Bio</label>
+              <label>{{ 'profile.personal.bio' | translate }}</label>
               <textarea [(ngModel)]="profileForm.bio" class="form-control" rows="4"
-                placeholder="Tell us about yourself..."></textarea>
+                [placeholder]="'profile.edit.bioPlaceholder' | translate"></textarea>
             </div>
 
             <div class="form-actions">
               <button class="btn btn-secondary" (click)="cancelEditingProfile()" [disabled]="isLoadingProfile">
-                Cancel
+                {{ 'common.cancel' | translate }}
               </button>
               <button class="btn btn-primary" (click)="saveProfile()" [disabled]="isLoadingProfile">
-                {{ isLoadingProfile ? 'Saving...' : 'Save Changes' }}
+                {{ isLoadingProfile ? ('common.saving' | translate) : ('profile.actions.saveChanges' | translate) }}
               </button>
             </div>
           </div>
@@ -201,37 +201,37 @@
     <!-- Security Tab -->
     <div *ngIf="activeTab === 'security'" class="tab-content">
       <div class="info-card">
-        <h2>Change Password</h2>
+        <h2>{{ 'profile.security.title' | translate }}</h2>
 
         <div *ngIf="!isChangingPassword" class="security-actions">
           <button class="btn btn-primary" (click)="startChangingPassword()">
-            Change Password
+            {{ 'profile.security.changePassword' | translate }}
           </button>
         </div>
 
         <div *ngIf="isChangingPassword" class="password-form">
           <div class="form-group">
-            <label>Current Password *</label>
+            <label>{{ 'profile.security.currentPassword' | translate }} *</label>
             <input type="password" [(ngModel)]="passwordForm.currentPassword" class="form-control" required>
           </div>
 
           <div class="form-group">
-            <label>New Password *</label>
+            <label>{{ 'profile.security.newPassword' | translate }} *</label>
             <input type="password" [(ngModel)]="passwordForm.newPassword" class="form-control" required>
-            <small class="form-text">Password must be at least 8 characters long</small>
+            <small class="form-text">{{ 'profile.security.passwordHint' | translate }}</small>
           </div>
 
           <div class="form-group">
-            <label>Confirm New Password *</label>
+            <label>{{ 'profile.security.confirmPassword' | translate }} *</label>
             <input type="password" [(ngModel)]="passwordForm.confirmPassword" class="form-control" required>
           </div>
 
           <div class="form-actions">
             <button class="btn btn-secondary" (click)="cancelChangingPassword()" [disabled]="isLoadingProfile">
-              Cancel
+              {{ 'common.cancel' | translate }}
             </button>
             <button class="btn btn-primary" (click)="changePassword()" [disabled]="isLoadingProfile">
-              {{ isLoadingProfile ? 'Changing...' : 'Change Password' }}
+              {{ isLoadingProfile ? ('common.processing' | translate) : ('profile.security.changePassword' | translate) }}
             </button>
           </div>
         </div>
@@ -242,9 +242,9 @@
     <div *ngIf="activeTab === 'addresses'" class="tab-content">
       <div class="info-card">
         <div class="card-header">
-          <h2>My Addresses</h2>
+          <h2>{{ 'profile.addresses.title' | translate }}</h2>
           <button class="btn btn-primary" (click)="startAddingAddress()" *ngIf="!isAddingAddress">
-            Add New Address
+            {{ 'profile.addresses.addNew' | translate }}
           </button>
         </div>
 
@@ -256,14 +256,14 @@
         <!-- Address List -->
         <div *ngIf="!isLoadingAddresses && !isAddingAddress" class="addresses-list">
           <div *ngIf="addresses.length === 0" class="empty-state">
-            <p>No addresses found</p>
-            <button class="btn btn-primary" (click)="startAddingAddress()">Add Your First Address</button>
+            <p>{{ 'profile.addresses.noAddresses' | translate }}</p>
+            <button class="btn btn-primary" (click)="startAddingAddress()">{{ 'profile.addresses.addFirst' | translate }}</button>
           </div>
 
           <div *ngFor="let address of addresses" class="address-card">
             <div class="address-header">
               <span class="address-label" *ngIf="address.label">{{ address.label }}</span>
-              <span class="badge badge-primary" *ngIf="address.isDefault">Default</span>
+              <span class="badge badge-primary" *ngIf="address.isDefault">{{ 'profile.addresses.default' | translate }}</span>
             </div>
             <div class="address-details">
               <p class="address-line">{{ address.addressLine }}</p>
@@ -272,73 +272,73 @@
               <p *ngIf="address.additionalInfo" class="additional-info">{{ address.additionalInfo }}</p>
             </div>
             <div class="address-actions">
-              <button class="btn btn-sm btn-secondary" (click)="editAddress(address)">Edit</button>
+              <button class="btn btn-sm btn-secondary" (click)="editAddress(address)">{{ 'profile.addresses.edit' | translate }}</button>
               <button class="btn btn-sm btn-secondary" (click)="setDefaultAddress(address.addressId)"
                 *ngIf="!address.isDefault">
-                Set as Default
+                {{ 'profile.addresses.setDefault' | translate }}
               </button>
-              <button class="btn btn-sm btn-danger" (click)="deleteAddress(address.addressId)">Delete</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteAddress(address.addressId)">{{ 'profile.addresses.delete' | translate }}</button>
             </div>
           </div>
         </div>
 
         <!-- Add/Edit Address Form -->
         <div *ngIf="isAddingAddress" class="address-form">
-          <h3>{{ editingAddress ? 'Edit Address' : 'Add New Address' }}</h3>
+          <h3>{{ editingAddress ? ('profile.addresses.editTitle' | translate) : ('profile.addresses.addTitle' | translate) }}</h3>
 
           <div class="form-group">
-            <label>Label (Optional)</label>
+            <label>{{ 'profile.addresses.label' | translate }}</label>
             <input type="text" [(ngModel)]="addressForm.label" class="form-control"
-              placeholder="e.g., Home, Office">
+              [placeholder]="'profile.addresses.labelPlaceholder' | translate">
           </div>
 
           <div class="form-group">
-            <label>Address Line *</label>
+            <label>{{ 'profile.addresses.addressLine' | translate }} *</label>
             <input type="text" [(ngModel)]="addressForm.addressLine" class="form-control"
-              placeholder="Street address, building, apartment" required>
+              [placeholder]="'profile.addresses.addressLinePlaceholder' | translate" required>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>City *</label>
+              <label>{{ 'profile.addresses.city' | translate }} *</label>
               <input type="text" [(ngModel)]="addressForm.city" class="form-control" required>
             </div>
             <div class="form-group">
-              <label>Region *</label>
+              <label>{{ 'profile.addresses.region' | translate }} *</label>
               <input type="text" [(ngModel)]="addressForm.region" class="form-control" required>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>Postal Code</label>
+              <label>{{ 'profile.addresses.postalCode' | translate }}</label>
               <input type="text" [(ngModel)]="addressForm.postalCode" class="form-control">
             </div>
             <div class="form-group">
-              <label>Country *</label>
+              <label>{{ 'profile.addresses.country' | translate }} *</label>
               <input type="text" [(ngModel)]="addressForm.country" class="form-control" required>
             </div>
           </div>
 
           <div class="form-group">
-            <label>Additional Information</label>
+            <label>{{ 'profile.addresses.additionalInfo' | translate }}</label>
             <textarea [(ngModel)]="addressForm.additionalInfo" class="form-control" rows="2"
-              placeholder="Landmarks, special instructions, etc."></textarea>
+              [placeholder]="'profile.addresses.additionalInfoPlaceholder' | translate"></textarea>
           </div>
 
           <div class="form-group">
             <label class="checkbox-label">
               <input type="checkbox" [(ngModel)]="addressForm.isDefault">
-              Set as default address
+              {{ 'profile.addresses.setDefaultCheckbox' | translate }}
             </label>
           </div>
 
           <div class="form-actions">
             <button class="btn btn-secondary" (click)="cancelAddingAddress()" [disabled]="isLoadingAddresses">
-              Cancel
+              {{ 'common.cancel' | translate }}
             </button>
             <button class="btn btn-primary" (click)="saveAddress()" [disabled]="isLoadingAddresses">
-              {{ isLoadingAddresses ? 'Saving...' : 'Save Address' }}
+              {{ isLoadingAddresses ? ('common.saving' | translate) : ('profile.addresses.save' | translate) }}
             </button>
           </div>
         </div>
@@ -349,7 +349,7 @@
     <div *ngIf="activeTab === 'payment'" class="tab-content">
       <div class="info-card">
         <div class="card-header">
-          <h2>Payment Methods</h2>
+          <h2>{{ 'profile.payment.title' | translate }}</h2>
         </div>
 
         <!-- Loading -->
@@ -360,8 +360,8 @@
         <!-- Payment Methods List -->
         <div *ngIf="!isLoadingPaymentMethods" class="payment-methods-list">
           <div *ngIf="paymentMethods.length === 0" class="empty-state">
-            <p>No saved payment methods</p>
-            <p class="info-text">Your payment methods will be saved when you make a booking</p>
+            <p>{{ 'profile.payment.noMethods' | translate }}</p>
+            <p class="info-text">{{ 'profile.payment.methodsInfo' | translate }}</p>
           </div>
 
           <div *ngFor="let method of paymentMethods" class="payment-card">
@@ -371,17 +371,17 @@
                 <p class="card-info">
                   <strong>{{ method.cardBrand }} •••• {{ method.cardLast4 }}</strong>
                 </p>
-                <p class="expiry">Expires {{ method.cardExpMonth }}/{{ method.cardExpYear }}</p>
+                <p class="expiry">{{ 'profile.payment.expires' | translate }} {{ method.cardExpMonth }}/{{ method.cardExpYear }}</p>
               </div>
-              <span class="badge badge-primary" *ngIf="method.isDefault">Default</span>
+              <span class="badge badge-primary" *ngIf="method.isDefault">{{ 'profile.payment.default' | translate }}</span>
             </div>
             <div class="payment-actions">
               <button class="btn btn-sm btn-secondary" (click)="setDefaultPaymentMethod(method.paymentMethodId)"
                 *ngIf="!method.isDefault">
-                Set as Default
+                {{ 'profile.payment.setDefault' | translate }}
               </button>
               <button class="btn btn-sm btn-danger" (click)="deletePaymentMethod(method.paymentMethodId)">
-                Remove
+                {{ 'profile.payment.remove' | translate }}
               </button>
             </div>
           </div>
@@ -392,7 +392,7 @@
     <!-- Notifications Tab -->
     <div *ngIf="activeTab === 'notifications'" class="tab-content">
       <div class="info-card">
-        <h2>Notification Preferences</h2>
+        <h2>{{ 'profile.notifications.title' | translate }}</h2>
 
         <!-- Loading -->
         <div *ngIf="isLoadingNotificationSettings" class="loading-container">
@@ -402,13 +402,13 @@
         <!-- Notification Settings -->
         <div *ngIf="!isLoadingNotificationSettings" class="notification-settings">
           <div class="settings-group">
-            <h3>Communication Channels</h3>
+            <h3>{{ 'profile.notifications.channels' | translate }}</h3>
             <div class="setting-item">
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="notificationSettings.emailNotifications">
                 <div class="label-text">
-                  <strong>Email Notifications</strong>
-                  <p>Receive notifications via email</p>
+                  <strong>{{ 'profile.notifications.email' | translate }}</strong>
+                  <p>{{ 'profile.notifications.emailDesc' | translate }}</p>
                 </div>
               </label>
             </div>
@@ -416,8 +416,8 @@
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="notificationSettings.smsNotifications">
                 <div class="label-text">
-                  <strong>SMS Notifications</strong>
-                  <p>Receive notifications via SMS</p>
+                  <strong>{{ 'profile.notifications.sms' | translate }}</strong>
+                  <p>{{ 'profile.notifications.smsDesc' | translate }}</p>
                 </div>
               </label>
             </div>
@@ -425,21 +425,21 @@
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="notificationSettings.pushNotifications">
                 <div class="label-text">
-                  <strong>Push Notifications</strong>
-                  <p>Receive push notifications in browser</p>
+                  <strong>{{ 'profile.notifications.push' | translate }}</strong>
+                  <p>{{ 'profile.notifications.pushDesc' | translate }}</p>
                 </div>
               </label>
             </div>
           </div>
 
           <div class="settings-group">
-            <h3>Notification Types</h3>
+            <h3>{{ 'profile.notifications.types' | translate }}</h3>
             <div class="setting-item">
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="notificationSettings.bookingUpdates">
                 <div class="label-text">
-                  <strong>Booking Updates</strong>
-                  <p>Get notified about booking status changes</p>
+                  <strong>{{ 'profile.notifications.bookingUpdates' | translate }}</strong>
+                  <p>{{ 'profile.notifications.bookingUpdatesDesc' | translate }}</p>
                 </div>
               </label>
             </div>
@@ -447,8 +447,8 @@
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="notificationSettings.reminderNotifications">
                 <div class="label-text">
-                  <strong>Reminders</strong>
-                  <p>Receive reminders about upcoming bookings</p>
+                  <strong>{{ 'profile.notifications.reminders' | translate }}</strong>
+                  <p>{{ 'profile.notifications.remindersDesc' | translate }}</p>
                 </div>
               </label>
             </div>
@@ -456,8 +456,8 @@
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="notificationSettings.messageNotifications">
                 <div class="label-text">
-                  <strong>Messages</strong>
-                  <p>Get notified when you receive new messages</p>
+                  <strong>{{ 'profile.notifications.messages' | translate }}</strong>
+                  <p>{{ 'profile.notifications.messagesDesc' | translate }}</p>
                 </div>
               </label>
             </div>
@@ -465,21 +465,21 @@
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="notificationSettings.reviewRequests">
                 <div class="label-text">
-                  <strong>Review Requests</strong>
-                  <p>Receive requests to review completed services</p>
+                  <strong>{{ 'profile.notifications.reviewRequests' | translate }}</strong>
+                  <p>{{ 'profile.notifications.reviewRequestsDesc' | translate }}</p>
                 </div>
               </label>
             </div>
           </div>
 
           <div class="settings-group">
-            <h3>Marketing & Promotions</h3>
+            <h3>{{ 'profile.notifications.marketing' | translate }}</h3>
             <div class="setting-item">
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="notificationSettings.promotionalEmails">
                 <div class="label-text">
-                  <strong>Promotional Emails</strong>
-                  <p>Receive special offers and promotions</p>
+                  <strong>{{ 'profile.notifications.promotional' | translate }}</strong>
+                  <p>{{ 'profile.notifications.promotionalDesc' | translate }}</p>
                 </div>
               </label>
             </div>
@@ -487,8 +487,8 @@
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="notificationSettings.newsletterSubscription">
                 <div class="label-text">
-                  <strong>Newsletter</strong>
-                  <p>Subscribe to our newsletter</p>
+                  <strong>{{ 'profile.notifications.newsletter' | translate }}</strong>
+                  <p>{{ 'profile.notifications.newsletterDesc' | translate }}</p>
                 </div>
               </label>
             </div>
@@ -497,7 +497,7 @@
           <div class="form-actions">
             <button class="btn btn-primary" (click)="saveNotificationSettings()"
               [disabled]="isLoadingNotificationSettings">
-              {{ isLoadingNotificationSettings ? 'Saving...' : 'Save Preferences' }}
+              {{ isLoadingNotificationSettings ? ('common.saving' | translate) : ('profile.notifications.savePreferences' | translate) }}
             </button>
           </div>
         </div>
@@ -507,7 +507,7 @@
     <!-- Provider Tab -->
     <div *ngIf="activeTab === 'provider' && isProvider" class="tab-content">
       <div class="info-card">
-        <h2>Provider Information</h2>
+        <h2>{{ 'profile.provider.title' | translate }}</h2>
 
         <!-- Loading -->
         <div *ngIf="isLoadingProviderProfile" class="loading-container">
@@ -524,58 +524,58 @@
 
           <div class="info-grid">
             <div class="info-item">
-              <span class="label">Business Name</span>
-              <span class="value">{{ providerProfile.businessName || 'Not provided' }}</span>
+              <span class="label">{{ 'profile.provider.businessName' | translate }}</span>
+              <span class="value">{{ providerProfile.businessName || ('common.notProvided' | translate) }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Business Type</span>
-              <span class="value">{{ providerProfile.businessType || 'Not specified' }}</span>
+              <span class="label">{{ 'profile.provider.businessType' | translate }}</span>
+              <span class="value">{{ providerProfile.businessType || ('common.notSpecified' | translate) }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Commercial Registration</span>
-              <span class="value">{{ providerProfile.commercialRegistrationNumber || 'Not provided' }}</span>
+              <span class="label">{{ 'profile.provider.commercialReg' | translate }}</span>
+              <span class="value">{{ providerProfile.commercialRegistrationNumber || ('common.notProvided' | translate) }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Tax Number</span>
-              <span class="value">{{ providerProfile.taxNumber || 'Not provided' }}</span>
+              <span class="label">{{ 'profile.provider.taxNumber' | translate }}</span>
+              <span class="value">{{ providerProfile.taxNumber || ('common.notProvided' | translate) }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Experience Years</span>
-              <span class="value">{{ providerProfile.experienceYears || 0 }} years</span>
+              <span class="label">{{ 'profile.provider.experience' | translate }}</span>
+              <span class="value">{{ providerProfile.experienceYears || 0 }} {{ 'profile.provider.years' | translate }}</span>
             </div>
             <div class="info-item">
-              <span class="label">Service Regions</span>
-              <span class="value">{{ providerProfile.serviceRegions?.join(', ') || 'Not specified' }}</span>
+              <span class="label">{{ 'profile.provider.serviceRegions' | translate }}</span>
+              <span class="value">{{ providerProfile.serviceRegions?.join(', ') || ('common.notSpecified' | translate) }}</span>
             </div>
             <div class="info-item full-width">
-              <span class="label">Business Description</span>
-              <span class="value">{{ providerProfile.businessDescription || 'No description provided' }}</span>
+              <span class="label">{{ 'profile.provider.description' | translate }}</span>
+              <span class="value">{{ providerProfile.businessDescription || ('profile.provider.noDescription' | translate) }}</span>
             </div>
           </div>
 
           <div class="provider-stats">
             <div class="stat-card">
               <span class="stat-value">{{ providerProfile.totalServices || 0 }}</span>
-              <span class="stat-label">Total Services</span>
+              <span class="stat-label">{{ 'profile.provider.stats.totalServices' | translate }}</span>
             </div>
             <div class="stat-card">
               <span class="stat-value">{{ providerProfile.activeServices || 0 }}</span>
-              <span class="stat-label">Active Services</span>
+              <span class="stat-label">{{ 'profile.provider.stats.activeServices' | translate }}</span>
             </div>
             <div class="stat-card">
               <span class="stat-value">{{ providerProfile.totalBookings || 0 }}</span>
-              <span class="stat-label">Total Bookings</span>
+              <span class="stat-label">{{ 'profile.provider.stats.totalBookings' | translate }}</span>
             </div>
             <div class="stat-card">
               <span class="stat-value">{{ providerProfile.averageRating || 0 }}</span>
-              <span class="stat-label">Average Rating</span>
+              <span class="stat-label">{{ 'profile.provider.stats.avgRating' | translate }}</span>
             </div>
           </div>
 
           <div *ngIf="providerProfile.verificationStatus === 'Rejected'" class="rejection-notice">
-            <h3>Verification Rejected</h3>
+            <h3>{{ 'profile.provider.rejectionTitle' | translate }}</h3>
             <p>{{ providerProfile.verificationNotes }}</p>
-            <p class="info-text">Please update your information and resubmit for verification.</p>
+            <p class="info-text">{{ 'profile.provider.rejectionInfo' | translate }}</p>
           </div>
         </div>
       </div>
