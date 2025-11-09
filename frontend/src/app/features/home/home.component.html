@@ -168,4 +168,9 @@
       <span class="nav-label">{{ 'nav.profile' | translate }}</span>
     </a>
   </nav>
+
+  <!-- Location Picker Modal -->
+  <app-location-picker
+    (locationSelected)="onLocationSelected($event)"
+  ></app-location-picker>
 </div>

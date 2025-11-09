@@ -118,6 +118,14 @@
     "update": "Update",
     "remove": "Remove"
   },
+  "location_picker": {
+    "title": "Choose Location",
+    "search_placeholder": "Search for city or region...",
+    "use_current_location": "Use Current Location",
+    "saved_addresses": "Saved Addresses",
+    "popular_cities": "Popular Cities",
+    "no_results": "No locations found matching your search"
+  },
   "pagination": {
     "previous": "Previous",
     "next": "Next",

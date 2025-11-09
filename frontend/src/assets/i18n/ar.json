@@ -118,6 +118,14 @@
     "update": "تحديث",
     "remove": "إزالة"
   },
+  "location_picker": {
+    "title": "اختر الموقع",
+    "search_placeholder": "ابحث عن مدينة أو منطقة...",
+    "use_current_location": "استخدم الموقع الحالي",
+    "saved_addresses": "العناوين المحفوظة",
+    "popular_cities": "المدن الشهيرة",
+    "no_results": "لم يتم العثور على مواقع مطابقة لبحثك"
+  },
   "pagination": {
     "previous": "السابق",
     "next": "التالي",

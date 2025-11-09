@@ -1,0 +1,120 @@
+<div class="location-picker-modal" *ngIf="isOpen" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>{{ 'location_picker.title' | translate }}</h2>
+      <button class="close-btn" (click)="closeModal()" [attr.aria-label]="'common.close' | translate">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchChange()"
+          [placeholder]="'location_picker.search_placeholder' | translate"
+        />
+        <button *ngIf="searchQuery" class="clear-search-btn" (click)="searchQuery = ''; onSearchChange()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Current Location Button -->
+    <div class="current-location-section">
+      <button
+        class="current-location-btn"
+        (click)="useCurrentLocation()"
+        [disabled]="isLoadingCurrentLocation"
+      >
+        <svg class="location-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <span *ngIf="!isLoadingCurrentLocation">{{ 'location_picker.use_current_location' | translate }}</span>
+        <span *ngIf="isLoadingCurrentLocation" class="loading-text">
+          <span class="spinner"></span>
+          {{ 'common.loading' | translate }}
+        </span>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <!-- Saved Addresses -->
+      <div class="section" *ngIf="savedAddresses.length > 0">
+        <h3 class="section-title">{{ 'location_picker.saved_addresses' | translate }}</h3>
+        <div class="location-list">
+          <button
+            *ngFor="let address of savedAddresses; trackBy: trackByAddressId"
+            class="location-item"
+            (click)="selectSavedAddress(address)"
+          >
+            <div class="location-icon-wrapper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" *ngIf="address.label === 'Home'"></path>
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" *ngIf="address.label === 'Work'"></rect>
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" *ngIf="address.label !== 'Home' && address.label !== 'Work'"></path>
+              </svg>
+            </div>
+            <div class="location-details">
+              <div class="location-label">{{ address.label }}</div>
+              <div class="location-address">{{ formatSavedAddress(address) }}</div>
+            </div>
+            <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Popular Cities -->
+      <div class="section">
+        <h3 class="section-title">{{ 'location_picker.popular_cities' | translate }}</h3>
+        <div class="location-list">
+          <button
+            *ngFor="let city of filteredCities; trackBy: trackByCityName"
+            class="location-item"
+            (click)="selectCity(city)"
+          >
+            <div class="location-icon-wrapper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <div class="location-details">
+              <div class="location-label">{{ getCityDisplayName(city) }}</div>
+              <div class="location-address">{{ getRegionDisplayName(city) }}</div>
+            </div>
+            <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div *ngIf="filteredCities.length === 0" class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <p>{{ 'location_picker.no_results' | translate }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -10,6 +10,9 @@ import { ServiceService, Service } from '../../core/services/service.service';
 import { BookingService, Booking } from '../../core/services/booking.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { LanguageService } from '../../core/services/language.service';
+import { LocationService } from '../../core/services/location.service';
+import { LocationPickerComponent } from '../../shared/components/location-picker/location-picker.component';
+import { Coordinates } from '../../core/services/address.service';
 
 interface ServiceCategory {
   id: string;
@@ -29,14 +32,17 @@ interface PromoBanner {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, FormsModule],
+  imports: [CommonModule, RouterModule, TranslateModule, FormsModule, LocationPickerComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  @ViewChild(LocationPickerComponent) locationPicker!: LocationPickerComponent;
+
   private destroy$ = new Subject<void>();
 
   currentLocation = 'Riyadh, Saudi Arabia';
+  currentCoordinates?: Coordinates;
   notificationCount = 0;
   searchQuery = '';
   recentSearches: string[] = [];
@@ -84,6 +90,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private bookingService: BookingService,
     private notificationService: NotificationService,
     private languageService: LanguageService,
+    private locationService: LocationService,
     private router: Router
   ) {
     // Load recent searches from localStorage
@@ -98,6 +105,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // Get current language
     this.currentLanguage = this.languageService.getCurrentLanguage();
+
+    // Subscribe to location changes
+    this.locationService.currentLocation$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(location => {
+        this.currentLocation = `${location.city}, ${location.region}`;
+        this.currentCoordinates = location.coordinates;
+      });
 
     // Subscribe to language changes
     this.languageService.currentLanguage$
@@ -220,9 +235,22 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   changeLocation(): void {
-    // Open location picker dialog
-    console.log('Change location clicked');
-    // TODO: Implement location picker modal
+    if (this.locationPicker) {
+      this.locationPicker.open();
+    }
+  }
+
+  onLocationSelected(location: { city: string; region: string; coordinates?: Coordinates }): void {
+    // Update location using the location service
+    this.locationService.setLocation({
+      city: location.city,
+      region: location.region,
+      coordinates: location.coordinates
+    });
+
+    // Reload data based on new location if needed
+    // For example, you might want to reload featured services or categories based on location
+    console.log('Location changed to:', this.locationService.getLocationDisplayString(), location.coordinates);
   }
 
   previousBanner(): void {
