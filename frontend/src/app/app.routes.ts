@@ -49,6 +49,11 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'admin/users',
+    loadComponent: () => import('./features/admin/users/users-management.component').then(m => m.UsersManagementComponent),
+    canActivate: [adminGuard]
+  },
+  {
     path: '**',
     redirectTo: ''
   }

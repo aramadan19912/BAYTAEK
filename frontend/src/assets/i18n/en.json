@@ -612,6 +612,43 @@
       "amount": "Amount",
       "status": "Status",
       "date": "Date"
+    },
+    "users": {
+      "title": "Users Management",
+      "subtitle": "Manage all platform users",
+      "back_to_dashboard": "Back to Dashboard",
+      "search_placeholder": "Search users by name or email...",
+      "filter_by_role": "Filter by Role",
+      "filter_by_status": "Filter by Status",
+      "all_roles": "All Roles",
+      "all_statuses": "All Statuses",
+      "clear_filters": "Clear Filters",
+      "showing": "Showing",
+      "of": "of",
+      "users": "users",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "role": "Role",
+      "status": "Status",
+      "registered": "Registered",
+      "last_login": "Last Login",
+      "actions": "Actions",
+      "suspend": "Suspend",
+      "unsuspend": "Unsuspend",
+      "deactivate": "Deactivate",
+      "verified": "Verified",
+      "no_users": "No Users Found",
+      "no_users_desc": "No users match your current filters",
+      "page": "Page",
+      "previous": "Previous",
+      "next": "Next",
+      "roles": {
+        "customer": "Customer",
+        "provider": "Service Provider",
+        "admin": "Admin",
+        "superadmin": "Super Admin"
+      }
     }
   }
 }

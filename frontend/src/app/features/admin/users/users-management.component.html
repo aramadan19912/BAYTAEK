@@ -1,0 +1,173 @@
+<div class="users-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>{{ 'admin.users.title' | translate }}</h1>
+      <p class="subtitle">{{ 'admin.users.subtitle' | translate }}</p>
+    </div>
+    <button class="btn-back" routerLink="/admin/dashboard">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      {{ 'common.back' | translate }}
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <div class="search-box">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          [value]="searchTerm"
+          (input)="onSearchChange($any($event.target).value)"
+          [placeholder]="'admin.users.search_placeholder' | translate"
+        />
+      </div>
+
+      <select class="filter-select" [(ngModel)]="selectedRole" (change)="onRoleChange()">
+        <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
+      </select>
+
+      <select class="filter-select" [(ngModel)]="selectedStatus" (change)="onStatusChange()">
+        <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
+      </select>
+
+      <button class="btn-clear" (click)="clearFilters()" *ngIf="searchTerm || selectedRole || selectedStatus">
+        {{ 'admin.users.clear_filters' | translate }}
+      </button>
+    </div>
+
+    <div class="results-info">
+      <span>{{ 'admin.users.showing' | translate }} {{ users.length }} {{ 'admin.users.of' | translate }} {{ totalCount }}</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>{{ 'common.loading' | translate }}</p>
+  </div>
+
+  <!-- Users Table -->
+  <div *ngIf="!isLoading" class="table-container">
+    <table class="users-table" *ngIf="users.length > 0">
+      <thead>
+        <tr>
+          <th>{{ 'admin.users.name' | translate }}</th>
+          <th>{{ 'admin.users.email' | translate }}</th>
+          <th>{{ 'admin.users.phone' | translate }}</th>
+          <th>{{ 'admin.users.role' | translate }}</th>
+          <th>{{ 'admin.users.status' | translate }}</th>
+          <th>{{ 'admin.users.registered' | translate }}</th>
+          <th>{{ 'admin.users.last_login' | translate }}</th>
+          <th>{{ 'admin.users.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users; trackBy: trackByUserId" (click)="viewUserDetails(user.userId)" class="user-row">
+          <td class="user-name">
+            <div class="name-cell">
+              <div class="user-avatar">{{ user.fullName.charAt(0).toUpperCase() }}</div>
+              <div>
+                <div class="name">{{ user.fullName }}</div>
+                <div class="verification-badges">
+                  <span class="badge-small" *ngIf="user.emailConfirmed">✓ Email</span>
+                  <span class="badge-small" *ngIf="user.phoneConfirmed">✓ Phone</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="email">{{ user.email }}</td>
+          <td class="phone">{{ user.phoneNumber || 'N/A' }}</td>
+          <td>
+            <span class="role-badge" [ngClass]="getRoleBadgeClass(user.role)">
+              {{ user.role }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(user)">
+              {{ getStatusLabel(user) }}
+            </span>
+          </td>
+          <td class="date">{{ formatDate(user.registeredAt) }}</td>
+          <td class="date">{{ user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never' }}</td>
+          <td class="actions">
+            <div class="action-buttons">
+              <button
+                class="btn-action btn-suspend"
+                *ngIf="!user.isSuspended"
+                (click)="suspendUser(user, $event)"
+                [title]="'admin.users.suspend' | translate"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                </svg>
+              </button>
+              <button
+                class="btn-action btn-activate"
+                *ngIf="user.isSuspended"
+                (click)="unsuspendUser(user, $event)"
+                [title]="'admin.users.unsuspend' | translate"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </button>
+              <button
+                class="btn-action btn-deactivate"
+                *ngIf="user.isActive"
+                (click)="deactivateUser(user, $event)"
+                [title]="'admin.users.deactivate' | translate"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="users.length === 0" class="empty-state">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+      <h3>{{ 'admin.users.no_users' | translate }}</h3>
+      <p>{{ 'admin.users.no_users_desc' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="!isLoading && users.length > 0">
+    <button class="btn-page" (click)="previousPage()" [disabled]="pageNumber === 1">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      {{ 'common.previous' | translate }}
+    </button>
+    <span class="page-info">
+      {{ 'admin.users.page' | translate }} {{ pageNumber }} {{ 'admin.users.of' | translate }} {{ getTotalPages() }}
+    </span>
+    <button class="btn-page" (click)="nextPage()" [disabled]="!hasNextPage()">
+      {{ 'common.next' | translate }}
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+  </div>
+</div>

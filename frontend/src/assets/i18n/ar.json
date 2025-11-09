@@ -612,6 +612,43 @@
       "amount": "المبلغ",
       "status": "الحالة",
       "date": "التاريخ"
+    },
+    "users": {
+      "title": "إدارة المستخدمين",
+      "subtitle": "إدارة جميع مستخدمي المنصة",
+      "back_to_dashboard": "العودة إلى لوحة التحكم",
+      "search_placeholder": "البحث عن المستخدمين بالاسم أو البريد الإلكتروني...",
+      "filter_by_role": "التصفية حسب الدور",
+      "filter_by_status": "التصفية حسب الحالة",
+      "all_roles": "جميع الأدوار",
+      "all_statuses": "جميع الحالات",
+      "clear_filters": "مسح الفلاتر",
+      "showing": "عرض",
+      "of": "من",
+      "users": "مستخدم",
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "role": "الدور",
+      "status": "الحالة",
+      "registered": "تاريخ التسجيل",
+      "last_login": "آخر دخول",
+      "actions": "الإجراءات",
+      "suspend": "تعليق",
+      "unsuspend": "إلغاء التعليق",
+      "deactivate": "تعطيل",
+      "verified": "موثق",
+      "no_users": "لا يوجد مستخدمون",
+      "no_users_desc": "لا يوجد مستخدمون يطابقون الفلاتر الحالية",
+      "page": "صفحة",
+      "previous": "السابق",
+      "next": "التالي",
+      "roles": {
+        "customer": "عميل",
+        "provider": "مزود خدمة",
+        "admin": "مسؤول",
+        "superadmin": "مسؤول عام"
+      }
     }
   }
 }
