@@ -316,5 +316,268 @@
         "addFirst": "أضف خدمتك الأولى"
       }
     }
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "tabs": {
+      "profile": "الملف الشخصي",
+      "addresses": "العناوين",
+      "payment": "طرق الدفع",
+      "notifications": "الإشعارات",
+      "security": "الأمان",
+      "provider": "معلومات المزود"
+    },
+    "personal": {
+      "title": "المعلومات الشخصية",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "dateOfBirth": "تاريخ الميلاد",
+      "gender": "الجنس",
+      "bio": "نبذة",
+      "language": "اللغة المفضلة",
+      "memberSince": "عضو منذ",
+      "editProfile": "تعديل الملف الشخصي",
+      "updateProfile": "تحديث الملف الشخصي"
+    },
+    "security": {
+      "title": "الأمان",
+      "changePassword": "تغيير كلمة المرور",
+      "currentPassword": "كلمة المرور الحالية",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور الجديدة",
+      "passwordHint": "يجب أن تكون كلمة المرور 8 أحرف على الأقل"
+    },
+    "addresses": {
+      "title": "عناويني",
+      "addNew": "إضافة عنوان جديد",
+      "editAddress": "تعديل العنوان",
+      "label": "التسمية",
+      "addressLine": "سطر العنوان",
+      "city": "المدينة",
+      "region": "المنطقة",
+      "postalCode": "الرمز البريدي",
+      "country": "البلد",
+      "additionalInfo": "معلومات إضافية",
+      "setDefault": "تعيين كعنوان افتراضي",
+      "isDefault": "افتراضي",
+      "noAddresses": "لا توجد عناوين",
+      "addFirstAddress": "أضف عنوانك الأول"
+    },
+    "payment": {
+      "title": "طرق الدفع",
+      "noMethods": "لا توجد طرق دفع محفوظة",
+      "savedInfo": "سيتم حفظ طرق الدفع عند إجراء حجز",
+      "cardBrand": "نوع البطاقة",
+      "cardLast4": "آخر 4 أرقام",
+      "expiry": "تنتهي",
+      "setDefault": "تعيين كافتراضي",
+      "remove": "إزالة"
+    },
+    "notifications": {
+      "title": "تفضيلات الإشعارات",
+      "channels": {
+        "title": "قنوات الاتصال",
+        "email": "إشعارات البريد الإلكتروني",
+        "emailDesc": "تلقي الإشعارات عبر البريد الإلكتروني",
+        "sms": "إشعارات SMS",
+        "smsDesc": "تلقي الإشعارات عبر الرسائل النصية",
+        "push": "الإشعارات الفورية",
+        "pushDesc": "تلقي الإشعارات الفورية في المتصفح"
+      },
+      "types": {
+        "title": "أنواع الإشعارات",
+        "bookingUpdates": "تحديثات الحجز",
+        "bookingUpdatesDesc": "احصل على إشعارات حول تغييرات حالة الحجز",
+        "reminders": "التذكيرات",
+        "remindersDesc": "تلقي تذكيرات حول الحجوزات القادمة",
+        "messages": "الرسائل",
+        "messagesDesc": "احصل على إشعارات عند تلقي رسائل جديدة",
+        "reviews": "طلبات التقييم",
+        "reviewsDesc": "تلقي طلبات لتقييم الخدمات المكتملة"
+      },
+      "marketing": {
+        "title": "التسويق والعروض الترويجية",
+        "promotional": "رسائل العروض الترويجية",
+        "promotionalDesc": "تلقي العروض الخاصة والترويجية",
+        "newsletter": "النشرة الإخبارية",
+        "newsletterDesc": "الاشتراك في نشرتنا الإخبارية"
+      },
+      "savePreferences": "حفظ التفضيلات"
+    },
+    "providerInfo": {
+      "title": "معلومات مزود الخدمة",
+      "verificationStatus": "حالة التحقق",
+      "businessName": "اسم النشاط التجاري",
+      "businessType": "نوع النشاط",
+      "commercialReg": "السجل التجاري",
+      "taxNumber": "الرقم الضريبي",
+      "experienceYears": "سنوات الخبرة",
+      "serviceRegions": "مناطق الخدمة",
+      "businessDesc": "وصف النشاط",
+      "stats": {
+        "totalServices": "إجمالي الخدمات",
+        "activeServices": "الخدمات النشطة",
+        "totalBookings": "إجمالي الحجوزات",
+        "avgRating": "متوسط التقييم"
+      }
+    }
+  },
+  "serviceDetail": {
+    "title": "تفاصيل الخدمة",
+    "provider": "مزود الخدمة",
+    "verified": "موثق",
+    "price": "السعر",
+    "duration": "المدة",
+    "minutes": "دقيقة",
+    "rating": "التقييم",
+    "reviews": "التقييمات",
+    "description": "الوصف",
+    "features": "المميزات",
+    "bookNow": "احجز الآن",
+    "booking": {
+      "title": "حجز الخدمة",
+      "selectDateTime": "اختر التاريخ والوقت",
+      "selectAddress": "اختر العنوان",
+      "promoCode": "رمز الخصم",
+      "confirmBooking": "تأكيد الحجز",
+      "date": "التاريخ",
+      "time": "الوقت",
+      "usePromo": "هل لديك رمز خصم؟",
+      "apply": "تطبيق",
+      "summary": "ملخص الحجز",
+      "servicePrice": "سعر الخدمة",
+      "discount": "الخصم",
+      "total": "المجموع",
+      "confirm": "تأكيد الحجز"
+    },
+    "reviews": {
+      "title": "تقييمات العملاء",
+      "writeReview": "اكتب تقييماً",
+      "rating": "التقييم",
+      "comment": "التعليق",
+      "submit": "إرسال التقييم",
+      "noReviews": "لا توجد تقييمات بعد",
+      "beFirst": "كن أول من يقيم هذه الخدمة!"
+    }
+  },
+  "servicesList": {
+    "title": "تصفح الخدمات",
+    "search": "البحث عن خدمات...",
+    "filters": {
+      "category": "الفئة",
+      "allCategories": "جميع الفئات",
+      "priceRange": "نطاق السعر",
+      "minPrice": "أدنى سعر",
+      "maxPrice": "أعلى سعر",
+      "rating": "الحد الأدنى للتقييم",
+      "region": "المنطقة",
+      "allRegions": "جميع المناطق",
+      "sortBy": "الترتيب حسب",
+      "sortPrice": "السعر",
+      "sortRating": "التقييم",
+      "sortPopular": "الشهرة",
+      "clear": "مسح الفلاتر"
+    },
+    "results": "عرض {{count}} من {{total}} خدمة",
+    "noResults": {
+      "title": "لم يتم العثور على خدمات",
+      "message": "حاول تعديل الفلاتر للعثور على ما تبحث عنه.",
+      "browseAll": "تصفح جميع الخدمات"
+    }
+  },
+  "bookingsList": {
+    "title": "حجوزاتي",
+    "stats": {
+      "total": "إجمالي الحجوزات",
+      "active": "الحجوزات النشطة",
+      "completed": "مكتملة",
+      "cancelled": "ملغاة",
+      "totalSpent": "إجمالي المنفق"
+    },
+    "filters": {
+      "search": "البحث في الحجوزات...",
+      "status": "الحالة",
+      "allStatus": "جميع الحالات",
+      "startDate": "من تاريخ",
+      "endDate": "إلى تاريخ",
+      "sortBy": "الترتيب حسب",
+      "sortDate": "تاريخ الحجز",
+      "sortPrice": "السعر",
+      "clear": "مسح الفلاتر"
+    },
+    "bookingCard": {
+      "bookingNumber": "حجز #",
+      "scheduledFor": "موعد",
+      "address": "العنوان",
+      "price": "السعر",
+      "viewDetails": "عرض التفاصيل"
+    },
+    "noBookings": {
+      "title": "لم يتم العثور على حجوزات",
+      "filtered": "حاول تعديل الفلاتر",
+      "noBookingsYet": "لم تقم بأي حجوزات بعد",
+      "browseServices": "تصفح الخدمات"
+    }
+  },
+  "bookingDetail": {
+    "title": "تفاصيل الحجز",
+    "bookingNumber": "حجز #",
+    "serviceInfo": "معلومات الخدمة",
+    "providerInfo": "معلومات مزود الخدمة",
+    "scheduleInfo": "معلومات الموعد",
+    "scheduledDate": "التاريخ المحدد",
+    "scheduledTime": "الوقت المحدد",
+    "timeRemaining": "الوقت المتبقي",
+    "addressInfo": "معلومات العنوان",
+    "paymentInfo": "معلومات الدفع",
+    "servicePrice": "سعر الخدمة",
+    "promoDiscount": "خصم الكود الترويجي",
+    "total": "المجموع",
+    "paymentMethod": "طريقة الدفع",
+    "timeline": {
+      "title": "الجدول الزمني للحجز",
+      "created": "تم إنشاء الحجز",
+      "confirmed": "تم التأكيد",
+      "inProgress": "قيد التنفيذ",
+      "completed": "مكتمل"
+    },
+    "actions": {
+      "cancel": "إلغاء الحجز",
+      "review": "كتابة تقييم",
+      "report": "الإبلاغ عن مشكلة",
+      "message": "مراسلة المزود",
+      "rebook": "حجز مرة أخرى"
+    },
+    "modals": {
+      "cancel": {
+        "title": "إلغاء الحجز",
+        "message": "هل أنت متأكد من إلغاء هذا الحجز؟",
+        "reason": "سبب الإلغاء",
+        "reasonPlaceholder": "يرجى تقديم السبب...",
+        "confirm": "إلغاء الحجز"
+      },
+      "review": {
+        "title": "كتابة تقييم",
+        "rating": "التقييم",
+        "comment": "التعليق",
+        "commentPlaceholder": "شارك تجربتك...",
+        "submit": "إرسال التقييم"
+      },
+      "report": {
+        "title": "الإبلاغ عن مشكلة",
+        "issueType": "نوع المشكلة",
+        "description": "الوصف",
+        "descriptionPlaceholder": "صف المشكلة...",
+        "submit": "إرسال البلاغ"
+      },
+      "message": {
+        "title": "مراسلة المزود",
+        "message": "الرسالة",
+        "messagePlaceholder": "اكتب رسالتك...",
+        "send": "إرسال الرسالة"
+      }
+    }
   }
 }

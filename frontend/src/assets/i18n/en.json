@@ -316,5 +316,268 @@
         "addFirst": "Add Your First Service"
       }
     }
+  },
+  "profile": {
+    "title": "Profile",
+    "tabs": {
+      "profile": "Profile",
+      "addresses": "Addresses",
+      "payment": "Payment Methods",
+      "notifications": "Notifications",
+      "security": "Security",
+      "provider": "Provider Info"
+    },
+    "personal": {
+      "title": "Personal Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "dateOfBirth": "Date of Birth",
+      "gender": "Gender",
+      "bio": "Bio",
+      "language": "Preferred Language",
+      "memberSince": "Member Since",
+      "editProfile": "Edit Profile",
+      "updateProfile": "Update Profile"
+    },
+    "security": {
+      "title": "Security",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "passwordHint": "Password must be at least 8 characters long"
+    },
+    "addresses": {
+      "title": "My Addresses",
+      "addNew": "Add New Address",
+      "editAddress": "Edit Address",
+      "label": "Label",
+      "addressLine": "Address Line",
+      "city": "City",
+      "region": "Region",
+      "postalCode": "Postal Code",
+      "country": "Country",
+      "additionalInfo": "Additional Information",
+      "setDefault": "Set as default address",
+      "isDefault": "Default",
+      "noAddresses": "No addresses found",
+      "addFirstAddress": "Add Your First Address"
+    },
+    "payment": {
+      "title": "Payment Methods",
+      "noMethods": "No saved payment methods",
+      "savedInfo": "Your payment methods will be saved when you make a booking",
+      "cardBrand": "Card Brand",
+      "cardLast4": "Card Last 4",
+      "expiry": "Expires",
+      "setDefault": "Set as Default",
+      "remove": "Remove"
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "channels": {
+        "title": "Communication Channels",
+        "email": "Email Notifications",
+        "emailDesc": "Receive notifications via email",
+        "sms": "SMS Notifications",
+        "smsDesc": "Receive notifications via SMS",
+        "push": "Push Notifications",
+        "pushDesc": "Receive push notifications in browser"
+      },
+      "types": {
+        "title": "Notification Types",
+        "bookingUpdates": "Booking Updates",
+        "bookingUpdatesDesc": "Get notified about booking status changes",
+        "reminders": "Reminders",
+        "remindersDesc": "Receive reminders about upcoming bookings",
+        "messages": "Messages",
+        "messagesDesc": "Get notified when you receive new messages",
+        "reviews": "Review Requests",
+        "reviewsDesc": "Receive requests to review completed services"
+      },
+      "marketing": {
+        "title": "Marketing & Promotions",
+        "promotional": "Promotional Emails",
+        "promotionalDesc": "Receive special offers and promotions",
+        "newsletter": "Newsletter",
+        "newsletterDesc": "Subscribe to our newsletter"
+      },
+      "savePreferences": "Save Preferences"
+    },
+    "providerInfo": {
+      "title": "Provider Information",
+      "verificationStatus": "Verification Status",
+      "businessName": "Business Name",
+      "businessType": "Business Type",
+      "commercialReg": "Commercial Registration",
+      "taxNumber": "Tax Number",
+      "experienceYears": "Experience Years",
+      "serviceRegions": "Service Regions",
+      "businessDesc": "Business Description",
+      "stats": {
+        "totalServices": "Total Services",
+        "activeServices": "Active Services",
+        "totalBookings": "Total Bookings",
+        "avgRating": "Average Rating"
+      }
+    }
+  },
+  "serviceDetail": {
+    "title": "Service Details",
+    "provider": "Provider",
+    "verified": "Verified",
+    "price": "Price",
+    "duration": "Duration",
+    "minutes": "minutes",
+    "rating": "Rating",
+    "reviews": "Reviews",
+    "description": "Description",
+    "features": "Features",
+    "bookNow": "Book Now",
+    "booking": {
+      "title": "Book Service",
+      "selectDateTime": "Select Date & Time",
+      "selectAddress": "Select Address",
+      "promoCode": "Promo Code",
+      "confirmBooking": "Confirm Booking",
+      "date": "Date",
+      "time": "Time",
+      "usePromo": "Have a promo code?",
+      "apply": "Apply",
+      "summary": "Booking Summary",
+      "servicePrice": "Service Price",
+      "discount": "Discount",
+      "total": "Total",
+      "confirm": "Confirm Booking"
+    },
+    "reviews": {
+      "title": "Customer Reviews",
+      "writeReview": "Write a Review",
+      "rating": "Rating",
+      "comment": "Comment",
+      "submit": "Submit Review",
+      "noReviews": "No reviews yet",
+      "beFirst": "Be the first to review this service!"
+    }
+  },
+  "servicesList": {
+    "title": "Browse Services",
+    "search": "Search services...",
+    "filters": {
+      "category": "Category",
+      "allCategories": "All Categories",
+      "priceRange": "Price Range",
+      "minPrice": "Min Price",
+      "maxPrice": "Max Price",
+      "rating": "Minimum Rating",
+      "region": "Region",
+      "allRegions": "All Regions",
+      "sortBy": "Sort By",
+      "sortPrice": "Price",
+      "sortRating": "Rating",
+      "sortPopular": "Popularity",
+      "clear": "Clear Filters"
+    },
+    "results": "Showing {{count}} of {{total}} services",
+    "noResults": {
+      "title": "No Services Found",
+      "message": "Try adjusting your filters to find what you're looking for.",
+      "browseAll": "Browse All Services"
+    }
+  },
+  "bookingsList": {
+    "title": "My Bookings",
+    "stats": {
+      "total": "Total Bookings",
+      "active": "Active Bookings",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "totalSpent": "Total Spent"
+    },
+    "filters": {
+      "search": "Search bookings...",
+      "status": "Status",
+      "allStatus": "All Status",
+      "startDate": "From Date",
+      "endDate": "To Date",
+      "sortBy": "Sort By",
+      "sortDate": "Booking Date",
+      "sortPrice": "Price",
+      "clear": "Clear Filters"
+    },
+    "bookingCard": {
+      "bookingNumber": "Booking #",
+      "scheduledFor": "Scheduled for",
+      "address": "Address",
+      "price": "Price",
+      "viewDetails": "View Details"
+    },
+    "noBookings": {
+      "title": "No Bookings Found",
+      "filtered": "Try adjusting your filters",
+      "noBookingsYet": "You haven't made any bookings yet",
+      "browseServices": "Browse Services"
+    }
+  },
+  "bookingDetail": {
+    "title": "Booking Details",
+    "bookingNumber": "Booking #",
+    "serviceInfo": "Service Information",
+    "providerInfo": "Provider Information",
+    "scheduleInfo": "Schedule Information",
+    "scheduledDate": "Scheduled Date",
+    "scheduledTime": "Scheduled Time",
+    "timeRemaining": "Time Remaining",
+    "addressInfo": "Address Information",
+    "paymentInfo": "Payment Information",
+    "servicePrice": "Service Price",
+    "promoDiscount": "Promo Discount",
+    "total": "Total",
+    "paymentMethod": "Payment Method",
+    "timeline": {
+      "title": "Booking Timeline",
+      "created": "Booking Created",
+      "confirmed": "Confirmed",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "actions": {
+      "cancel": "Cancel Booking",
+      "review": "Write Review",
+      "report": "Report Issue",
+      "message": "Message Provider",
+      "rebook": "Book Again"
+    },
+    "modals": {
+      "cancel": {
+        "title": "Cancel Booking",
+        "message": "Are you sure you want to cancel this booking?",
+        "reason": "Cancellation Reason",
+        "reasonPlaceholder": "Please provide a reason...",
+        "confirm": "Cancel Booking"
+      },
+      "review": {
+        "title": "Write a Review",
+        "rating": "Rating",
+        "comment": "Comment",
+        "commentPlaceholder": "Share your experience...",
+        "submit": "Submit Review"
+      },
+      "report": {
+        "title": "Report an Issue",
+        "issueType": "Issue Type",
+        "description": "Description",
+        "descriptionPlaceholder": "Describe the issue...",
+        "submit": "Submit Report"
+      },
+      "message": {
+        "title": "Message Provider",
+        "message": "Message",
+        "messagePlaceholder": "Type your message...",
+        "send": "Send Message"
+      }
+    }
   }
 }
