@@ -10,7 +10,9 @@
     "profile": "Profile",
     "login": "Login",
     "register": "Register",
-    "logout": "Logout"
+    "logout": "Logout",
+    "provider": "Provider Dashboard",
+    "admin": "Admin Panel"
   },
   "auth": {
     "login": {
@@ -69,7 +71,8 @@
       "inprogress": "In Progress",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "disputed": "Disputed"
+      "disputed": "Disputed",
+      "rejected": "Rejected"
     },
     "details": "Booking Details",
     "date": "Date",
@@ -81,6 +84,17 @@
     "no_bookings": "No bookings found",
     "browse_services": "Browse Services"
   },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "inprogress": "In Progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "rejected": "Rejected",
+    "active": "Active",
+    "inactive": "Inactive",
+    "suspended": "Suspended"
+  },
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",
@@ -91,6 +105,169 @@
     "edit": "Edit",
     "search": "Search",
     "filter": "Filter",
-    "sort": "Sort"
+    "sort": "Sort",
+    "processing": "Processing...",
+    "confirm": "Confirm",
+    "close": "Close",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "view": "View",
+    "add": "Add",
+    "update": "Update",
+    "remove": "Remove"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "showing": "Showing {{count}} of {{total}} results",
+    "page": "Page {{current}} of {{total}}"
+  },
+  "provider": {
+    "dashboard": {
+      "title": "Provider Dashboard",
+      "welcome": "Welcome back, {{name}}!",
+      "stats": {
+        "todayBookings": "Today's Bookings",
+        "pending": "Pending Bookings",
+        "weekEarnings": "This Week's Earnings",
+        "avgRating": "Average Rating",
+        "activeServices": "Active Services",
+        "completed": "Total Completed"
+      }
+    },
+    "bookings": {
+      "title": "Manage Bookings",
+      "subtitle": "View and manage all your booking requests",
+      "search": {
+        "placeholder": "Search by customer name, booking number..."
+      },
+      "filters": {
+        "status": "Status",
+        "allStatus": "All Statuses",
+        "startDate": "From Date",
+        "endDate": "To Date",
+        "sortBy": "Sort By",
+        "sortDate": "Scheduled Date",
+        "sortCreated": "Date Created",
+        "sortPrice": "Price",
+        "sortStatus": "Status",
+        "order": "Order",
+        "ascending": "Ascending",
+        "descending": "Descending",
+        "clear": "Clear Filters"
+      },
+      "stats": {
+        "today": "Today's Bookings",
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "revenue": "Total Revenue"
+      },
+      "results": "Showing {{count}} of {{total}} bookings",
+      "bookingNumber": "Booking",
+      "customer": "Customer",
+      "date": "Date",
+      "time": "Time",
+      "price": "Price",
+      "address": "Address",
+      "actions": {
+        "accept": "Accept",
+        "reject": "Reject",
+        "complete": "Mark Complete",
+        "cancel": "Cancel",
+        "view": "View Details"
+      },
+      "modals": {
+        "accept": {
+          "title": "Accept Booking",
+          "message": "Are you sure you want to accept this booking for {{service}}?"
+        },
+        "reject": {
+          "title": "Reject Booking",
+          "message": "Please provide a reason for rejecting this booking:",
+          "reasonLabel": "Rejection Reason",
+          "reasonPlaceholder": "Enter reason for rejection..."
+        },
+        "complete": {
+          "title": "Complete Booking",
+          "message": "Mark this booking for {{service}} as completed?",
+          "info": "This will notify the customer and request a review."
+        },
+        "cancel": {
+          "title": "Cancel Booking",
+          "message": "Are you sure you want to cancel this booking?",
+          "warning": "This action will notify the customer and may affect your rating.",
+          "reasonLabel": "Cancellation Reason",
+          "reasonPlaceholder": "Enter reason for cancellation..."
+        }
+      },
+      "empty": {
+        "title": "No Bookings Found",
+        "filtered": "Try adjusting your filters to find what you're looking for.",
+        "noBookings": "You don't have any booking requests yet."
+      }
+    },
+    "services": {
+      "title": "My Services",
+      "subtitle": "Manage your service offerings",
+      "addNew": "Add New Service",
+      "search": {
+        "placeholder": "Search services..."
+      },
+      "filters": {
+        "status": "Status",
+        "allStatus": "All Status",
+        "category": "Category",
+        "allCategories": "All Categories",
+        "sortBy": "Sort By",
+        "sortDate": "Date Created",
+        "sortName": "Name",
+        "sortPrice": "Price",
+        "sortBookings": "Bookings",
+        "sortRating": "Rating",
+        "order": "Order",
+        "ascending": "Ascending",
+        "descending": "Descending",
+        "clear": "Clear Filters"
+      },
+      "results": "Showing {{count}} of {{total}} services",
+      "actions": {
+        "view": "View",
+        "edit": "Edit",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "duplicate": "Duplicate",
+        "delete": "Delete"
+      },
+      "stats": {
+        "bookings": "bookings",
+        "reviews": "reviews",
+        "minutes": "min"
+      },
+      "created": "Created",
+      "modals": {
+        "delete": {
+          "title": "Delete Service",
+          "message": "Are you sure you want to delete {{name}}?",
+          "warning": "This action cannot be undone. All bookings and reviews associated with this service will remain, but the service will no longer be available for new bookings."
+        },
+        "status": {
+          "title": "Change Service Status",
+          "message": "Change the status of {{name}}",
+          "newStatus": "New Status",
+          "activeInfo": "✓ Service will be visible to customers and available for booking",
+          "inactiveInfo": "⚠ Service will be hidden from customers and unavailable for new bookings"
+        }
+      },
+      "empty": {
+        "title": "No Services Found",
+        "filtered": "Try adjusting your filters to find what you're looking for.",
+        "noServices": "Start adding services to attract customers and grow your business.",
+        "addFirst": "Add Your First Service"
+      }
+    }
   }
 }

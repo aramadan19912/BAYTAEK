@@ -10,7 +10,9 @@
     "profile": "الملف الشخصي",
     "login": "تسجيل الدخول",
     "register": "التسجيل",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "provider": "لوحة مزود الخدمة",
+    "admin": "لوحة الإدارة"
   },
   "auth": {
     "login": {
@@ -28,12 +30,28 @@
       "last_name": "اسم العائلة",
       "email": "البريد الإلكتروني",
       "phone": "رقم الهاتف",
+      "region": "المنطقة",
       "password": "كلمة المرور",
       "confirm_password": "تأكيد كلمة المرور",
       "submit": "إنشاء الحساب",
       "have_account": "لديك حساب بالفعل؟",
       "sign_in": "تسجيل الدخول"
+    },
+    "validation": {
+      "email_required": "البريد الإلكتروني مطلوب",
+      "password_required": "كلمة المرور مطلوبة"
     }
+  },
+  "home": {
+    "why_choose_us": "لماذا تختارنا؟",
+    "professional_service": "خدمات احترافية",
+    "professional_service_desc": "مقدمو خدمات معتمدون وذوو خبرة",
+    "fast_booking": "حجز سريع",
+    "fast_booking_desc": "احجز الخدمات في دقائق",
+    "quality_guarantee": "ضمان الجودة",
+    "quality_guarantee_desc": "ضمان الرضا 100٪",
+    "secure_payment": "دفع آمن",
+    "secure_payment_desc": "خيارات دفع آمنة متعددة"
   },
   "services": {
     "title": "خدماتنا",
@@ -41,21 +59,41 @@
     "categories": "الفئات",
     "featured": "الخدمات المميزة",
     "book_now": "احجز الآن",
-    "view_details": "عرض التفاصيل"
+    "view_details": "عرض التفاصيل",
+    "details": "تفاصيل الخدمة",
+    "no_results": "لم يتم العثور على خدمات"
   },
   "bookings": {
     "title": "حجوزاتي",
     "status": {
       "pending": "قيد الانتظار",
       "confirmed": "مؤكد",
-      "in_progress": "قيد التنفيذ",
+      "inprogress": "قيد التنفيذ",
       "completed": "مكتمل",
       "cancelled": "ملغي",
-      "disputed": "متنازع عليه"
+      "disputed": "متنازع عليه",
+      "rejected": "مرفوض"
     },
     "details": "تفاصيل الحجز",
+    "date": "التاريخ",
+    "amount": "المبلغ",
+    "address": "العنوان",
+    "view_details": "عرض التفاصيل",
     "cancel": "إلغاء الحجز",
-    "rate": "تقييم الخدمة"
+    "rate": "تقييم الخدمة",
+    "no_bookings": "لا توجد حجوزات",
+    "browse_services": "تصفح الخدمات"
+  },
+  "status": {
+    "pending": "قيد الانتظار",
+    "confirmed": "مؤكد",
+    "inprogress": "قيد التنفيذ",
+    "completed": "مكتمل",
+    "cancelled": "ملغي",
+    "rejected": "مرفوض",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "suspended": "معلق"
   },
   "common": {
     "loading": "جاري التحميل...",
@@ -67,6 +105,169 @@
     "edit": "تعديل",
     "search": "بحث",
     "filter": "تصفية",
-    "sort": "ترتيب"
+    "sort": "ترتيب",
+    "processing": "جاري المعالجة...",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "submit": "إرسال",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "view": "عرض",
+    "add": "إضافة",
+    "update": "تحديث",
+    "remove": "إزالة"
+  },
+  "pagination": {
+    "previous": "السابق",
+    "next": "التالي",
+    "showing": "عرض {{count}} من {{total}} نتيجة",
+    "page": "صفحة {{current}} من {{total}}"
+  },
+  "provider": {
+    "dashboard": {
+      "title": "لوحة مزود الخدمة",
+      "welcome": "مرحباً بعودتك، {{name}}!",
+      "stats": {
+        "todayBookings": "حجوزات اليوم",
+        "pending": "الحجوزات المعلقة",
+        "weekEarnings": "أرباح هذا الأسبوع",
+        "avgRating": "متوسط التقييم",
+        "activeServices": "الخدمات النشطة",
+        "completed": "إجمالي المكتمل"
+      }
+    },
+    "bookings": {
+      "title": "إدارة الحجوزات",
+      "subtitle": "عرض وإدارة جميع طلبات الحجز",
+      "search": {
+        "placeholder": "البحث بالاسم أو رقم الحجز..."
+      },
+      "filters": {
+        "status": "الحالة",
+        "allStatus": "جميع الحالات",
+        "startDate": "من تاريخ",
+        "endDate": "إلى تاريخ",
+        "sortBy": "الترتيب حسب",
+        "sortDate": "تاريخ الموعد",
+        "sortCreated": "تاريخ الإنشاء",
+        "sortPrice": "السعر",
+        "sortStatus": "الحالة",
+        "order": "الترتيب",
+        "ascending": "تصاعدي",
+        "descending": "تنازلي",
+        "clear": "مسح الفلاتر"
+      },
+      "stats": {
+        "today": "حجوزات اليوم",
+        "pending": "معلقة",
+        "confirmed": "مؤكدة",
+        "completed": "مكتملة",
+        "cancelled": "ملغاة",
+        "revenue": "إجمالي الإيرادات"
+      },
+      "results": "عرض {{count}} من {{total}} حجز",
+      "bookingNumber": "حجز",
+      "customer": "العميل",
+      "date": "التاريخ",
+      "time": "الوقت",
+      "price": "السعر",
+      "address": "العنوان",
+      "actions": {
+        "accept": "قبول",
+        "reject": "رفض",
+        "complete": "وضع علامة مكتمل",
+        "cancel": "إلغاء",
+        "view": "عرض التفاصيل"
+      },
+      "modals": {
+        "accept": {
+          "title": "قبول الحجز",
+          "message": "هل أنت متأكد من قبول هذا الحجز لـ {{service}}؟"
+        },
+        "reject": {
+          "title": "رفض الحجز",
+          "message": "يرجى تقديم سبب رفض هذا الحجز:",
+          "reasonLabel": "سبب الرفض",
+          "reasonPlaceholder": "أدخل سبب الرفض..."
+        },
+        "complete": {
+          "title": "إكمال الحجز",
+          "message": "وضع علامة مكتمل على هذا الحجز لـ {{service}}؟",
+          "info": "سيتم إخطار العميل وطلب التقييم."
+        },
+        "cancel": {
+          "title": "إلغاء الحجز",
+          "message": "هل أنت متأكد من إلغاء هذا الحجز؟",
+          "warning": "سيتم إخطار العميل وقد يؤثر على تقييمك.",
+          "reasonLabel": "سبب الإلغاء",
+          "reasonPlaceholder": "أدخل سبب الإلغاء..."
+        }
+      },
+      "empty": {
+        "title": "لم يتم العثور على حجوزات",
+        "filtered": "حاول تعديل الفلاتر للعثور على ما تبحث عنه.",
+        "noBookings": "ليس لديك أي طلبات حجز حتى الآن."
+      }
+    },
+    "services": {
+      "title": "خدماتي",
+      "subtitle": "إدارة عروض الخدمة",
+      "addNew": "إضافة خدمة جديدة",
+      "search": {
+        "placeholder": "البحث عن خدمات..."
+      },
+      "filters": {
+        "status": "الحالة",
+        "allStatus": "جميع الحالات",
+        "category": "الفئة",
+        "allCategories": "جميع الفئات",
+        "sortBy": "الترتيب حسب",
+        "sortDate": "تاريخ الإنشاء",
+        "sortName": "الاسم",
+        "sortPrice": "السعر",
+        "sortBookings": "الحجوزات",
+        "sortRating": "التقييم",
+        "order": "الترتيب",
+        "ascending": "تصاعدي",
+        "descending": "تنازلي",
+        "clear": "مسح الفلاتر"
+      },
+      "results": "عرض {{count}} من {{total}} خدمة",
+      "actions": {
+        "view": "عرض",
+        "edit": "تعديل",
+        "activate": "تفعيل",
+        "deactivate": "إلغاء التفعيل",
+        "duplicate": "نسخ",
+        "delete": "حذف"
+      },
+      "stats": {
+        "bookings": "حجوزات",
+        "reviews": "تقييمات",
+        "minutes": "دقيقة"
+      },
+      "created": "تم الإنشاء",
+      "modals": {
+        "delete": {
+          "title": "حذف الخدمة",
+          "message": "هل أنت متأكد من حذف {{name}}؟",
+          "warning": "لا يمكن التراجع عن هذا الإجراء. ستبقى جميع الحجوزات والتقييمات المرتبطة بهذه الخدمة، لكن الخدمة لن تكون متاحة للحجوزات الجديدة."
+        },
+        "status": {
+          "title": "تغيير حالة الخدمة",
+          "message": "تغيير حالة {{name}}",
+          "newStatus": "الحالة الجديدة",
+          "activeInfo": "✓ ستكون الخدمة مرئية للعملاء ومتاحة للحجز",
+          "inactiveInfo": "⚠ ستكون الخدمة مخفية عن العملاء وغير متاحة للحجوزات الجديدة"
+        }
+      },
+      "empty": {
+        "title": "لم يتم العثور على خدمات",
+        "filtered": "حاول تعديل الفلاتر للعثور على ما تبحث عنه.",
+        "noServices": "ابدأ بإضافة الخدمات لجذب العملاء وتنمية عملك.",
+        "addFirst": "أضف خدمتك الأولى"
+      }
+    }
   }
 }
