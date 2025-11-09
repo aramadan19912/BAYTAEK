@@ -1,0 +1,380 @@
+<div class="provider-bookings-container">
+  <!-- Header -->
+  <div class="bookings-header">
+    <div class="header-content">
+      <h1>{{ 'provider.bookings.title' | translate }}</h1>
+      <p>{{ 'provider.bookings.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-content">
+        <span class="stat-label">{{ 'provider.bookings.stats.today' | translate }}</span>
+        <span class="stat-value">{{ todayBookings }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-content">
+        <span class="stat-label">{{ 'provider.bookings.stats.pending' | translate }}</span>
+        <span class="stat-value">{{ pendingBookings }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-content">
+        <span class="stat-label">{{ 'provider.bookings.stats.confirmed' | translate }}</span>
+        <span class="stat-value">{{ confirmedBookings }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🎉</div>
+      <div class="stat-content">
+        <span class="stat-label">{{ 'provider.bookings.stats.completed' | translate }}</span>
+        <span class="stat-value">{{ completedBookings }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">❌</div>
+      <div class="stat-content">
+        <span class="stat-label">{{ 'provider.bookings.stats.cancelled' | translate }}</span>
+        <span class="stat-value">{{ cancelledBookings }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-content">
+        <span class="stat-label">{{ 'provider.bookings.stats.revenue' | translate }}</span>
+        <span class="stat-value">{{ formatCurrency(totalRevenue) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <!-- Search -->
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        [placeholder]="'provider.bookings.search.placeholder' | translate"
+        class="search-input">
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>{{ 'provider.bookings.filters.status' | translate }}</label>
+        <select [(ngModel)]="selectedStatus" (ngModelChange)="onStatusChange()" class="filter-select">
+          <option value="">{{ 'provider.bookings.filters.allStatus' | translate }}</option>
+          <option value="Pending">{{ 'status.pending' | translate }}</option>
+          <option value="Confirmed">{{ 'status.confirmed' | translate }}</option>
+          <option value="InProgress">{{ 'status.inProgress' | translate }}</option>
+          <option value="Completed">{{ 'status.completed' | translate }}</option>
+          <option value="Cancelled">{{ 'status.cancelled' | translate }}</option>
+          <option value="Rejected">{{ 'status.rejected' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>{{ 'provider.bookings.filters.startDate' | translate }}</label>
+        <input type="date" [(ngModel)]="startDate" (ngModelChange)="onDateFilterChange()" class="filter-input">
+      </div>
+
+      <div class="filter-group">
+        <label>{{ 'provider.bookings.filters.endDate' | translate }}</label>
+        <input type="date" [(ngModel)]="endDate" (ngModelChange)="onDateFilterChange()" class="filter-input">
+      </div>
+
+      <div class="filter-group">
+        <label>{{ 'provider.bookings.filters.sortBy' | translate }}</label>
+        <select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()" class="filter-select">
+          <option value="scheduledDate">{{ 'provider.bookings.filters.sortDate' | translate }}</option>
+          <option value="createdAt">{{ 'provider.bookings.filters.sortCreated' | translate }}</option>
+          <option value="totalPrice">{{ 'provider.bookings.filters.sortPrice' | translate }}</option>
+          <option value="status">{{ 'provider.bookings.filters.sortStatus' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>{{ 'provider.bookings.filters.order' | translate }}</label>
+        <select [(ngModel)]="sortOrder" (ngModelChange)="onSortChange()" class="filter-select">
+          <option value="asc">{{ 'provider.bookings.filters.ascending' | translate }}</option>
+          <option value="desc">{{ 'provider.bookings.filters.descending' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <button class="clear-btn" (click)="clearFilters()">
+          {{ 'provider.bookings.filters.clear' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Info -->
+  <div class="results-info" *ngIf="!isLoading">
+    <p>{{ 'provider.bookings.results' | translate:{ count: bookings.length, total: totalCount } }}</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>{{ 'common.loading' | translate }}</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && bookings.length === 0" class="empty-state">
+    <div class="empty-icon">📋</div>
+    <h2>{{ 'provider.bookings.empty.title' | translate }}</h2>
+    <p *ngIf="searchTerm || selectedStatus || startDate">
+      {{ 'provider.bookings.empty.filtered' | translate }}
+    </p>
+    <p *ngIf="!searchTerm && !selectedStatus && !startDate">
+      {{ 'provider.bookings.empty.noBookings' | translate }}
+    </p>
+    <div class="empty-actions">
+      <button class="btn btn-secondary" (click)="clearFilters()" *ngIf="searchTerm || selectedStatus || startDate">
+        {{ 'provider.bookings.filters.clear' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Bookings List -->
+  <div *ngIf="!isLoading && bookings.length > 0" class="bookings-list">
+    <div *ngFor="let booking of bookings" class="booking-card" (click)="viewBookingDetail(booking.bookingId)">
+      <!-- Booking Header -->
+      <div class="booking-header">
+        <div class="booking-info">
+          <h3>{{ booking.serviceName }}</h3>
+          <p class="booking-number">{{ 'provider.bookings.bookingNumber' | translate }} #{{ booking.bookingNumber }}</p>
+        </div>
+        <span class="status-badge" [class]="getStatusClass(booking.status)">
+          {{ 'status.' + booking.status.toLowerCase() | translate }}
+        </span>
+      </div>
+
+      <!-- Booking Details -->
+      <div class="booking-details">
+        <div class="detail-row">
+          <div class="detail-item">
+            <span class="icon">👤</span>
+            <div class="detail-content">
+              <span class="label">{{ 'provider.bookings.customer' | translate }}</span>
+              <span class="value">{{ booking.customerName }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <span class="icon">📅</span>
+            <div class="detail-content">
+              <span class="label">{{ 'provider.bookings.date' | translate }}</span>
+              <span class="value">{{ formatDate(booking.scheduledDate) }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <span class="icon">🕐</span>
+            <div class="detail-content">
+              <span class="label">{{ 'provider.bookings.time' | translate }}</span>
+              <span class="value">{{ formatTime(booking.scheduledTime) }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <span class="icon">💵</span>
+            <div class="detail-content">
+              <span class="label">{{ 'provider.bookings.price' | translate }}</span>
+              <span class="value">{{ formatCurrency(booking.totalPrice) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row" *ngIf="booking.address">
+          <div class="detail-item full-width">
+            <span class="icon">📍</span>
+            <div class="detail-content">
+              <span class="label">{{ 'provider.bookings.address' | translate }}</span>
+              <span class="value">{{ booking.address }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Actions -->
+      <div class="booking-actions" (click)="$event.stopPropagation()">
+        <button class="btn btn-sm btn-success" (click)="openAcceptModal(booking)" *ngIf="canAccept(booking)">
+          {{ 'provider.bookings.actions.accept' | translate }}
+        </button>
+        <button class="btn btn-sm btn-danger" (click)="openRejectModal(booking)" *ngIf="canReject(booking)">
+          {{ 'provider.bookings.actions.reject' | translate }}
+        </button>
+        <button class="btn btn-sm btn-primary" (click)="openCompleteModal(booking)" *ngIf="canComplete(booking)">
+          {{ 'provider.bookings.actions.complete' | translate }}
+        </button>
+        <button class="btn btn-sm btn-warning" (click)="openCancelModal(booking)" *ngIf="canCancel(booking)">
+          {{ 'provider.bookings.actions.cancel' | translate }}
+        </button>
+        <button class="btn btn-sm btn-secondary" (click)="viewBookingDetail(booking.bookingId)">
+          {{ 'provider.bookings.actions.view' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && totalPages > 1" class="pagination">
+    <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+      {{ 'pagination.previous' | translate }}
+    </button>
+
+    <button *ngIf="paginationPages[0] > 1" class="page-btn" (click)="goToPage(1)">1</button>
+    <span *ngIf="paginationPages[0] > 2" class="page-dots">...</span>
+
+    <button
+      *ngFor="let page of paginationPages"
+      class="page-btn"
+      [class.active]="page === currentPage"
+      (click)="goToPage(page)">
+      {{ page }}
+    </button>
+
+    <span *ngIf="paginationPages[paginationPages.length - 1] < totalPages - 1" class="page-dots">...</span>
+    <button *ngIf="paginationPages[paginationPages.length - 1] < totalPages" class="page-btn" (click)="goToPage(totalPages)">
+      {{ totalPages }}
+    </button>
+
+    <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+      {{ 'pagination.next' | translate }}
+    </button>
+  </div>
+</div>
+
+<!-- Accept Booking Modal -->
+<div *ngIf="showAcceptModal" class="modal-overlay" (click)="closeAcceptModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ 'provider.bookings.modals.accept.title' | translate }}</h2>
+      <button class="close-btn" (click)="closeAcceptModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p>{{ 'provider.bookings.modals.accept.message' | translate:{ service: selectedBooking?.serviceName } }}</p>
+      <div class="booking-summary">
+        <p><strong>{{ 'provider.bookings.customer' | translate }}:</strong> {{ selectedBooking?.customerName }}</p>
+        <p><strong>{{ 'provider.bookings.date' | translate }}:</strong> {{ formatDate(selectedBooking?.scheduledDate) }}</p>
+        <p><strong>{{ 'provider.bookings.time' | translate }}:</strong> {{ formatTime(selectedBooking?.scheduledTime) }}</p>
+        <p><strong>{{ 'provider.bookings.price' | translate }}:</strong> {{ formatCurrency(selectedBooking?.totalPrice) }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAcceptModal()" [disabled]="isProcessing">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button class="btn btn-success" (click)="confirmAccept()" [disabled]="isProcessing">
+        {{ isProcessing ? ('common.processing' | translate) : ('provider.bookings.actions.accept' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Booking Modal -->
+<div *ngIf="showRejectModal" class="modal-overlay" (click)="closeRejectModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ 'provider.bookings.modals.reject.title' | translate }}</h2>
+      <button class="close-btn" (click)="closeRejectModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p>{{ 'provider.bookings.modals.reject.message' | translate }}</p>
+
+      <div class="form-group">
+        <label>{{ 'provider.bookings.modals.reject.reasonLabel' | translate }} *</label>
+        <textarea
+          [(ngModel)]="rejectReason"
+          class="form-control"
+          rows="4"
+          [placeholder]="'provider.bookings.modals.reject.reasonPlaceholder' | translate"
+          required></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeRejectModal()" [disabled]="isProcessing">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button class="btn btn-danger" (click)="confirmReject()" [disabled]="isProcessing || !rejectReason">
+        {{ isProcessing ? ('common.processing' | translate) : ('provider.bookings.actions.reject' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Complete Booking Modal -->
+<div *ngIf="showCompleteModal" class="modal-overlay" (click)="closeCompleteModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ 'provider.bookings.modals.complete.title' | translate }}</h2>
+      <button class="close-btn" (click)="closeCompleteModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p>{{ 'provider.bookings.modals.complete.message' | translate:{ service: selectedBooking?.serviceName } }}</p>
+      <p class="info-text">{{ 'provider.bookings.modals.complete.info' | translate }}</p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeCompleteModal()" [disabled]="isProcessing">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button class="btn btn-primary" (click)="confirmComplete()" [disabled]="isProcessing">
+        {{ isProcessing ? ('common.processing' | translate) : ('provider.bookings.actions.complete' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel Booking Modal -->
+<div *ngIf="showCancelModal" class="modal-overlay" (click)="closeCancelModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ 'provider.bookings.modals.cancel.title' | translate }}</h2>
+      <button class="close-btn" (click)="closeCancelModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p>{{ 'provider.bookings.modals.cancel.message' | translate }}</p>
+      <p class="warning-text">{{ 'provider.bookings.modals.cancel.warning' | translate }}</p>
+
+      <div class="form-group">
+        <label>{{ 'provider.bookings.modals.cancel.reasonLabel' | translate }} *</label>
+        <textarea
+          [(ngModel)]="cancellationReason"
+          class="form-control"
+          rows="4"
+          [placeholder]="'provider.bookings.modals.cancel.reasonPlaceholder' | translate"
+          required></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeCancelModal()" [disabled]="isProcessing">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button class="btn btn-warning" (click)="confirmCancel()" [disabled]="isProcessing || !cancellationReason">
+        {{ isProcessing ? ('common.processing' | translate) : ('provider.bookings.actions.cancel' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>
