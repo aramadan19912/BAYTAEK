@@ -649,6 +649,40 @@
         "admin": "Admin",
         "superadmin": "Super Admin"
       }
+    },
+    "services": {
+      "title": "Services Management",
+      "subtitle": "Manage all platform services",
+      "back_to_dashboard": "Back to Dashboard",
+      "search_placeholder": "Search services by name...",
+      "all_categories": "All Categories",
+      "all_statuses": "All Statuses",
+      "all_approvals": "All Approval Status",
+      "pending_approval": "Pending Approval",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "clear_filters": "Clear Filters",
+      "showing": "Showing",
+      "of": "of",
+      "services": "services",
+      "service": "Service",
+      "provider": "Provider",
+      "category": "Category",
+      "price": "Price",
+      "approval_status": "Approval Status",
+      "bookings": "Bookings",
+      "rating": "Rating",
+      "created": "Created",
+      "actions": "Actions",
+      "approve": "Approve",
+      "reject": "Reject",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "no_services": "No Services Found",
+      "no_services_desc": "No services match your current filters",
+      "page": "Page",
+      "previous": "Previous",
+      "next": "Next"
     }
   }
 }

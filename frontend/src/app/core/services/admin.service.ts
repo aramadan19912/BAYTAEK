@@ -82,6 +82,34 @@ export interface ServiceApprovalItem {
   images?: string[];
 }
 
+export interface ServiceListItem {
+  serviceId: string;
+  name: string;
+  providerName: string;
+  providerId: string;
+  categoryName: string;
+  categoryId: string;
+  basePrice: number;
+  currency: string;
+  isActive: boolean;
+  approvalStatus: string;
+  totalBookings: number;
+  averageRating?: number;
+  totalReviews: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RejectServiceRequest {
+  reason: string;
+  notifyProvider?: boolean;
+}
+
+export interface DeactivateServiceRequest {
+  reason: string;
+  notifyProvider?: boolean;
+}
+
 export interface AdminTicket {
   ticketId: string;
   ticketNumber: string;
@@ -274,7 +302,7 @@ export class AdminService {
     isSuspended?: boolean;
     pageNumber?: number;
     pageSize?: number;
-  }): Observable<{ users: UserListItem[]; totalCount: number }> {
+  }): Observable<{ users: UserListItem[]; totalCount: number; hasNextPage: boolean; hasPreviousPage: boolean }> {
     return this.apiService.get('admin/users', params);
   }
 
@@ -312,6 +340,17 @@ export class AdminService {
   }
 
   // Service Management
+  getServices(params?: {
+    searchTerm?: string;
+    category?: string;
+    isActive?: boolean;
+    approvalStatus?: string;
+    pageNumber?: number;
+    pageSize?: number;
+  }): Observable<{ services: ServiceListItem[]; totalCount: number; hasNextPage: boolean; hasPreviousPage: boolean }> {
+    return this.apiService.get('admin/services', params);
+  }
+
   getPendingServices(params?: {
     categoryId?: string;
     pageNumber?: number;
@@ -324,12 +363,16 @@ export class AdminService {
     return this.apiService.post(`admin/services/${serviceId}/approve`, { notes });
   }
 
-  rejectService(serviceId: string, reason: string): Observable<any> {
-    return this.apiService.post(`admin/services/${serviceId}/reject`, { reason });
+  rejectService(serviceId: string, request: RejectServiceRequest): Observable<any> {
+    return this.apiService.post(`admin/services/${serviceId}/reject`, request);
   }
 
-  deactivateService(serviceId: string, reason: string): Observable<any> {
-    return this.apiService.post(`admin/services/${serviceId}/deactivate`, { reason });
+  activateService(serviceId: string): Observable<any> {
+    return this.apiService.post(`admin/services/${serviceId}/activate`, {});
+  }
+
+  deactivateService(serviceId: string, request: DeactivateServiceRequest): Observable<any> {
+    return this.apiService.post(`admin/services/${serviceId}/deactivate`, request);
   }
 
   // Support Tickets

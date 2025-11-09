@@ -649,6 +649,40 @@
         "admin": "مسؤول",
         "superadmin": "مسؤول عام"
       }
+    },
+    "services": {
+      "title": "إدارة الخدمات",
+      "subtitle": "إدارة جميع خدمات المنصة",
+      "back_to_dashboard": "العودة إلى لوحة التحكم",
+      "search_placeholder": "البحث عن الخدمات بالاسم...",
+      "all_categories": "جميع الفئات",
+      "all_statuses": "جميع الحالات",
+      "all_approvals": "جميع حالات الموافقة",
+      "pending_approval": "قيد الموافقة",
+      "approved": "موافق عليها",
+      "rejected": "مرفوضة",
+      "clear_filters": "مسح الفلاتر",
+      "showing": "عرض",
+      "of": "من",
+      "services": "خدمة",
+      "service": "الخدمة",
+      "provider": "المزود",
+      "category": "الفئة",
+      "price": "السعر",
+      "approval_status": "حالة الموافقة",
+      "bookings": "الحجوزات",
+      "rating": "التقييم",
+      "created": "تاريخ الإنشاء",
+      "actions": "الإجراءات",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "activate": "تفعيل",
+      "deactivate": "تعطيل",
+      "no_services": "لا توجد خدمات",
+      "no_services_desc": "لا توجد خدمات تطابق الفلاتر الحالية",
+      "page": "صفحة",
+      "previous": "السابق",
+      "next": "التالي"
     }
   }
 }
