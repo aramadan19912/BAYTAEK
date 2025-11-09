@@ -239,6 +239,27 @@ export interface SystemAnalytics {
   };
 }
 
+export interface DashboardStats {
+  totalUsers: number;
+  userGrowth: number;
+  activeProviders: number;
+  providerGrowth: number;
+  totalBookings: number;
+  bookingGrowth: number;
+  totalRevenue: number;
+  revenueGrowth: number;
+  pendingApprovals: number;
+  recentBookings: Array<{
+    id: string;
+    customerName: string;
+    serviceName: string;
+    providerName: string;
+    amount: number;
+    status: string;
+    date: string;
+  }>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -414,6 +435,10 @@ export class AdminService {
       startDate,
       endDate
     });
+  }
+
+  getDashboardStats(): Observable<DashboardStats> {
+    return this.apiService.get<DashboardStats>('admin/dashboard/stats');
   }
 
   // Categories

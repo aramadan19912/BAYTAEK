@@ -1,0 +1,196 @@
+<div class="admin-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>{{ 'admin.dashboard.title' | translate }}</h1>
+    <p class="subtitle">{{ 'admin.dashboard.welcome' | translate }}</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>{{ 'common.loading' | translate }}</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading && stats" class="dashboard-content">
+    <!-- Quick Stats Cards -->
+    <div class="stats-grid">
+      <!-- Total Users -->
+      <div class="stat-card" (click)="navigateToUsers()">
+        <div class="stat-icon users">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatNumber(stats.totalUsers) }}</div>
+          <div class="stat-label">{{ 'admin.dashboard.total_users' | translate }}</div>
+          <div class="stat-growth" [ngClass]="getGrowthClass(stats.userGrowth)">
+            <span class="growth-icon">{{ getGrowthIcon(stats.userGrowth) }}</span>
+            <span>{{ formatPercentage(stats.userGrowth) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Providers -->
+      <div class="stat-card" (click)="navigateToUsers()">
+        <div class="stat-icon providers">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatNumber(stats.activeProviders) }}</div>
+          <div class="stat-label">{{ 'admin.dashboard.active_providers' | translate }}</div>
+          <div class="stat-growth" [ngClass]="getGrowthClass(stats.providerGrowth)">
+            <span class="growth-icon">{{ getGrowthIcon(stats.providerGrowth) }}</span>
+            <span>{{ formatPercentage(stats.providerGrowth) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Bookings -->
+      <div class="stat-card" (click)="navigateToBookings()">
+        <div class="stat-icon bookings">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatNumber(stats.totalBookings) }}</div>
+          <div class="stat-label">{{ 'admin.dashboard.total_bookings' | translate }}</div>
+          <div class="stat-growth" [ngClass]="getGrowthClass(stats.bookingGrowth)">
+            <span class="growth-icon">{{ getGrowthIcon(stats.bookingGrowth) }}</span>
+            <span>{{ formatPercentage(stats.bookingGrowth) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Revenue -->
+      <div class="stat-card" (click)="navigateToReports()">
+        <div class="stat-icon revenue">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatCurrency(stats.totalRevenue) }}</div>
+          <div class="stat-label">{{ 'admin.dashboard.total_revenue' | translate }}</div>
+          <div class="stat-growth" [ngClass]="getGrowthClass(stats.revenueGrowth)">
+            <span class="growth-icon">{{ getGrowthIcon(stats.revenueGrowth) }}</span>
+            <span>{{ formatPercentage(stats.revenueGrowth) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity & Analytics -->
+    <div class="dashboard-panels">
+      <!-- Pending Approvals -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2>{{ 'admin.dashboard.pending_approvals' | translate }}</h2>
+          <span class="badge">{{ stats.pendingApprovals }}</span>
+        </div>
+        <div class="panel-content">
+          <div class="approval-item" *ngFor="let item of ['Provider Verification', 'Service Listing', 'Dispute Resolution']">
+            <div class="approval-icon">⏳</div>
+            <div class="approval-text">{{ item }}</div>
+            <button class="btn-review">{{ 'admin.dashboard.review' | translate }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2>{{ 'admin.dashboard.quick_actions' | translate }}</h2>
+        </div>
+        <div class="panel-content">
+          <div class="quick-actions-grid">
+            <button class="action-btn" (click)="navigateToUsers()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+              </svg>
+              <span>{{ 'admin.dashboard.manage_users' | translate }}</span>
+            </button>
+            <button class="action-btn" (click)="navigateToServices()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span>{{ 'admin.dashboard.manage_services' | translate }}</span>
+            </button>
+            <button class="action-btn" (click)="navigateToBookings()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <span>{{ 'admin.dashboard.view_bookings' | translate }}</span>
+            </button>
+            <button class="action-btn" (click)="navigateToReports()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+              <span>{{ 'admin.dashboard.view_reports' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="panel full-width">
+      <div class="panel-header">
+        <h2>{{ 'admin.dashboard.recent_bookings' | translate }}</h2>
+        <a routerLink="/admin/bookings" class="view-all-link">{{ 'admin.dashboard.view_all' | translate }}</a>
+      </div>
+      <div class="panel-content">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'admin.dashboard.booking_id' | translate }}</th>
+                <th>{{ 'admin.dashboard.customer' | translate }}</th>
+                <th>{{ 'admin.dashboard.service' | translate }}</th>
+                <th>{{ 'admin.dashboard.provider' | translate }}</th>
+                <th>{{ 'admin.dashboard.amount' | translate }}</th>
+                <th>{{ 'admin.dashboard.status' | translate }}</th>
+                <th>{{ 'admin.dashboard.date' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let booking of stats.recentBookings">
+                <td class="booking-id">{{ booking.id }}</td>
+                <td>{{ booking.customerName }}</td>
+                <td>{{ booking.serviceName }}</td>
+                <td>{{ booking.providerName }}</td>
+                <td class="amount">{{ formatCurrency(booking.amount) }}</td>
+                <td><span class="status-badge" [attr.data-status]="booking.status">{{ booking.status }}</span></td>
+                <td>{{ booking.date | date:'short' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

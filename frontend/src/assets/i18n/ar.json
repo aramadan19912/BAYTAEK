@@ -587,5 +587,31 @@
         "send": "إرسال الرسالة"
       }
     }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "لوحة تحكم المسؤول",
+      "welcome": "مرحباً بك في لوحة الإدارة",
+      "total_users": "إجمالي المستخدمين",
+      "active_providers": "مزودي الخدمة النشطين",
+      "total_bookings": "إجمالي الحجوزات",
+      "total_revenue": "إجمالي الإيرادات",
+      "pending_approvals": "الموافقات المعلقة",
+      "review": "مراجعة",
+      "quick_actions": "إجراءات سريعة",
+      "manage_users": "إدارة المستخدمين",
+      "manage_services": "إدارة الخدمات",
+      "view_bookings": "عرض الحجوزات",
+      "view_reports": "عرض التقارير",
+      "recent_bookings": "الحجوزات الأخيرة",
+      "view_all": "عرض الكل",
+      "booking_id": "رقم الحجز",
+      "customer": "العميل",
+      "service": "الخدمة",
+      "provider": "المزود",
+      "amount": "المبلغ",
+      "status": "الحالة",
+      "date": "التاريخ"
+    }
   }
 }

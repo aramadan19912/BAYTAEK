@@ -587,5 +587,31 @@
         "send": "Send Message"
       }
     }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "welcome": "Welcome to the administration panel",
+      "total_users": "Total Users",
+      "active_providers": "Active Providers",
+      "total_bookings": "Total Bookings",
+      "total_revenue": "Total Revenue",
+      "pending_approvals": "Pending Approvals",
+      "review": "Review",
+      "quick_actions": "Quick Actions",
+      "manage_users": "Manage Users",
+      "manage_services": "Manage Services",
+      "view_bookings": "View Bookings",
+      "view_reports": "View Reports",
+      "recent_bookings": "Recent Bookings",
+      "view_all": "View All",
+      "booking_id": "Booking ID",
+      "customer": "Customer",
+      "service": "Service",
+      "provider": "Provider",
+      "amount": "Amount",
+      "status": "Status",
+      "date": "Date"
+    }
   }
 }
