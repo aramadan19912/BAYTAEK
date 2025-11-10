@@ -21,9 +21,14 @@ public class Service : AuditableEntity
     public string? VideoUrl { get; set; }
     public string? RequiredMaterials { get; set; }
     public string? WarrantyInfo { get; set; }
+    public decimal AverageRating { get; set; }
+    public int TotalReviews { get; set; }
+    public int TotalBookings { get; set; }
 
     // Navigation properties
     public virtual ServiceCategory Category { get; set; } = null!;
     public virtual ServiceProvider? Provider { get; set; }
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
+    public virtual ICollection<PromoCode> PromoCodes { get; set; } = new List<PromoCode>();
 }

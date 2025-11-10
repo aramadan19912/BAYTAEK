@@ -16,9 +16,11 @@ public class Review : AuditableEntity
     public bool IsVerified { get; set; }
     public bool IsVisible { get; set; }
     public decimal? SentimentScore { get; set; } // AI sentiment analysis score
+    public int HelpfulCount { get; set; }
 
     // Navigation properties
     public virtual Booking Booking { get; set; } = null!;
     public virtual User Customer { get; set; } = null!;
     public virtual ServiceProvider Provider { get; set; } = null!;
+    public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
 }

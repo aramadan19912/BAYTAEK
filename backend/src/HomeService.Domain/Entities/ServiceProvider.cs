@@ -22,4 +22,5 @@ public class ServiceProvider : AuditableEntity
     public virtual ICollection<Service> Services { get; set; } = new List<Service>();
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     public virtual ICollection<ProviderAvailability> Availabilities { get; set; } = new List<ProviderAvailability>();
+    public virtual ICollection<Payout> Payouts { get; set; } = new List<Payout>();
 }

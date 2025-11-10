@@ -17,4 +17,5 @@ public class ServiceCategory : AuditableEntity
     public virtual ServiceCategory? ParentCategory { get; set; }
     public virtual ICollection<ServiceCategory> SubCategories { get; set; } = new List<ServiceCategory>();
     public virtual ICollection<Service> Services { get; set; } = new List<Service>();
+    public virtual ICollection<PromoCode> PromoCodes { get; set; } = new List<PromoCode>();
 }

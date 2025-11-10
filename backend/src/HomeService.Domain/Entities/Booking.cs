@@ -22,6 +22,9 @@ public class Booking : AuditableEntity
     public string? SpecialInstructions { get; set; }
     public bool IsRecurring { get; set; }
     public string? RecurrencePattern { get; set; }
+    public string? CompletionPhotos { get; set; }
+    public Guid? PromoCodeId { get; set; }
+    public decimal? DiscountAmount { get; set; }
 
     // Navigation properties
     public virtual User Customer { get; set; } = null!;
@@ -30,4 +33,8 @@ public class Booking : AuditableEntity
     public virtual Address Address { get; set; } = null!;
     public virtual Payment? Payment { get; set; }
     public virtual Review? Review { get; set; }
+    public virtual PromoCode? PromoCode { get; set; }
+    public virtual Conversation? Conversation { get; set; }
+    public virtual ICollection<BookingHistory> History { get; set; } = new List<BookingHistory>();
+    public virtual ICollection<PayoutBooking> PayoutBookings { get; set; } = new List<PayoutBooking>();
 }

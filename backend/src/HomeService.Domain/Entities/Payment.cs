@@ -12,6 +12,7 @@ public class Payment : AuditableEntity
     public PaymentStatus Status { get; set; }
     public string? TransactionId { get; set; }
     public string? PaymentGateway { get; set; }
+    public string? GatewayResponse { get; set; }
     public DateTime? ProcessedAt { get; set; }
     public string? FailureReason { get; set; }
     public decimal? RefundAmount { get; set; }
