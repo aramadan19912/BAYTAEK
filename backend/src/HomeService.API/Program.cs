@@ -1,3 +1,4 @@
+using Hangfire;
 using HomeService.Application;
 using HomeService.Infrastructure;
 using HomeService.Infrastructure.Data;
@@ -24,6 +25,16 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// Add SignalR
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+    options.MaximumReceiveMessageSize = 102400; // 100 KB
+    options.StreamBufferCapacity = 10;
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(30);
+});
+
 // Add Application and Infrastructure layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -49,6 +60,27 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
         ClockSkew = TimeSpan.Zero
+    };
+
+    // Configure JWT for SignalR
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            // If the request is for SignalR hub
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/hubs/chat") ||
+                 path.StartsWithSegments("/hubs/notifications") ||
+                 path.StartsWithSegments("/hubs/bookings")))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -95,14 +127,15 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configure CORS
+// Configure CORS (Updated for SignalR)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:4200", "http://localhost:3000") // Add your frontend URLs
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials(); // Required for SignalR
     });
 });
 
@@ -128,6 +161,23 @@ app.UseSerilogRequestLogging();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Hangfire Dashboard (development only for security)
+if (app.Environment.IsDevelopment())
+{
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = new[] { new HangfireAuthorizationFilter() },
+        StatsPollingInterval = 10000, // 10 seconds
+        DisplayStorageConnectionString = false
+    });
+}
+
+// Map SignalR Hubs
+app.MapHub<HomeService.API.Hubs.ChatHub>("/hubs/chat");
+app.MapHub<HomeService.API.Hubs.NotificationHub>("/hubs/notifications");
+app.MapHub<HomeService.API.Hubs.BookingHub>("/hubs/bookings");
+
 app.MapControllers();
 
 // Apply migrations on startup (development only)
