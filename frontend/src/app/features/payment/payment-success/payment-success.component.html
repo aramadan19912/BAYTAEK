@@ -1,0 +1,149 @@
+<div class="payment-success-container">
+  <mat-card class="success-card">
+    <!-- Success Icon -->
+    <div class="success-icon-wrapper">
+      <div class="success-icon-circle">
+        <mat-icon class="success-icon">check_circle</mat-icon>
+      </div>
+      <div class="success-checkmark">
+        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+          <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <mat-card-header>
+      <mat-card-title>{{ 'PAYMENT.SUCCESS_TITLE' | translate }}</mat-card-title>
+      <mat-card-subtitle>
+        {{ paymentMethod === 'Cash' ? ('PAYMENT.BOOKING_CONFIRMED_CASH' | translate) : ('PAYMENT.PAYMENT_SUCCESS_DESC' | translate) }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-divider></mat-divider>
+
+    <!-- Booking Details -->
+    <mat-card-content *ngIf="booking">
+      <div class="booking-info-section">
+        <h3>{{ 'PAYMENT.BOOKING_DETAILS' | translate }}</h3>
+
+        <!-- Booking Number -->
+        <div class="info-item">
+          <div class="info-label">
+            <mat-icon>confirmation_number</mat-icon>
+            <span>{{ 'BOOKING.BOOKING_NUMBER' | translate }}</span>
+          </div>
+          <div class="info-value booking-number">{{ booking.bookingNumber }}</div>
+        </div>
+
+        <!-- Service -->
+        <div class="info-item">
+          <div class="info-label">
+            <mat-icon>room_service</mat-icon>
+            <span>{{ 'BOOKING.SERVICE' | translate }}</span>
+          </div>
+          <div class="info-value">{{ getServiceName() }}</div>
+        </div>
+
+        <!-- Provider -->
+        <div class="info-item">
+          <div class="info-label">
+            <mat-icon>business</mat-icon>
+            <span>{{ 'BOOKING.PROVIDER' | translate }}</span>
+          </div>
+          <div class="info-value">
+            {{ booking.provider.name }}
+            <mat-icon *ngIf="booking.provider.isVerified" class="verified-icon">verified</mat-icon>
+          </div>
+        </div>
+
+        <!-- Scheduled Date & Time -->
+        <div class="info-item">
+          <div class="info-label">
+            <mat-icon>event</mat-icon>
+            <span>{{ 'BOOKING.SCHEDULED_TIME' | translate }}</span>
+          </div>
+          <div class="info-value">{{ formatDate(booking.scheduledDateTime) }}</div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Payment Info -->
+        <div class="payment-info-section">
+          <h3>{{ 'PAYMENT.PAYMENT_INFO' | translate }}</h3>
+
+          <!-- Payment Method -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>{{ getPaymentMethodIcon() }}</mat-icon>
+              <span>{{ 'PAYMENT.METHOD' | translate }}</span>
+            </div>
+            <div class="info-value">{{ getPaymentMethodLabel() | translate }}</div>
+          </div>
+
+          <!-- Payment ID (if card payment) -->
+          <div class="info-item" *ngIf="paymentId && paymentMethod === 'Card'">
+            <div class="info-label">
+              <mat-icon>receipt</mat-icon>
+              <span>{{ 'PAYMENT.TRANSACTION_ID' | translate }}</span>
+            </div>
+            <div class="info-value transaction-id">{{ paymentId }}</div>
+          </div>
+
+          <!-- Amount Paid -->
+          <div class="info-item amount-item">
+            <div class="info-label">
+              <mat-icon>payments</mat-icon>
+              <span>{{ paymentMethod === 'Cash' ? ('PAYMENT.AMOUNT_TO_PAY' | translate) : ('PAYMENT.AMOUNT_PAID' | translate) }}</span>
+            </div>
+            <div class="info-value amount-value">
+              {{ booking.pricing.totalAmount | number:'1.2-2' }} {{ booking.pricing.currency }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Message -->
+      <div class="info-message" *ngIf="paymentMethod === 'Cash'">
+        <mat-icon color="primary">info</mat-icon>
+        <div class="message-content">
+          <h4>{{ 'PAYMENT.CASH_PAYMENT_NOTE_TITLE' | translate }}</h4>
+          <p>{{ 'PAYMENT.CASH_PAYMENT_NOTE_DESC' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="info-message" *ngIf="paymentMethod === 'Card'">
+        <mat-icon color="primary">email</mat-icon>
+        <div class="message-content">
+          <h4>{{ 'PAYMENT.CONFIRMATION_EMAIL_TITLE' | translate }}</h4>
+          <p>{{ 'PAYMENT.CONFIRMATION_EMAIL_DESC' | translate }}</p>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <!-- Action Buttons -->
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="viewBookingDetails()">
+        <mat-icon>visibility</mat-icon>
+        {{ 'PAYMENT.VIEW_BOOKING' | translate }}
+      </button>
+
+      <button mat-stroked-button (click)="goToBookings()">
+        <mat-icon>list</mat-icon>
+        {{ 'PAYMENT.MY_BOOKINGS' | translate }}
+      </button>
+
+      <button mat-button (click)="goToHome()">
+        <mat-icon>home</mat-icon>
+        {{ 'PAYMENT.BACK_TO_HOME' | translate }}
+      </button>
+
+      <!-- Download Receipt Button (for card payments) -->
+      <!-- <button mat-stroked-button *ngIf="paymentMethod === 'Card'" (click)="downloadReceipt()">
+        <mat-icon>download</mat-icon>
+        {{ 'PAYMENT.DOWNLOAD_RECEIPT' | translate }}
+      </button> -->
+    </mat-card-actions>
+  </mat-card>
+</div>

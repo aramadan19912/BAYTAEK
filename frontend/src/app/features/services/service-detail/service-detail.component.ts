@@ -275,8 +275,8 @@ export class ServiceDetailComponent implements OnInit, OnDestroy {
           this.bookingInProgress = false;
           this.closeBookingModal();
 
-          // Navigate to booking details
-          this.router.navigate(['/bookings', result.bookingId]);
+          // Navigate to payment page to complete the booking
+          this.router.navigate(['/bookings', result.bookingId, 'payment']);
         },
         error: (error) => {
           console.error('Error creating booking:', error);

@@ -297,6 +297,28 @@ export class BookingDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  goToPayment(): void {
+    if (this.booking) {
+      this.router.navigate(['/bookings', this.bookingId, 'payment']);
+    }
+  }
+
+  canRetryPayment(): boolean {
+    if (!this.booking || !this.booking.payment) return false;
+
+    // Allow retry if payment failed or is pending
+    const paymentStatus = this.booking.payment.paymentStatus;
+    return paymentStatus === 'Failed' || paymentStatus === 'Pending';
+  }
+
+  isPendingPayment(): boolean {
+    if (!this.booking || !this.booking.payment) return true;
+
+    // Check if booking is created but payment is not completed
+    const paymentStatus = this.booking.payment.paymentStatus;
+    return paymentStatus === 'Pending' || paymentStatus === 'Failed';
+  }
+
   // Helper methods
   getServiceName(): string {
     if (!this.booking) return '';

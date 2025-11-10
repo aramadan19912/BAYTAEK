@@ -1,0 +1,195 @@
+<div class="payment-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'PAYMENT.TITLE' | translate }}</mat-card-title>
+      <mat-card-subtitle>
+        {{ 'PAYMENT.AMOUNT_TO_PAY' | translate }}:
+        <strong>{{ amount | number:'1.2-2' }} {{ currency }}</strong>
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+        <!-- Payment Method Selection -->
+        <div class="payment-type-section">
+          <h3>{{ 'PAYMENT.SELECT_METHOD' | translate }}</h3>
+          <mat-radio-group formControlName="paymentType" class="payment-type-group">
+            <mat-radio-button value="Card">
+              <mat-icon>credit_card</mat-icon>
+              {{ 'PAYMENT.METHODS.CARD' | translate }}
+            </mat-radio-button>
+
+            <mat-radio-button value="SavedCard" *ngIf="savedPaymentMethods.length > 0">
+              <mat-icon>account_balance_wallet</mat-icon>
+              {{ 'PAYMENT.METHODS.SAVED_CARD' | translate }}
+            </mat-radio-button>
+
+            <mat-radio-button value="Cash">
+              <mat-icon>money</mat-icon>
+              {{ 'PAYMENT.METHODS.CASH' | translate }}
+            </mat-radio-button>
+
+            <mat-radio-button value="Wallet">
+              <mat-icon>account_balance_wallet</mat-icon>
+              {{ 'PAYMENT.METHODS.WALLET' | translate }}
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Saved Cards Selection -->
+        <div class="saved-cards-section" *ngIf="selectedPaymentType === 'SavedCard'">
+          <h3>{{ 'PAYMENT.SELECT_SAVED_CARD' | translate }}</h3>
+
+          <div *ngIf="loadingMethods" class="loading-container">
+            <mat-spinner diameter="40"></mat-spinner>
+          </div>
+
+          <mat-radio-group formControlName="savedPaymentMethodId" class="saved-cards-list">
+            <mat-card
+              *ngFor="let method of savedPaymentMethods"
+              class="saved-card-item"
+              [class.selected]="paymentForm.get('savedPaymentMethodId')?.value === method.paymentMethodId">
+              <mat-radio-button [value]="method.paymentMethodId">
+                <div class="card-info">
+                  <mat-icon>{{ method.cardBrand === 'Visa' ? 'credit_card' : 'payment' }}</mat-icon>
+                  <div class="card-details">
+                    <div class="card-brand">{{ method.cardBrand }}</div>
+                    <div class="card-number">**** **** **** {{ method.cardLast4 }}</div>
+                    <div class="card-expiry">{{ 'PAYMENT.EXPIRES' | translate }}: {{ method.expiryMonth }}/{{ method.expiryYear }}</div>
+                  </div>
+                  <mat-icon *ngIf="method.isDefault" class="default-badge" color="primary">check_circle</mat-icon>
+                </div>
+              </mat-radio-button>
+            </mat-card>
+          </mat-radio-group>
+        </div>
+
+        <!-- New Card Form -->
+        <div class="card-form-section" *ngIf="selectedPaymentType === 'Card'">
+          <h3>{{ 'PAYMENT.CARD_DETAILS' | translate }}</h3>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'PAYMENT.CARD_NUMBER' | translate }}</mat-label>
+            <input
+              matInput
+              formControlName="cardNumber"
+              placeholder="1234 5678 9012 3456"
+              maxlength="19">
+            <mat-icon matPrefix>{{ getCardIcon() }}</mat-icon>
+            <mat-hint *ngIf="cardBrand">{{ cardBrand }}</mat-hint>
+            <mat-error *ngIf="cardNumberError">{{ cardNumberError | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'PAYMENT.CARD_HOLDER_NAME' | translate }}</mat-label>
+            <input
+              matInput
+              formControlName="cardHolderName"
+              placeholder="{{ 'PAYMENT.CARD_HOLDER_PLACEHOLDER' | translate }}">
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error *ngIf="paymentForm.get('cardHolderName')?.hasError('required')">
+              {{ 'PAYMENT.ERRORS.CARD_HOLDER_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <div class="expiry-cvv-row">
+            <mat-form-field appearance="outline" class="expiry-field">
+              <mat-label>{{ 'PAYMENT.EXPIRY_MONTH' | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="expiryMonth"
+                placeholder="MM"
+                type="number"
+                min="1"
+                max="12">
+              <mat-error *ngIf="expiryError">{{ expiryError | translate }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="expiry-field">
+              <mat-label>{{ 'PAYMENT.EXPIRY_YEAR' | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="expiryYear"
+                placeholder="YYYY"
+                type="number"
+                min="2024">
+              <mat-error *ngIf="expiryError">{{ expiryError | translate }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="cvv-field">
+              <mat-label>{{ 'PAYMENT.CVV' | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="cvv"
+                placeholder="123"
+                type="password"
+                maxlength="4">
+              <mat-icon matPrefix>lock</mat-icon>
+              <mat-error *ngIf="paymentForm.get('cvv')?.hasError('required')">
+                {{ 'PAYMENT.ERRORS.CVV_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="save-card-option">
+            <mat-checkbox formControlName="saveCard">
+              {{ 'PAYMENT.SAVE_CARD' | translate }}
+            </mat-checkbox>
+          </div>
+        </div>
+
+        <!-- Cash Payment Info -->
+        <div class="cash-info-section" *ngIf="selectedPaymentType === 'Cash'">
+          <mat-card class="info-card">
+            <mat-icon color="primary">info</mat-icon>
+            <div class="info-text">
+              <h4>{{ 'PAYMENT.CASH_INFO_TITLE' | translate }}</h4>
+              <p>{{ 'PAYMENT.CASH_INFO_DESC' | translate }}</p>
+            </div>
+          </mat-card>
+        </div>
+
+        <!-- Wallet Payment Info -->
+        <div class="wallet-info-section" *ngIf="selectedPaymentType === 'Wallet'">
+          <mat-card class="info-card">
+            <mat-icon color="primary">account_balance_wallet</mat-icon>
+            <div class="info-text">
+              <h4>{{ 'PAYMENT.WALLET_INFO_TITLE' | translate }}</h4>
+              <p>{{ 'PAYMENT.WALLET_INFO_DESC' | translate }}</p>
+            </div>
+          </mat-card>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button
+            mat-raised-button
+            type="button"
+            (click)="onCancel()"
+            [disabled]="loading">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="loading || (selectedPaymentType === 'Card' && paymentForm.invalid) || (selectedPaymentType === 'SavedCard' && !paymentForm.get('savedPaymentMethodId')?.value)">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <span *ngIf="!loading">
+              {{ selectedPaymentType === 'Cash' ? ('PAYMENT.CONFIRM_CASH' | translate) : ('PAYMENT.PAY_NOW' | translate) }}
+            </span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Security Badge -->
+  <div class="security-info">
+    <mat-icon>lock</mat-icon>
+    <span>{{ 'PAYMENT.SECURE_PAYMENT' | translate }}</span>
+  </div>
+</div>

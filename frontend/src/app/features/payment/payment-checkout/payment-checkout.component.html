@@ -1,0 +1,123 @@
+<div class="payment-checkout-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p>{{ 'PAYMENT.LOADING_BOOKING' | translate }}</p>
+  </div>
+
+  <!-- Error State -->
+  <mat-card *ngIf="!loading && error" class="error-card">
+    <mat-icon color="warn">error</mat-icon>
+    <h2>{{ 'PAYMENT.ERRORS.TITLE' | translate }}</h2>
+    <p>{{ error | translate }}</p>
+    <button mat-raised-button color="primary" (click)="loadBookingDetails()">
+      {{ 'COMMON.RETRY' | translate }}
+    </button>
+  </mat-card>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error && booking" class="checkout-content">
+    <!-- Booking Summary -->
+    <div class="booking-summary-section">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ 'PAYMENT.BOOKING_SUMMARY' | translate }}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Service Info -->
+          <div class="summary-item service-item">
+            <div class="service-image" *ngIf="booking.service.imageUrl">
+              <img [src]="booking.service.imageUrl" [alt]="getServiceName()">
+            </div>
+            <div class="service-details">
+              <h3>{{ getServiceName() }}</h3>
+              <div class="booking-number">
+                <mat-icon>confirmation_number</mat-icon>
+                <span>{{ booking.bookingNumber }}</span>
+              </div>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <!-- Provider Info -->
+          <div class="summary-item">
+            <div class="item-label">
+              <mat-icon>business</mat-icon>
+              <span>{{ 'BOOKING.PROVIDER' | translate }}</span>
+            </div>
+            <div class="item-value">
+              <span>{{ booking.provider.name }}</span>
+              <mat-icon *ngIf="booking.provider.isVerified" class="verified-badge" color="primary">
+                verified
+              </mat-icon>
+            </div>
+          </div>
+
+          <!-- Date & Time -->
+          <div class="summary-item">
+            <div class="item-label">
+              <mat-icon>event</mat-icon>
+              <span>{{ 'BOOKING.SCHEDULED_TIME' | translate }}</span>
+            </div>
+            <div class="item-value">
+              {{ booking.scheduledDateTime | date:'medium' }}
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div class="summary-item">
+            <div class="item-label">
+              <mat-icon>location_on</mat-icon>
+              <span>{{ 'BOOKING.ADDRESS' | translate }}</span>
+            </div>
+            <div class="item-value address-value">
+              {{ formatAddress() }}
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <!-- Pricing Breakdown -->
+          <div class="pricing-section">
+            <h4>{{ 'PAYMENT.PRICING_DETAILS' | translate }}</h4>
+
+            <div class="price-item">
+              <span>{{ 'PAYMENT.SERVICE_PRICE' | translate }}</span>
+              <span>{{ booking.pricing.servicePrice | number:'1.2-2' }} {{ booking.pricing.currency }}</span>
+            </div>
+
+            <div class="price-item" *ngIf="booking.pricing.taxAmount > 0">
+              <span>{{ 'PAYMENT.TAX' | translate }}</span>
+              <span>{{ booking.pricing.taxAmount | number:'1.2-2' }} {{ booking.pricing.currency }}</span>
+            </div>
+
+            <div class="price-item discount" *ngIf="booking.pricing.discountAmount > 0">
+              <span>{{ 'PAYMENT.DISCOUNT' | translate }}</span>
+              <span>-{{ booking.pricing.discountAmount | number:'1.2-2' }} {{ booking.pricing.currency }}</span>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="price-item total">
+              <span>{{ 'PAYMENT.TOTAL_AMOUNT' | translate }}</span>
+              <span class="total-amount">{{ booking.pricing.totalAmount | number:'1.2-2' }} {{ booking.pricing.currency }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Payment Form -->
+    <div class="payment-form-section">
+      <app-payment-form
+        [amount]="booking.pricing.totalAmount"
+        [currency]="booking.pricing.currency"
+        [loading]="processingPayment"
+        (submitPayment)="onSubmitPayment($event)"
+        (cancel)="onCancel()">
+      </app-payment-form>
+    </div>
+  </div>
+</div>

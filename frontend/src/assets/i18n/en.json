@@ -556,7 +556,9 @@
       "review": "Write Review",
       "report": "Report Issue",
       "message": "Message Provider",
-      "rebook": "Book Again"
+      "rebook": "Book Again",
+      "completePayment": "Complete Payment",
+      "retryPayment": "Retry Payment"
     },
     "modals": {
       "cancel": {
@@ -587,6 +589,105 @@
         "send": "Send Message"
       }
     }
+  },
+  "PAYMENT": {
+    "TITLE": "Payment",
+    "AMOUNT_TO_PAY": "Amount to Pay",
+    "SELECT_METHOD": "Select Payment Method",
+    "METHODS": {
+      "CARD": "Credit/Debit Card",
+      "SAVED_CARD": "Saved Card",
+      "CASH": "Cash on Delivery",
+      "WALLET": "Wallet"
+    },
+    "SELECT_SAVED_CARD": "Select a Saved Card",
+    "CARD_DETAILS": "Card Details",
+    "CARD_NUMBER": "Card Number",
+    "CARD_HOLDER_NAME": "Cardholder Name",
+    "CARD_HOLDER_PLACEHOLDER": "John Doe",
+    "EXPIRY_MONTH": "Month",
+    "EXPIRY_YEAR": "Year",
+    "CVV": "CVV",
+    "SAVE_CARD": "Save card for future payments",
+    "EXPIRES": "Expires",
+    "CASH_INFO_TITLE": "Cash Payment",
+    "CASH_INFO_DESC": "You can pay with cash when the service provider arrives. Please have the exact amount ready.",
+    "WALLET_INFO_TITLE": "Wallet Payment",
+    "WALLET_INFO_DESC": "Payment will be deducted from your wallet balance.",
+    "CONFIRM_CASH": "Confirm Booking",
+    "PAY_NOW": "Pay Now",
+    "SECURE_PAYMENT": "Secure Payment",
+    "BOOKING_SUMMARY": "Booking Summary",
+    "PRICING_DETAILS": "Pricing Details",
+    "SERVICE_PRICE": "Service Price",
+    "TAX": "Tax",
+    "DISCOUNT": "Discount",
+    "TOTAL_AMOUNT": "Total Amount",
+    "LOADING_BOOKING": "Loading booking details...",
+    "SUCCESS_TITLE": "Payment Successful!",
+    "PAYMENT_SUCCESS_DESC": "Your payment has been processed successfully.",
+    "BOOKING_CONFIRMED_CASH": "Your booking has been confirmed!",
+    "BOOKING_DETAILS": "Booking Details",
+    "PAYMENT_INFO": "Payment Information",
+    "METHOD": "Payment Method",
+    "TRANSACTION_ID": "Transaction ID",
+    "AMOUNT_PAID": "Amount Paid",
+    "AMOUNT": "Amount",
+    "CASH_PAYMENT_NOTE_TITLE": "Cash Payment",
+    "CASH_PAYMENT_NOTE_DESC": "Please prepare the exact amount for when the service provider arrives.",
+    "CONFIRMATION_EMAIL_TITLE": "Confirmation Email",
+    "CONFIRMATION_EMAIL_DESC": "A confirmation email has been sent to your registered email address.",
+    "VIEW_BOOKING": "View Booking Details",
+    "MY_BOOKINGS": "My Bookings",
+    "BACK_TO_HOME": "Back to Home",
+    "DOWNLOAD_RECEIPT": "Download Receipt",
+    "FAILED_TITLE": "Payment Failed",
+    "FAILED_DESC": "We couldn't process your payment. Please try again.",
+    "FAILURE_REASON": "Reason for Failure",
+    "WHAT_TO_DO": "What can you do?",
+    "NEED_HELP_TITLE": "Need Help?",
+    "NEED_HELP_DESC": "If you continue to experience issues, please contact our support team.",
+    "RETRY_PAYMENT": "Retry Payment",
+    "CONTACT_SUPPORT": "Contact Support",
+    "BACK_TO_BOOKINGS": "Back to Bookings",
+    "ALREADY_PAID": "This booking has already been paid.",
+    "BOOKING_CANCELLED": "This booking has been cancelled.",
+    "ERRORS": {
+      "TITLE": "Payment Error",
+      "LOAD_BOOKING_FAILED": "Failed to load booking details",
+      "PAYMENT_FAILED": "Payment processing failed",
+      "INTENT_CREATION_FAILED": "Failed to create payment intent",
+      "AUTHENTICATION_REQUIRED": "Additional authentication required",
+      "CARD_NUMBER_REQUIRED": "Card number is required",
+      "INVALID_CARD": "Invalid card number",
+      "EXPIRED_CARD": "Card has expired",
+      "CARD_HOLDER_REQUIRED": "Cardholder name is required",
+      "CVV_REQUIRED": "CVV is required",
+      "INSUFFICIENT_FUNDS": "Insufficient funds",
+      "CARD_DECLINED": "Card was declined",
+      "PROCESSING_ERROR": "Payment processing error",
+      "AUTHENTICATION_FAILED": "Authentication failed",
+      "NETWORK_ERROR": "Network error occurred",
+      "GENERIC_ERROR": "An error occurred while processing your payment"
+    },
+    "SOLUTIONS": {
+      "CHECK_CARD_DETAILS": "Verify your card details are correct",
+      "CHECK_BALANCE": "Ensure you have sufficient funds",
+      "TRY_DIFFERENT_CARD": "Try using a different card",
+      "CONTACT_BANK": "Contact your bank if the issue persists",
+      "TRY_AGAIN_LATER": "Try again after some time"
+    }
+  },
+  "BOOKING": {
+    "PROVIDER": "Provider",
+    "SCHEDULED_TIME": "Scheduled Time",
+    "ADDRESS": "Address",
+    "SERVICE": "Service",
+    "BOOKING_NUMBER": "Booking Number"
+  },
+  "COMMON": {
+    "CANCEL": "Cancel",
+    "RETRY": "Retry"
   },
   "admin": {
     "dashboard": {

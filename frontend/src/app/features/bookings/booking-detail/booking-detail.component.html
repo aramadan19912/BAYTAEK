@@ -201,6 +201,13 @@
         <h2>{{ 'bookingDetail.actions.title' | translate }}</h2>
         <div class="action-buttons">
           <button
+            class="btn btn-primary"
+            (click)="goToPayment()"
+            *ngIf="isPendingPayment()"
+          >
+            {{ canRetryPayment() ? ('bookingDetail.actions.retryPayment' | translate) : ('bookingDetail.actions.completePayment' | translate) }}
+          </button>
+          <button
             class="btn btn-danger"
             (click)="openCancelModal()"
             *ngIf="canCancelBooking()"

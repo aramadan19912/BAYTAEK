@@ -46,6 +46,7 @@ export interface BookingDetail {
   bookingNumber: string;
   status: string;
   scheduledDateTime: string;
+  customerNotes?: string;
   service: {
     serviceId: string;
     nameEn: string;
@@ -59,12 +60,32 @@ export interface BookingDetail {
     rating: number;
     isVerified: boolean;
   };
+  address: {
+    addressId: string;
+    title: string;
+    buildingNumber: string;
+    streetName: string;
+    district: string;
+    city: string;
+    postalCode: string;
+    additionalDirections?: string;
+  };
   pricing: {
     servicePrice: number;
     taxAmount: number;
     discountAmount: number;
     totalAmount: number;
     currency: string;
+  };
+  payment?: {
+    paymentId: string;
+    paymentMethod: string;
+    paymentStatus: string;
+    paymentIntentId?: string;
+    transactionId?: string;
+    paidAt?: string;
+    cardLast4?: string;
+    cardBrand?: string;
   };
   timeline: TimelineItem[];
 }

@@ -34,6 +34,21 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'bookings/:id/payment',
+    loadComponent: () => import('./features/payment/payment-checkout/payment-checkout.component').then(m => m.PaymentCheckoutComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'payment/success',
+    loadComponent: () => import('./features/payment/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'payment/failed',
+    loadComponent: () => import('./features/payment/payment-failed/payment-failed.component').then(m => m.PaymentFailedComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'profile',
     loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [authGuard]
