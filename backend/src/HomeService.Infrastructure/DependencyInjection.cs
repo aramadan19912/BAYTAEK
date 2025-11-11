@@ -31,6 +31,7 @@ public static class DependencyInjection
         // Identity & Authentication
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
         // Payment Services
         services.AddScoped<IStripePaymentService, StripePaymentService>();

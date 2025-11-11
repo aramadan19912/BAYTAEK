@@ -1,6 +1,7 @@
 using AutoMapper;
 using HomeService.Application.Commands.Users;
 using HomeService.Application.Common;
+using HomeService.Application.Interfaces;
 using HomeService.Domain.Entities;
 using HomeService.Domain.Interfaces;
 using HomeService.Infrastructure.Identity;
@@ -14,6 +15,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
     private readonly IRepository<User> _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IRefreshTokenService _refreshTokenService;
     private readonly IMapper _mapper;
     private readonly ILogger<LoginCommandHandler> _logger;
 
@@ -21,12 +23,14 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
         IRepository<User> userRepository,
         IPasswordHasher passwordHasher,
         IJwtTokenService jwtTokenService,
+        IRefreshTokenService refreshTokenService,
         IMapper mapper,
         ILogger<LoginCommandHandler> logger)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _jwtTokenService = jwtTokenService;
+        _refreshTokenService = refreshTokenService;
         _mapper = mapper;
         _logger = logger;
     }
@@ -55,9 +59,16 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
                 return Result.Failure<LoginResponse>("Invalid email or password");
             }
 
-            // Generate tokens
+            // Generate access token
             var token = _jwtTokenService.GenerateToken(user);
-            var refreshToken = _jwtTokenService.GenerateRefreshToken();
+
+            // Generate and persist refresh token
+            var refreshTokenEntity = await _refreshTokenService.GenerateRefreshTokenAsync(
+                user.Id,
+                request.IpAddress ?? "Unknown",
+                request.UserAgent ?? "Unknown",
+                request.DeviceId
+            );
 
             // Update last login
             user.LastLoginAt = DateTime.UtcNow;
@@ -66,7 +77,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
             var response = new LoginResponse
             {
                 Token = token,
-                RefreshToken = refreshToken,
+                RefreshToken = refreshTokenEntity.Token,
                 User = _mapper.Map<UserDto>(user)
             };
 

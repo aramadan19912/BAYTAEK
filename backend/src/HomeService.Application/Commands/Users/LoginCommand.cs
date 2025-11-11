@@ -7,6 +7,9 @@ public record LoginCommand : IRequest<Result<LoginResponse>>
 {
     public string Email { get; init; } = string.Empty;
     public string Password { get; init; } = string.Empty;
+    public string? IpAddress { get; init; }
+    public string? UserAgent { get; init; }
+    public string? DeviceId { get; init; }
 }
 
 public class LoginResponse

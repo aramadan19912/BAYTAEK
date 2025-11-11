@@ -1,5 +1,6 @@
 using HomeService.Application.Commands.Users;
 using HomeService.Application.DTOs.Authentication;
+using HomeService.Application.Features.Auth;
 using HomeService.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,14 @@ public class AuthController : BaseApiController
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
     {
-        var result = await Mediator.Send(command);
+        // Enrich command with request context
+        var enrichedCommand = command with
+        {
+            IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+            UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+        };
+
+        var result = await Mediator.Send(enrichedCommand);
 
         if (!result.IsSuccess)
             return Unauthorized(result);
@@ -36,12 +44,60 @@ public class AuthController : BaseApiController
     /// </summary>
     [HttpPost("refresh")]
     [AllowAnonymous]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command)
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
+        // Enrich command with request context
+        var command = new RefreshTokenCommand(
+            request.AccessToken,
+            request.RefreshToken,
+            HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+            HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown"
+        );
+
+        try
+        {
+            var result = await Mediator.Send(command);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Logout and revoke refresh token
+    /// </summary>
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout([FromBody] LogoutRequest request)
+    {
+        var command = new LogoutCommand(request.RefreshToken);
         var result = await Mediator.Send(command);
 
         if (!result.IsSuccess)
-            return Unauthorized(result);
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Revoke all refresh tokens for the current user
+    /// </summary>
+    [HttpPost("revoke-all")]
+    [Authorize]
+    public async Task<IActionResult> RevokeAllTokens()
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        var command = new RevokeAllTokensCommand(Guid.Parse(userId));
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
 
         return Ok(result);
     }
@@ -154,5 +210,6 @@ public class AuthController : BaseApiController
     }
 }
 
-// Placeholder commands for future implementation
-public record RefreshTokenCommand(string Token, string RefreshToken) : IRequest<Result<LoginResponse>>;
+// Request DTOs
+public record RefreshTokenRequest(string AccessToken, string RefreshToken);
+public record LogoutRequest(string RefreshToken);
