@@ -1,8 +1,10 @@
 using HomeService.Application.Commands.Admin;
+using HomeService.Application.Features.Admin;
 using HomeService.Application.Queries.Admin;
 using HomeService.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HomeService.API.Controllers;
 
@@ -580,6 +582,202 @@ public class AdminController : BaseApiController
 
         return Ok(result);
     }
+
+    #region New Admin Dashboard Features
+
+    /// <summary>
+    /// Get platform analytics and KPIs
+    /// </summary>
+    [HttpGet("analytics/platform")]
+    public async Task<IActionResult> GetPlatformAnalytics(
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetPlatformAnalyticsQuery(startDate, endDate);
+        var result = await Mediator.Send(query, cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Manage user (suspend, activate, verify, unverify, delete)
+    /// </summary>
+    [HttpPost("users/{userId:guid}/manage")]
+    public async Task<IActionResult> ManageUser(
+        Guid userId,
+        [FromBody] ManageUserRequest request,
+        CancellationToken cancellationToken)
+    {
+        var adminUserId = GetCurrentUserId();
+        if (adminUserId == Guid.Empty)
+            return Unauthorized();
+
+        var command = new ManageUserCommand(userId, adminUserId, request.Action, request.Reason);
+        var result = await Mediator.Send(command, cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Manage provider (verify, unverify, suspend, activate)
+    /// </summary>
+    [HttpPost("providers/{providerId:guid}/manage")]
+    public async Task<IActionResult> ManageProvider(
+        Guid providerId,
+        [FromBody] ManageProviderRequest request,
+        CancellationToken cancellationToken)
+    {
+        var adminUserId = GetCurrentUserId();
+        if (adminUserId == Guid.Empty)
+            return Unauthorized();
+
+        var command = new ManageProviderCommand(providerId, adminUserId, request.Action, request.Reason);
+        var result = await Mediator.Send(command, cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get disputes for admin review
+    /// </summary>
+    [HttpGet("disputes")]
+    public async Task<IActionResult> GetDisputes(
+        [FromQuery] DisputeStatus? status,
+        [FromQuery] DisputePriority? priority,
+        [FromQuery] Guid? assignedTo,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetDisputesQuery(status, priority, assignedTo, pageNumber, pageSize);
+        var result = await Mediator.Send(query, cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Manage dispute (assign, update status, resolve, close, escalate)
+    /// </summary>
+    [HttpPost("disputes/{disputeId:guid}/manage")]
+    public async Task<IActionResult> ManageDispute(
+        Guid disputeId,
+        [FromBody] ManageDisputeRequest request,
+        CancellationToken cancellationToken)
+    {
+        var adminUserId = GetCurrentUserId();
+        if (adminUserId == Guid.Empty)
+            return Unauthorized();
+
+        var command = new ManageDisputeCommand(
+            disputeId,
+            adminUserId,
+            request.Action,
+            request.NewStatus,
+            request.NewPriority,
+            request.AssignTo,
+            request.Resolution
+        );
+
+        var result = await Mediator.Send(command, cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get financial report
+    /// </summary>
+    [HttpGet("financial/report")]
+    [Authorize(Roles = "Admin,SuperAdmin,FinanceManager")]
+    public async Task<IActionResult> GetFinancialReport(
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetFinancialReportQuery(startDate, endDate);
+        var result = await Mediator.Send(query, cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get system configurations
+    /// </summary>
+    [HttpGet("config")]
+    public async Task<IActionResult> GetSystemConfigs(
+        [FromQuery] string? category,
+        [FromQuery] bool onlyPublic = false,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetSystemConfigsQuery(category, onlyPublic);
+        var result = await Mediator.Send(query, cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Update or create system configuration
+    /// </summary>
+    [HttpPost("config")]
+    public async Task<IActionResult> ManageSystemConfig(
+        [FromBody] ManageSystemConfigRequest request,
+        CancellationToken cancellationToken)
+    {
+        var adminUserId = GetCurrentUserId();
+        if (adminUserId == Guid.Empty)
+            return Unauthorized();
+
+        var command = new ManageSystemConfigCommand(
+            request.Key,
+            request.Value,
+            adminUserId,
+            request.Category,
+            request.Description,
+            request.IsPublic
+        );
+
+        var result = await Mediator.Send(command, cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    #endregion
+
+    #region Private Helper Methods
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? User.FindFirst("sub")?.Value
+            ?? User.FindFirst("userId")?.Value;
+        return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+    }
+
+    #endregion
 }
 
 public record UpdateUserStatusRequest(bool IsSuspended, string? Reason);
@@ -626,3 +824,26 @@ public record ReviewReportRequest(
     int? SuspensionDays,
     bool SendWarning,
     string? WarningMessage);
+
+// New Admin Dashboard DTOs
+public record ManageUserRequest(
+    UserManagementAction Action,
+    string? Reason = null);
+
+public record ManageProviderRequest(
+    ProviderManagementAction Action,
+    string? Reason = null);
+
+public record ManageDisputeRequest(
+    DisputeManagementAction Action,
+    DisputeStatus? NewStatus = null,
+    DisputePriority? NewPriority = null,
+    Guid? AssignTo = null,
+    string? Resolution = null);
+
+public record ManageSystemConfigRequest(
+    string Key,
+    string Value,
+    string? Category = null,
+    string? Description = null,
+    bool IsPublic = false);
