@@ -1,10 +1,12 @@
 using HomeService.Application.DTOs.Payment;
+using HomeService.Application.Features.Payments;
 using HomeService.Application.Interfaces;
 using HomeService.Domain.Entities;
 using HomeService.Domain.Enums;
 using HomeService.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HomeService.API.Controllers;
 
@@ -371,6 +373,94 @@ public class PaymentsController : BaseApiController
         }
     }
 
+    /// <summary>
+    /// Provider: Create payout request
+    /// </summary>
+    [HttpPost("payouts/create")]
+    [Authorize(Roles = "Provider,Admin")]
+    public async Task<IActionResult> CreatePayout([FromBody] CreatePayoutRequestDto? request = null, CancellationToken cancellationToken = default)
+    {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        // Get provider ID from user ID (simplified - in production query the database)
+        var providerId = userId; // Placeholder
+
+        var command = new CreatePayoutCommand(
+            providerId,
+            request?.StartDate,
+            request?.EndDate
+        );
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Provider: Get payout history
+    /// </summary>
+    [HttpGet("payouts")]
+    [Authorize(Roles = "Provider,Admin")]
+    public async Task<IActionResult> GetPayouts(
+        [FromQuery] PayoutStatus? status = null,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        var providerId = userId; // Placeholder
+
+        var query = new GetProviderPayoutsQuery(
+            providerId,
+            status,
+            pageNumber,
+            pageSize
+        );
+
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Admin: Process pending payout
+    /// </summary>
+    [HttpPost("payouts/{payoutId:guid}/process")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
+    public async Task<IActionResult> ProcessPayout(Guid payoutId, CancellationToken cancellationToken)
+    {
+        var command = new ProcessPayoutCommand(payoutId);
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    #region Private Helper Methods
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? User.FindFirst("sub")?.Value
+            ?? User.FindFirst("userId")?.Value;
+        return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+    }
+
+    #endregion
+
     private PaymentStatus MapGatewayStatusToPaymentStatus(string gatewayStatus)
     {
         return gatewayStatus.ToLower() switch
@@ -384,3 +474,9 @@ public class PaymentsController : BaseApiController
         };
     }
 }
+
+// Additional Request DTOs
+public record CreatePayoutRequestDto(
+    DateTime? StartDate = null,
+    DateTime? EndDate = null
+);
