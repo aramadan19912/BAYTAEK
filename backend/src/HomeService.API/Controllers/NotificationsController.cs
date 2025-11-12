@@ -1,5 +1,8 @@
+using HomeService.Application.Features.Notifications;
+using HomeService.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HomeService.API.Controllers;
 
@@ -12,21 +15,15 @@ public class NotificationsController : BaseApiController
     [HttpGet]
     public async Task<IActionResult> GetNotifications(
         [FromQuery] bool? isRead,
-        [FromQuery] string? type,
+        [FromQuery] NotificationType? type,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20)
     {
-        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
 
-        var query = new Application.Queries.Notification.GetUserNotificationsQuery
-        {
-            UserId = userId,
-            IsRead = isRead,
-            Type = type,
-            PageNumber = pageNumber,
-            PageSize = pageSize
-        };
-
+        var query = new GetNotificationsQuery(userId, isRead, type, pageNumber, pageSize);
         var result = await Mediator.Send(query);
 
         if (!result.IsSuccess)
@@ -36,19 +33,35 @@ public class NotificationsController : BaseApiController
     }
 
     /// <summary>
-    /// Mark a notification as read
+    /// Get unread notifications count
     /// </summary>
-    [HttpPut("{id}/read")]
+    [HttpGet("unread-count")]
+    public async Task<IActionResult> GetUnreadCount()
+    {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        var query = new GetUnreadCountQuery(userId);
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Mark a specific notification as read
+    /// </summary>
+    [HttpPut("{id:guid}/read")]
     public async Task<IActionResult> MarkAsRead(Guid id)
     {
-        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
 
-        var command = new Application.Commands.Notification.MarkNotificationAsReadCommand
-        {
-            NotificationId = id,
-            UserId = userId
-        };
-
+        var command = new MarkNotificationAsReadCommand(id, userId);
         var result = await Mediator.Send(command);
 
         if (!result.IsSuccess)
@@ -63,11 +76,78 @@ public class NotificationsController : BaseApiController
     [HttpPut("read-all")]
     public async Task<IActionResult> MarkAllAsRead()
     {
-        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? User.FindFirst("userId")?.Value ?? Guid.Empty.ToString());
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
 
-        var command = new Application.Commands.Notification.MarkAllNotificationsAsReadCommand
+        var command = new MarkAllNotificationsAsReadCommand(userId);
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Delete a notification
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteNotification(Guid id)
+    {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        var command = new DeleteNotificationCommand(id, userId);
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get notification settings for the current user
+    /// </summary>
+    [HttpGet("settings")]
+    public async Task<IActionResult> GetNotificationSettings()
+    {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        var query = new GetNotificationSettingsQuery(userId);
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Update notification settings
+    /// </summary>
+    [HttpPut("settings")]
+    public async Task<IActionResult> UpdateNotificationSettings([FromBody] UpdateNotificationSettingsRequest request)
+    {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        var command = new UpdateNotificationSettingsCommand
         {
-            UserId = userId
+            UserId = userId,
+            EmailNotifications = request.EmailNotifications,
+            PushNotifications = request.PushNotifications,
+            SmsNotifications = request.SmsNotifications,
+            BookingNotifications = request.BookingNotifications,
+            MessageNotifications = request.MessageNotifications,
+            PaymentNotifications = request.PaymentNotifications,
+            PromotionNotifications = request.PromotionNotifications,
+            SystemNotifications = request.SystemNotifications
         };
 
         var result = await Mediator.Send(command);
@@ -79,34 +159,82 @@ public class NotificationsController : BaseApiController
     }
 
     /// <summary>
-    /// Get notification settings
+    /// Register device token for push notifications
     /// </summary>
-    [HttpGet("settings")]
-    public async Task<IActionResult> GetNotificationSettings()
+    [HttpPost("device-token")]
+    public async Task<IActionResult> RegisterDeviceToken([FromBody] RegisterDeviceTokenRequest request)
     {
-        // TODO: Implement when NotificationSettings entity is created
-        return Ok(new
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        var command = new RegisterDeviceTokenCommand
         {
-            emailNotifications = true,
-            pushNotifications = true,
-            smsNotifications = false,
-            message = "Notification settings pending implementation"
-        });
+            UserId = userId,
+            Token = request.Token,
+            DeviceType = request.DeviceType,
+            DeviceId = request.DeviceId
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     /// <summary>
-    /// Update notification settings
+    /// Unregister device token
     /// </summary>
-    [HttpPut("settings")]
-    public async Task<IActionResult> UpdateNotificationSettings([FromBody] NotificationSettingsRequest request)
+    [HttpDelete("device-token")]
+    public async Task<IActionResult> UnregisterDeviceToken([FromBody] UnregisterDeviceTokenRequest request)
     {
-        // TODO: Implement when NotificationSettings entity is created
-        return Ok(new { message = "Notification settings update pending implementation" });
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        var command = new UnregisterDeviceTokenCommand
+        {
+            UserId = userId,
+            Token = request.Token
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
+
+    #region Private Helper Methods
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+    }
+
+    #endregion
 }
 
 // Request DTOs
-public record NotificationSettingsRequest(
+public record UpdateNotificationSettingsRequest(
     bool EmailNotifications,
     bool PushNotifications,
-    bool SmsNotifications);
+    bool SmsNotifications,
+    bool BookingNotifications,
+    bool MessageNotifications,
+    bool PaymentNotifications,
+    bool PromotionNotifications,
+    bool SystemNotifications
+);
+
+public record RegisterDeviceTokenRequest(
+    string Token,
+    string DeviceType,
+    string? DeviceId = null
+);
+
+public record UnregisterDeviceTokenRequest(string Token);

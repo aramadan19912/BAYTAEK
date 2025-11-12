@@ -38,10 +38,13 @@ public static class DependencyInjection
         services.AddScoped<IPaymentGatewayService, StripePaymentService>();
 
         // Communication Services
-        services.AddScoped<ISmsService, TwilioSmsService>();
         services.AddScoped<IOtpService, OtpService>();
-        services.AddScoped<IEmailService, SendGridEmailService>();
-        services.AddSingleton<IPushNotificationService, FirebasePushNotificationService>();
+
+        // Notification Services
+        services.AddScoped<ISmsService, Services.Notifications.TwilioSmsService>();
+        services.AddScoped<IEmailService, Services.Notifications.SendGridEmailService>();
+        services.AddSingleton<IPushNotificationService, Services.Notifications.FirebasePushNotificationService>();
+        services.AddScoped<INotificationService, Services.Notifications.NotificationService>();
 
         // File Storage Service
         services.AddScoped<IFileStorageService, AzureBlobStorageService>();
