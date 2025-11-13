@@ -25,6 +25,8 @@ public class Booking : AuditableEntity
     public string? CompletionPhotos { get; set; }
     public Guid? PromoCodeId { get; set; }
     public decimal? DiscountAmount { get; set; }
+    public bool ReminderSent { get; set; }
+    public bool ReviewRequestSent { get; set; }
 
     // Navigation properties
     public virtual User Customer { get; set; } = null!;

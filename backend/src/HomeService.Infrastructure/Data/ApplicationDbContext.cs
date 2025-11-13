@@ -21,6 +21,13 @@ public class ApplicationDbContext : DbContext
     public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<ProviderAvailability> ProviderAvailabilities => Set<ProviderAvailability>();
+    public DbSet<ProviderBlockedDate> ProviderBlockedDates => Set<ProviderBlockedDate>();
+    public DbSet<Payout> Payouts => Set<Payout>();
+    public DbSet<PayoutBooking> PayoutBookings => Set<PayoutBooking>();
+    public DbSet<Dispute> Disputes => Set<Dispute>();
+    public DbSet<SystemConfiguration> SystemConfigurations => Set<SystemConfiguration>();
+    public DbSet<BookingHistory> BookingHistories => Set<BookingHistory>();
+    public DbSet<NotificationSetting> NotificationSettings => Set<NotificationSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
