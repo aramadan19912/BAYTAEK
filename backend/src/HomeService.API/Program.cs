@@ -1,8 +1,11 @@
 using Hangfire;
+using HealthChecks.UI.Client;
+using HomeService.API.Middleware;
 using HomeService.Application;
 using HomeService.Infrastructure;
 using HomeService.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -15,11 +18,21 @@ var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "HomeService.API")
+    .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
     .WriteTo.Console()
     .WriteTo.File("logs/homeservice-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
+// Add Application Insights
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+    options.EnableAdaptiveSampling = true;
+    options.EnableQuickPulseMetricStream = true;
+});
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -143,6 +156,33 @@ builder.Services.AddCors(options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 
+// Health Checks
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var redisConnection = builder.Configuration.GetConnectionString("Redis");
+
+builder.Services.AddHealthChecks()
+    .AddSqlServer(
+        connectionString: connectionString ?? string.Empty,
+        name: "sqlserver",
+        tags: new[] { "db", "sql", "sqlserver" })
+    .AddRedis(
+        redisConnectionString: redisConnection ?? string.Empty,
+        name: "redis",
+        tags: new[] { "cache", "redis" })
+    .AddHangfire(
+        options => options.MinimumAvailableServers = 1,
+        name: "hangfire",
+        tags: new[] { "jobs", "hangfire" });
+
+// Health Checks UI
+builder.Services.AddHealthChecksUI(options =>
+{
+    options.SetEvaluationTimeInSeconds(60);
+    options.MaximumHistoryEntriesPerEndpoint(50);
+    options.AddHealthCheckEndpoint("HomeService API", "/health");
+})
+.AddInMemoryStorage();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -157,6 +197,21 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Security Headers Middleware
+app.UseSecurityHeaders(options =>
+{
+    options.EnableHsts = !app.Environment.IsDevelopment();
+    options.FrameOptions = "SAMEORIGIN"; // Allow iframes from same origin for Hangfire dashboard
+});
+
+// Rate Limiting Middleware
+app.UseRateLimiting(options =>
+{
+    options.MaxRequests = app.Environment.IsDevelopment() ? 1000 : 100;
+    options.WindowMinutes = 1;
+});
+
 app.UseSerilogRequestLogging();
 app.UseCors("AllowAll");
 app.UseAuthentication();
@@ -172,6 +227,37 @@ if (app.Environment.IsDevelopment())
         DisplayStorageConnectionString = false
     });
 }
+
+// Health Check Endpoints
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+    ResultStatusCodes =
+    {
+        [Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Healthy] = StatusCodes.Status200OK,
+        [Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded] = StatusCodes.Status200OK,
+        [Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+    }
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+// Health Checks UI
+app.MapHealthChecksUI(options =>
+{
+    options.UIPath = "/health-ui";
+    options.ApiPath = "/health-ui-api";
+});
 
 // Map SignalR Hubs
 app.MapHub<HomeService.API.Hubs.ChatHub>("/hubs/chat");

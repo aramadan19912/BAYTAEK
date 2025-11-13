@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # ===========================================
+  # Backend API - Production Configuration
+  # ===========================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - ASPNETCORE_ENVIRONMENT=Production
+    container_name: homeservice-api-prod
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ASPNETCORE_HTTPS_PORT=8081
+      # Connection strings should come from Azure Key Vault or environment variables
+      - ConnectionStrings__DefaultConnection=${SQL_CONNECTION_STRING}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION_STRING}
+      # JWT Settings
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+      - JwtSettings__AccessTokenExpirationMinutes=60
+      - JwtSettings__RefreshTokenExpirationDays=7
+      # Azure Services
+      - AzureStorage__ConnectionString=${AZURE_STORAGE_CONNECTION_STRING}
+      - AzureStorage__ContainerName=${AZURE_STORAGE_CONTAINER}
+      - ApplicationInsights__InstrumentationKey=${APPINSIGHTS_INSTRUMENTATIONKEY}
+      - ApplicationInsights__ConnectionString=${APPLICATIONINSIGHTS_CONNECTION_STRING}
+      # Email Settings
+      - EmailSettings__SendGridApiKey=${SENDGRID_API_KEY}
+      - EmailSettings__FromEmail=${EMAIL_FROM_ADDRESS}
+      - EmailSettings__FromName=Home Service Platform
+      # SMS Settings
+      - SmsSettings__TwilioAccountSid=${TWILIO_ACCOUNT_SID}
+      - SmsSettings__TwilioAuthToken=${TWILIO_AUTH_TOKEN}
+      - SmsSettings__TwilioPhoneNumber=${TWILIO_PHONE_NUMBER}
+      # Push Notifications
+      - PushNotifications__FcmServerKey=${FCM_SERVER_KEY}
+      # Payment Settings
+      - StripeSettings__SecretKey=${STRIPE_SECRET_KEY}
+      - StripeSettings__PublishableKey=${STRIPE_PUBLISHABLE_KEY}
+      - StripeSettings__WebhookSecret=${STRIPE_WEBHOOK_SECRET}
+      # Hangfire
+      - HangfireSettings__Username=${HANGFIRE_USERNAME}
+      - HangfireSettings__Password=${HANGFIRE_PASSWORD}
+      # Security
+      - Security__AllowedHosts=${ALLOWED_HOSTS}
+      - Security__CorsOrigins=${CORS_ORIGINS}
+      # Logging
+      - Logging__LogLevel__Default=Warning
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
+      - Logging__LogLevel__Hangfire=Information
+    ports:
+      - "80:8080"
+      - "443:8081"
+    volumes:
+      # Mount certificates for HTTPS
+      - ./certs:/https:ro
+    networks:
+      - homeservice-network
+    healthcheck:
+      test: curl --fail http://localhost:8080/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+networks:
+  homeservice-network:
+    driver: bridge
