@@ -169,8 +169,11 @@ jobs:
         run: sleep 30
 
       - name: Health check
+        env:
+          WEBAPP_NAME: ${{ env.AZURE_WEBAPP_NAME }}
+          ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
         run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}-${{ github.event.inputs.environment || 'staging' }}.azurewebsites.net/health)
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://${WEBAPP_NAME}-${ENVIRONMENT}.azurewebsites.net/health")
           if [ $RESPONSE -ne 200 ]; then
             echo "❌ Health check failed with status code: $RESPONSE"
             exit 1
@@ -178,8 +181,11 @@ jobs:
           echo "✅ Health check passed"
 
       - name: API endpoint test
+        env:
+          WEBAPP_NAME: ${{ env.AZURE_WEBAPP_NAME }}
+          ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
         run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}-${{ github.event.inputs.environment || 'staging' }}.azurewebsites.net/api/health)
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://${WEBAPP_NAME}-${ENVIRONMENT}.azurewebsites.net/api/health")
           if [ $RESPONSE -ne 200 ]; then
             echo "❌ API health check failed with status code: $RESPONSE"
             exit 1
@@ -197,17 +203,23 @@ jobs:
 
     steps:
       - name: Send deployment notification
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
+          BUILD_RESULT: ${{ needs.build-and-push.result }}
+          MIGRATIONS_RESULT: ${{ needs.run-migrations.result }}
+          DEPLOY_RESULT: ${{ needs.deploy-app-service.result }}
+          SMOKE_RESULT: ${{ needs.smoke-tests.result }}
         run: |
-          echo "🚀 Deployment to ${{ github.event.inputs.environment || 'staging' }} completed"
-          echo "Build and Push: ${{ needs.build-and-push.result }}"
-          echo "Migrations: ${{ needs.run-migrations.result }}"
-          echo "Deployment: ${{ needs.deploy-app-service.result }}"
-          echo "Smoke Tests: ${{ needs.smoke-tests.result }}"
+          echo "🚀 Deployment to ${ENVIRONMENT} completed"
+          echo "Build and Push: ${BUILD_RESULT}"
+          echo "Migrations: ${MIGRATIONS_RESULT}"
+          echo "Deployment: ${DEPLOY_RESULT}"
+          echo "Smoke Tests: ${SMOKE_RESULT}"
 
-          if [ "${{ needs.build-and-push.result }}" != "success" ] || \
-             [ "${{ needs.run-migrations.result }}" != "success" ] || \
-             [ "${{ needs.deploy-app-service.result }}" != "success" ] || \
-             [ "${{ needs.smoke-tests.result }}" != "success" ]; then
+          if [ "${BUILD_RESULT}" != "success" ] || \
+             [ "${MIGRATIONS_RESULT}" != "success" ] || \
+             [ "${DEPLOY_RESULT}" != "success" ] || \
+             [ "${SMOKE_RESULT}" != "success" ]; then
             echo "❌ Deployment failed"
             exit 1
           fi

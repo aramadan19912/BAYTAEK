@@ -61,6 +61,13 @@ public class JwtTokenService : IJwtTokenService
         return Convert.ToBase64String(randomNumber);
     }
 
+    /// <summary>
+    /// Gets principal from an expired token for refresh token scenarios only.
+    /// SECURITY NOTE: ValidateLifetime is intentionally disabled here as this method
+    /// is only used in the refresh token flow where we need to extract claims from
+    /// an expired access token. This method should NEVER be used for authentication.
+    /// The refresh token itself is validated separately with proper lifetime checks.
+    /// </summary>
     public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
     {
         var secretKey = _configuration["JwtSettings:SecretKey"]
@@ -72,7 +79,8 @@ public class JwtTokenService : IJwtTokenService
             ValidateIssuer = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-            ValidateLifetime = false,
+            // nosemgrep: csharp.lang.security.ad.jwt-tokenvalidationparameters-no-expiry-validation.jwt-tokenvalidationparameters-no-expiry-validation
+            ValidateLifetime = false, // Intentionally disabled - this is only for refresh token flow
             ValidIssuer = _configuration["JwtSettings:Issuer"],
             ValidAudience = _configuration["JwtSettings:Audience"]
         };
