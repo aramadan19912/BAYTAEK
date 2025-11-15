@@ -1,0 +1,72 @@
+<div class="review-form-container">
+  <h2 class="form-title">
+    {{ (isEdit ? 'reviews.editReview' : 'reviews.writeReview') | translate }}
+  </h2>
+
+  <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()">
+    <!-- Rating Selection -->
+    <div class="rating-section">
+      <label class="rating-label">
+        {{ 'reviews.form.rateYourExperience' | translate }} *
+      </label>
+      <div class="rating-stars">
+        @for (star of ratingArray; track star) {
+          <button
+            type="button"
+            class="star-button"
+            (click)="selectRating(star)"
+            (mouseenter)="hoverRating(star)"
+            (mouseleave)="resetHover()"
+            [class.selected]="star <= selectedRating"
+            [class.hovered]="star <= hoveredRating">
+            <mat-icon>
+              {{ (star <= (hoveredRating || selectedRating)) ? 'star' : 'star_border' }}
+            </mat-icon>
+          </button>
+        }
+      </div>
+      <div class="rating-label-text">
+        @if (hoveredRating || selectedRating) {
+          <span>{{ getRatingLabel(hoveredRating || selectedRating) | translate }}</span>
+        }
+      </div>
+      @if (reviewForm.get('rating')?.hasError('required') && reviewForm.get('rating')?.touched) {
+        <div class="error-message">
+          {{ 'reviews.ratingRequired' | translate }}
+        </div>
+      }
+    </div>
+
+    <!-- Comment -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'reviews.form.tellUsMore' | translate }}</mat-label>
+      <textarea
+        matInput
+        formControlName="comment"
+        [placeholder]="'reviews.commentPlaceholder' | translate"
+        rows="5"
+        maxlength="1000"></textarea>
+      <mat-hint align="end">
+        {{ reviewForm.get('comment')?.value?.length || 0 }} / 1000
+      </mat-hint>
+    </mat-form-field>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="onCancel()">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!reviewForm.valid">
+        <mat-icon>check</mat-icon>
+        {{ (isEdit ? 'reviews.update' : 'reviews.submit') | translate }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,95 @@
+.review-form-container {
+  padding: 24px;
+
+  .form-title {
+    margin: 0 0 24px;
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  form {
+    .rating-section {
+      margin-bottom: 24px;
+
+      .rating-label {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 16px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      .rating-stars {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+
+        .star-button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 4px;
+          transition: transform 0.2s;
+
+          &:hover {
+            transform: scale(1.2);
+          }
+
+          mat-icon {
+            font-size: 36px;
+            width: 36px;
+            height: 36px;
+            color: #e0e0e0;
+          }
+
+          &.selected mat-icon,
+          &.hovered mat-icon {
+            color: #ffc107;
+          }
+        }
+      }
+
+      .rating-label-text {
+        min-height: 24px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #2196f3;
+      }
+
+      .error-message {
+        color: #f44336;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    }
+
+    .full-width {
+      width: 100%;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+
+      button mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+// RTL support
+[dir='rtl'] {
+  .review-form-container {
+    .rating-stars {
+      flex-direction: row-reverse;
+    }
+
+    .form-actions button mat-icon {
+      margin-right: 0;
+      margin-left: 8px;
+    }
+  }
+}

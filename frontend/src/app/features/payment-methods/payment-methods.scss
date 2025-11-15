@@ -1,0 +1,360 @@
+.payment-methods-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+      color: #333;
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #1976d2;
+      }
+    }
+
+    button mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  // Loading State
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px;
+    gap: 16px;
+
+    p {
+      color: #666;
+      margin: 0;
+    }
+  }
+
+  // No Payment Methods State
+  .no-payment-methods {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 24px;
+    text-align: center;
+    background: #f5f5f5;
+    border-radius: 8px;
+    margin-bottom: 24px;
+
+    mat-icon {
+      font-size: 96px;
+      width: 96px;
+      height: 96px;
+      color: #bdbdbd;
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      margin: 0 0 12px 0;
+      color: #333;
+      font-size: 24px;
+    }
+
+    p {
+      margin: 0 0 24px 0;
+      color: #666;
+      font-size: 16px;
+      max-width: 400px;
+    }
+
+    button mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  // Payment Methods Grid
+  .payment-methods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+
+    .payment-card {
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      min-height: 240px;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      }
+
+      // Card Brand Colors
+      &.card-brand-visa {
+        background: linear-gradient(135deg, #1a1f71 0%, #0b3767 100%);
+      }
+
+      &.card-brand-mastercard {
+        background: linear-gradient(135deg, #eb001b 0%, #f79e1b 100%);
+      }
+
+      &.card-brand-amex {
+        background: linear-gradient(135deg, #006fcf 0%, #0074b5 100%);
+      }
+
+      &.card-brand-discover {
+        background: linear-gradient(135deg, #ff6000 0%, #ff9c33 100%);
+      }
+
+      mat-card-header {
+        padding: 20px 20px 0 20px;
+        color: white;
+
+        .card-header-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+
+          .card-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            mat-icon {
+              color: rgba(255, 255, 255, 0.9);
+              font-size: 28px;
+              width: 28px;
+              height: 28px;
+            }
+
+            .brand-name {
+              font-size: 18px;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+          }
+
+          .default-badge {
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 12px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+          }
+        }
+      }
+
+      mat-card-content {
+        padding: 20px;
+        flex: 1;
+
+        .card-details {
+          .card-number {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 24px;
+            font-family: 'Courier New', monospace;
+
+            .dots {
+              opacity: 0.7;
+              margin-right: 8px;
+            }
+
+            .last4 {
+              font-weight: 500;
+            }
+          }
+
+          .card-info {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 12px;
+
+            .info-item {
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+
+              .label {
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                opacity: 0.7;
+              }
+
+              .value {
+                font-size: 16px;
+                font-weight: 500;
+              }
+            }
+          }
+
+          .expiry-warning {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(255, 152, 0, 0.2);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 152, 0, 0.4);
+            font-size: 13px;
+            margin-top: 12px;
+
+            mat-icon {
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+              color: #ffa726;
+            }
+          }
+        }
+      }
+
+      mat-card-actions {
+        padding: 0 20px 20px 20px;
+        display: flex;
+        gap: 8px;
+
+        button {
+          color: white;
+          border-color: rgba(255, 255, 255, 0.3);
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.1);
+          }
+
+          &[color="warn"] {
+            color: #ffcdd2;
+            border-color: rgba(255, 205, 210, 0.3);
+
+            &:hover {
+              background: rgba(244, 67, 54, 0.1);
+            }
+          }
+
+          mat-icon {
+            margin-right: 4px;
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+          }
+        }
+      }
+    }
+  }
+
+  // Security Notice
+  .security-notice {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: #e8f5e9;
+    border-radius: 8px;
+    border-left: 4px solid #4caf50;
+
+    mat-icon {
+      color: #4caf50;
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+
+    .notice-text {
+      h4 {
+        margin: 0 0 4px 0;
+        color: #2e7d32;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0;
+        color: #558b2f;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// RTL Support
+[dir='rtl'] {
+  .payment-methods-container {
+    .page-header {
+      h1 mat-icon {
+        margin-left: 12px;
+        margin-right: 0;
+      }
+
+      button mat-icon {
+        margin-right: 0;
+        margin-left: 8px;
+      }
+    }
+
+    .no-payment-methods button mat-icon {
+      margin-right: 0;
+      margin-left: 8px;
+    }
+
+    .payment-methods-grid .payment-card {
+      .card-number .dots {
+        margin-right: 0;
+        margin-left: 8px;
+      }
+
+      mat-card-actions button mat-icon {
+        margin-right: 0;
+        margin-left: 4px;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .payment-methods-container {
+    padding: 16px;
+
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+
+      button {
+        width: 100%;
+      }
+    }
+
+    .payment-methods-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .security-notice {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+}

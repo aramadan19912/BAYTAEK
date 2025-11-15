@@ -1,0 +1,108 @@
+<div class="payment-failed-container">
+  <mat-card class="failed-card">
+    <!-- Failed Icon -->
+    <div class="failed-icon-wrapper">
+      <div class="failed-icon-circle">
+        <mat-icon class="failed-icon">cancel</mat-icon>
+      </div>
+    </div>
+
+    <!-- Failed Message -->
+    <mat-card-header>
+      <mat-card-title>{{ 'PAYMENT.FAILED_TITLE' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'PAYMENT.FAILED_DESC' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-divider></mat-divider>
+
+    <!-- Error Details -->
+    <mat-card-content>
+      <!-- Failure Reason -->
+      <div class="error-section">
+        <div class="error-box">
+          <mat-icon color="warn">error_outline</mat-icon>
+          <div class="error-content">
+            <h4>{{ 'PAYMENT.FAILURE_REASON' | translate }}</h4>
+            <p>{{ getFailureReason() | translate }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Details (if loaded) -->
+      <div class="booking-info-section" *ngIf="booking">
+        <h3>{{ 'PAYMENT.BOOKING_DETAILS' | translate }}</h3>
+
+        <div class="info-item">
+          <div class="info-label">
+            <mat-icon>confirmation_number</mat-icon>
+            <span>{{ 'BOOKING.BOOKING_NUMBER' | translate }}</span>
+          </div>
+          <div class="info-value">{{ booking.bookingNumber }}</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">
+            <mat-icon>room_service</mat-icon>
+            <span>{{ 'BOOKING.SERVICE' | translate }}</span>
+          </div>
+          <div class="info-value">{{ getServiceName() }}</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">
+            <mat-icon>payments</mat-icon>
+            <span>{{ 'PAYMENT.AMOUNT' | translate }}</span>
+          </div>
+          <div class="info-value amount-value">
+            {{ booking.pricing.totalAmount | number:'1.2-2' }} {{ booking.pricing.currency }}
+          </div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Suggested Solutions -->
+      <div class="solutions-section">
+        <h3>{{ 'PAYMENT.WHAT_TO_DO' | translate }}</h3>
+        <ul class="solutions-list">
+          <li *ngFor="let solution of getCommonSolutions()">
+            <mat-icon>check_circle_outline</mat-icon>
+            <span>{{ solution | translate }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Help Section -->
+      <div class="help-section">
+        <mat-icon color="primary">help_outline</mat-icon>
+        <div class="help-content">
+          <h4>{{ 'PAYMENT.NEED_HELP_TITLE' | translate }}</h4>
+          <p>{{ 'PAYMENT.NEED_HELP_DESC' | translate }}</p>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <!-- Action Buttons -->
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="retryPayment()">
+        <mat-icon>refresh</mat-icon>
+        {{ 'PAYMENT.RETRY_PAYMENT' | translate }}
+      </button>
+
+      <button mat-stroked-button color="accent" (click)="contactSupport()">
+        <mat-icon>support_agent</mat-icon>
+        {{ 'PAYMENT.CONTACT_SUPPORT' | translate }}
+      </button>
+
+      <button mat-stroked-button (click)="viewBookingDetails()">
+        <mat-icon>visibility</mat-icon>
+        {{ 'PAYMENT.VIEW_BOOKING' | translate }}
+      </button>
+
+      <button mat-button (click)="goToBookings()">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'PAYMENT.BACK_TO_BOOKINGS' | translate }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

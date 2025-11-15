@@ -1,0 +1,308 @@
+<div class="service-detail-container" *ngIf="!loading && service">
+  <!-- Header -->
+  <div class="service-header">
+    <button class="back-btn" routerLink="/services">
+      ← {{ 'serviceDetail.backToServices' | translate }}
+    </button>
+    <button class="favorite-btn" (click)="toggleFavorite()" [class.active]="isFavorite">
+      {{ isFavorite ? '❤️' : '🤍' }} {{ isFavorite ? ('serviceDetail.saved' | translate) : ('serviceDetail.save' | translate) }}
+    </button>
+  </div>
+
+  <!-- Image Gallery -->
+  <div class="image-gallery" *ngIf="service.images && service.images.length > 0">
+    <div class="main-image">
+      <img [src]="service.images[currentImageIndex]" [alt]="getServiceName()" />
+      <button class="nav-btn prev" (click)="previousImage()" *ngIf="service.images.length > 1">‹</button>
+      <button class="nav-btn next" (click)="nextImage()" *ngIf="service.images.length > 1">›</button>
+    </div>
+    <div class="thumbnail-list" *ngIf="service.images.length > 1">
+      <img
+        *ngFor="let img of service.images; let i = index"
+        [src]="img"
+        [class.active]="i === currentImageIndex"
+        (click)="selectImage(i)"
+      />
+    </div>
+  </div>
+
+  <!-- Service Info -->
+  <div class="service-info">
+    <div class="service-main">
+      <h1>{{ getServiceName() }}</h1>
+      <div class="rating">
+        <span class="stars">
+          <span *ngFor="let filled of getStarArray(service.averageRating)" [class.filled]="filled">★</span>
+        </span>
+        <span class="rating-text">{{ service.averageRating.toFixed(1) }} ({{ service.totalReviews }} {{ 'serviceDetail.reviews' | translate }})</span>
+      </div>
+      <p class="description">{{ getServiceDescription() }}</p>
+
+      <div class="service-details">
+        <div class="detail-item">
+          <span class="label">{{ 'serviceDetail.price' | translate }}:</span>
+          <span class="value price">{{ formatPrice(service.basePrice) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">{{ 'serviceDetail.duration' | translate }}:</span>
+          <span class="value">{{ formatDuration(service.estimatedDurationMinutes) }}</span>
+        </div>
+      </div>
+
+      <button class="book-btn" (click)="startBooking()">
+        {{ 'serviceDetail.bookNow' | translate }}
+      </button>
+    </div>
+
+    <!-- Provider Info -->
+    <div class="provider-card">
+      <h3>{{ 'serviceDetail.serviceProvider' | translate }}</h3>
+      <div class="provider-info">
+        <div class="provider-header">
+          <h4>{{ service.provider.name }}</h4>
+          <span class="verified" *ngIf="service.provider.isVerified">✓ {{ 'serviceDetail.verified' | translate }}</span>
+        </div>
+        <div class="provider-stats">
+          <div class="stat">
+            <span class="stars">
+              <span *ngFor="let filled of getStarArray(service.provider.rating)" [class.filled]="filled">★</span>
+            </span>
+            <span>{{ service.provider.rating.toFixed(1) }}</span>
+          </div>
+          <div class="stat">
+            <span class="label">{{ 'serviceDetail.experience' | translate }}:</span>
+            <span>{{ service.provider.yearsOfExperience }} {{ 'serviceDetail.years' | translate }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="reviews-section" *ngIf="reviews.length > 0">
+    <h2>{{ 'serviceDetail.recentReviews' | translate }}</h2>
+    <div class="reviews-list">
+      <div class="review-card" *ngFor="let review of reviews">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <strong>{{ review.customerName }}</strong>
+            <span class="stars">
+              <span *ngFor="let filled of getStarArray(review.rating)" [class.filled]="filled">★</span>
+            </span>
+          </div>
+          <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+        </div>
+        <p class="review-comment">{{ review.comment }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>{{ 'common.loading' | translate }}</p>
+</div>
+
+<!-- Booking Modal -->
+<div class="modal-overlay" *ngIf="showBookingModal" (click)="closeBookingModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ getBookingStepTitle() }}</h2>
+      <span class="step-indicator">{{ 'serviceDetail.booking.step' | translate }} {{ getBookingStepNumber() }} {{ 'serviceDetail.booking.of' | translate }} 4</span>
+      <button class="close-btn" (click)="closeBookingModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Step 1: Date & Time -->
+      <div *ngIf="bookingStep === 'datetime'" class="booking-step">
+        <div class="form-group">
+          <label>{{ 'serviceDetail.booking.selectDate' | translate }}</label>
+          <input
+            type="date"
+            [(ngModel)]="scheduledDate"
+            [min]="getMinScheduleDate()"
+            class="form-control"
+          />
+        </div>
+        <div class="form-group">
+          <label>{{ 'serviceDetail.booking.selectTime' | translate }}</label>
+          <input
+            type="time"
+            [(ngModel)]="scheduledTime"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <!-- Step 2: Address -->
+      <div *ngIf="bookingStep === 'address'" class="booking-step">
+        <div class="address-list" *ngIf="addresses.length > 0">
+          <div
+            *ngFor="let address of addresses"
+            class="address-card"
+            [class.selected]="selectedAddressId === address.addressId"
+            (click)="selectedAddressId = address.addressId"
+          >
+            <input
+              type="radio"
+              [value]="address.addressId"
+              [(ngModel)]="selectedAddressId"
+            />
+            <div class="address-info">
+              <strong>{{ address.label }}</strong>
+              <p>{{ formatAddress(address) }}</p>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="addresses.length === 0" class="no-addresses">
+          {{ 'serviceDetail.booking.noAddresses' | translate }}
+        </p>
+      </div>
+
+      <!-- Step 3: Promo Code -->
+      <div *ngIf="bookingStep === 'promo'" class="booking-step">
+        <div class="form-group">
+          <label>{{ 'serviceDetail.booking.promoCode' | translate }}</label>
+          <div class="promo-input-group">
+            <input
+              type="text"
+              [(ngModel)]="promoCode"
+              [placeholder]="'serviceDetail.booking.enterPromo' | translate"
+              class="form-control"
+            />
+            <button
+              class="validate-btn"
+              (click)="validatePromoCode()"
+              [disabled]="validatingPromoCode"
+            >
+              {{ validatingPromoCode ? ('common.validating' | translate) : ('serviceDetail.booking.apply' | translate) }}
+            </button>
+          </div>
+          <p class="promo-message" [class.valid]="promoCodeValid" [class.invalid]="!promoCodeValid && promoCodeMessage">
+            {{ promoCodeMessage }}
+          </p>
+        </div>
+        <div class="price-summary">
+          <div class="price-row">
+            <span>{{ 'serviceDetail.booking.servicePrice' | translate }}:</span>
+            <span>{{ formatPrice(basePrice) }}</span>
+          </div>
+          <div class="price-row discount" *ngIf="promoDiscount > 0">
+            <span>{{ 'serviceDetail.booking.promoDiscount' | translate }}:</span>
+            <span>-{{ formatPrice(promoDiscount) }}</span>
+          </div>
+          <div class="price-row total">
+            <span>{{ 'serviceDetail.booking.total' | translate }}:</span>
+            <span>{{ formatPrice(totalAmount) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Confirm -->
+      <div *ngIf="bookingStep === 'confirm'" class="booking-step">
+        <div class="booking-summary">
+          <h3>{{ 'serviceDetail.booking.summary' | translate }}</h3>
+          <div class="summary-item">
+            <span class="label">{{ 'serviceDetail.booking.service' | translate }}:</span>
+            <span>{{ getServiceName() }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">{{ 'serviceDetail.booking.dateTime' | translate }}:</span>
+            <span>{{ scheduledDate }} {{ 'serviceDetail.booking.at' | translate }} {{ scheduledTime }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">{{ 'serviceDetail.booking.address' | translate }}:</span>
+            <span>{{ formatAddress(addresses.find(a => a.addressId === selectedAddressId)!) }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">{{ 'serviceDetail.duration' | translate }}:</span>
+            <span>{{ formatDuration(service!.estimatedDurationMinutes) }}</span>
+          </div>
+          <div class="summary-item total">
+            <span class="label">{{ 'serviceDetail.booking.totalAmount' | translate }}:</span>
+            <span class="amount">{{ formatPrice(totalAmount) }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'serviceDetail.booking.additionalNotes' | translate }}</label>
+          <textarea
+            [(ngModel)]="customerNotes"
+            [placeholder]="'serviceDetail.booking.notesPlaceholder' | translate"
+            rows="3"
+            class="form-control"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        class="btn btn-secondary"
+        (click)="previousBookingStep()"
+        *ngIf="bookingStep !== 'datetime'"
+      >
+        {{ 'serviceDetail.booking.back' | translate }}
+      </button>
+      <button
+        class="btn btn-primary"
+        (click)="nextBookingStep()"
+        *ngIf="bookingStep !== 'confirm'"
+        [disabled]="!canGoToNextStep()"
+      >
+        {{ 'serviceDetail.booking.next' | translate }}
+      </button>
+      <button
+        class="btn btn-success"
+        (click)="confirmBooking()"
+        *ngIf="bookingStep === 'confirm'"
+        [disabled]="bookingInProgress"
+      >
+        {{ bookingInProgress ? ('common.processing' | translate) : ('serviceDetail.booking.confirm' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal-overlay" *ngIf="showReviewForm" (click)="showReviewForm = false">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ 'serviceDetail.writeReview' | translate }}</h2>
+      <button class="close-btn" (click)="showReviewForm = false">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>{{ 'serviceDetail.rating' | translate }}</label>
+        <div class="star-rating">
+          <span
+            *ngFor="let star of getRatingStars(5)"
+            class="star"
+            [class.filled]="star <= reviewRating"
+            (click)="setReviewRating(star)"
+          >★</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>{{ 'serviceDetail.yourReview' | translate }}</label>
+        <textarea
+          [(ngModel)]="reviewComment"
+          [placeholder]="'serviceDetail.reviewPlaceholder' | translate"
+          rows="5"
+          class="form-control"
+        ></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="showReviewForm = false">{{ 'common.cancel' | translate }}</button>
+      <button
+        class="btn btn-primary"
+        (click)="submitReview()"
+        [disabled]="submittingReview"
+      >
+        {{ submittingReview ? ('common.submitting' | translate) : ('serviceDetail.submitReview' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>

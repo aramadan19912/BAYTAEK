@@ -1,0 +1,86 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8C9B3C4E-7F3A-4F3C-9B5C-2D8E6F7A8B9C}"
+EndProject
+
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9D0A4D5F-8E4B-5G4D-0C6D-3E9F7G8A9C0D}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeService.Domain", "src\HomeService.Domain\HomeService.Domain.csproj", "{1A2B3C4D-5E6F-7G8H-9I0J-1K2L3M4N5O6P}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeService.Application", "src\HomeService.Application\HomeService.Application.csproj", "{2B3C4D5E-6F7G-8H9I-0J1K-2L3M4N5O6P7Q}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeService.Infrastructure", "src\HomeService.Infrastructure\HomeService.Infrastructure.csproj", "{3C4D5E6F-7G8H-9I0J-1K2L-3M4N5O6P7Q8R}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeService.API", "src\HomeService.API\HomeService.API.csproj", "{4D5E6F7G-8H9I-0J1K-2L3M-4N5O6P7Q8R9S}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeService.Domain.Tests", "tests\HomeService.Domain.Tests\HomeService.Domain.Tests.csproj", "{5E6F7G8H-9I0J-1K2L-3M4N-5O6P7Q8R9S0T}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeService.Application.Tests", "tests\HomeService.Application.Tests\HomeService.Application.Tests.csproj", "{6F7G8H9I-0J1K-2L3M-4N5O-6P7Q8R9S0T1U}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeService.Infrastructure.Tests", "tests\HomeService.Infrastructure.Tests\HomeService.Infrastructure.Tests.csproj", "{7G8H9I0J-1K2L-3M4N-5O6P-7Q8R9S0T1U2V}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeService.API.Tests", "tests\HomeService.API.Tests\HomeService.API.Tests.csproj", "{8H9I0J1K-2L3M-4N5O-6P7Q-8R9S0T1U2V3W}"
+EndProject
+
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1A2B3C4D-5E6F-7G8H-9I0J-1K2L3M4N5O6P}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A2B3C4D-5E6F-7G8H-9I0J-1K2L3M4N5O6P}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A2B3C4D-5E6F-7G8H-9I0J-1K2L3M4N5O6P}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A2B3C4D-5E6F-7G8H-9I0J-1K2L3M4N5O6P}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B3C4D5E-6F7G-8H9I-0J1K-2L3M4N5O6P7Q}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B3C4D5E-6F7G-8H9I-0J1K-2L3M4N5O6P7Q}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B3C4D5E-6F7G-8H9I-0J1K-2L3M4N5O6P7Q}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B3C4D5E-6F7G-8H9I-0J1K-2L3M4N5O6P7Q}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C4D5E6F-7G8H-9I0J-1K2L-3M4N5O6P7Q8R}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C4D5E6F-7G8H-9I0J-1K2L-3M4N5O6P7Q8R}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C4D5E6F-7G8H-9I0J-1K2L-3M4N5O6P7Q8R}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C4D5E6F-7G8H-9I0J-1K2L-3M4N5O6P7Q8R}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D5E6F7G-8H9I-0J1K-2L3M-4N5O6P7Q8R9S}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D5E6F7G-8H9I-0J1K-2L3M-4N5O6P7Q8R9S}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D5E6F7G-8H9I-0J1K-2L3M-4N5O6P7Q8R9S}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D5E6F7G-8H9I-0J1K-2L3M-4N5O6P7Q8R9S}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E6F7G8H-9I0J-1K2L-3M4N-5O6P7Q8R9S0T}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E6F7G8H-9I0J-1K2L-3M4N-5O6P7Q8R9S0T}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E6F7G8H-9I0J-1K2L-3M4N-5O6P7Q8R9S0T}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E6F7G8H-9I0J-1K2L-3M4N-5O6P7Q8R9S0T}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F7G8H9I-0J1K-2L3M-4N5O-6P7Q8R9S0T1U}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F7G8H9I-0J1K-2L3M-4N5O-6P7Q8R9S0T1U}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F7G8H9I-0J1K-2L3M-4N5O-6P7Q8R9S0T1U}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F7G8H9I-0J1K-2L3M-4N5O-6P7Q8R9S0T1U}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7G8H9I0J-1K2L-3M4N-5O6P-7Q8R9S0T1U2V}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7G8H9I0J-1K2L-3M4N-5O6P-7Q8R9S0T1U2V}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7G8H9I0J-1K2L-3M4N-5O6P-7Q8R9S0T1U2V}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7G8H9I0J-1K2L-3M4N-5O6P-7Q8R9S0T1U2V}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8H9I0J1K-2L3M-4N5O-6P7Q-8R9S0T1U2V3W}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8H9I0J1K-2L3M-4N5O-6P7Q-8R9S0T1U2V3W}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8H9I0J1K-2L3M-4N5O-6P7Q-8R9S0T1U2V3W}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8H9I0J1K-2L3M-4N5O-6P7Q-8R9S0T1U2V3W}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1A2B3C4D-5E6F-7G8H-9I0J-1K2L3M4N5O6P} = {8C9B3C4E-7F3A-4F3C-9B5C-2D8E6F7A8B9C}
+		{2B3C4D5E-6F7G-8H9I-0J1K-2L3M4N5O6P7Q} = {8C9B3C4E-7F3A-4F3C-9B5C-2D8E6F7A8B9C}
+		{3C4D5E6F-7G8H-9I0J-1K2L-3M4N5O6P7Q8R} = {8C9B3C4E-7F3A-4F3C-9B5C-2D8E6F7A8B9C}
+		{4D5E6F7G-8H9I-0J1K-2L3M-4N5O6P7Q8R9S} = {8C9B3C4E-7F3A-4F3C-9B5C-2D8E6F7A8B9C}
+		{5E6F7G8H-9I0J-1K2L-3M4N-5O6P7Q8R9S0T} = {9D0A4D5F-8E4B-5G4D-0C6D-3E9F7G8A9C0D}
+		{6F7G8H9I-0J1K-2L3M-4N5O-6P7Q8R9S0T1U} = {9D0A4D5F-8E4B-5G4D-0C6D-3E9F7G8A9C0D}
+		{7G8H9I0J-1K2L-3M4N-5O6P-7Q8R9S0T1U2V} = {9D0A4D5F-8E4B-5G4D-0C6D-3E9F7G8A9C0D}
+		{8H9I0J1K-2L3M-4N5O-6P7Q-8R9S0T1U2V3W} = {9D0A4D5F-8E4B-5G4D-0C6D-3E9F7G8A9C0D}
+	EndGlobalSection
+EndGlobal

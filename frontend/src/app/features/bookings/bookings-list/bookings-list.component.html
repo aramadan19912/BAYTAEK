@@ -1,0 +1,232 @@
+<div class="bookings-container">
+  <!-- Header with Statistics -->
+  <div class="bookings-header">
+    <h1>{{ 'bookingsList.title' | translate }}</h1>
+    <div class="statistics" *ngIf="!loading">
+      <div class="stat-card">
+        <span class="stat-value">{{ totalBookings }}</span>
+        <span class="stat-label">{{ 'bookingsList.stats.total' | translate }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ activeBookings }}</span>
+        <span class="stat-label">{{ 'bookingsList.stats.active' | translate }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ completedBookings }}</span>
+        <span class="stat-label">{{ 'bookingsList.stats.completed' | translate }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ formatPrice(totalSpent) }}</span>
+        <span class="stat-label">{{ 'bookingsList.stats.totalSpent' | translate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <!-- Status Filters -->
+    <div class="status-filters">
+      <button
+        class="filter-btn"
+        [class.active]="selectedStatus === null"
+        (click)="filterByStatus(null)"
+      >
+        {{ 'bookingsList.filters.all' | translate }} <span class="count">{{ totalCount }}</span>
+      </button>
+      <button
+        *ngFor="let status of statuses"
+        class="filter-btn"
+        [class.active]="selectedStatus === status.value"
+        (click)="filterByStatus(status.value)"
+      >
+        {{ status.label }} <span class="count" *ngIf="status.count > 0">{{ status.count }}</span>
+      </button>
+    </div>
+
+    <!-- Search and Date Filters -->
+    <div class="advanced-filters">
+      <div class="search-box">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+          [placeholder]="'bookingsList.search' | translate"
+          class="search-input"
+        />
+      </div>
+
+      <div class="date-filters">
+        <input
+          type="date"
+          [(ngModel)]="startDate"
+          (ngModelChange)="onDateFilterChange()"
+          [placeholder]="'bookingsList.filters.startDate' | translate"
+          class="date-input"
+        />
+        <span>{{ 'bookingsList.filters.to' | translate }}</span>
+        <input
+          type="date"
+          [(ngModel)]="endDate"
+          (ngModelChange)="onDateFilterChange()"
+          [placeholder]="'bookingsList.filters.endDate' | translate"
+          class="date-input"
+        />
+      </div>
+
+      <button
+        class="clear-filters-btn"
+        (click)="clearFilters()"
+        *ngIf="hasActiveFilters()"
+      >
+        {{ 'bookingsList.filters.clearFilters' | translate:{ count: getActiveFilterCount() } }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Bookings List -->
+  <div class="bookings-list" *ngIf="!loading && bookings.length > 0">
+    <div
+      *ngFor="let booking of bookings; trackBy: trackByBookingId"
+      class="booking-card"
+      (click)="viewBookingDetails(booking.bookingId)"
+    >
+      <!-- Header -->
+      <div class="booking-header">
+        <div class="booking-info">
+          <h3>{{ booking.serviceName }}</h3>
+          <span class="booking-number">{{ booking.bookingNumber }}</span>
+        </div>
+        <span class="status-badge" [ngClass]="getBookingStatusClass(booking.status)">
+          {{ getBookingStatusLabel(booking.status) }}
+        </span>
+      </div>
+
+      <!-- Details -->
+      <div class="booking-details">
+        <div class="detail-row">
+          <span class="icon">📅</span>
+          <div class="detail-content">
+            <span class="label">{{ 'bookingsList.scheduledFor' | translate }}</span>
+            <span class="value">{{ formatDate(booking.scheduledDateTime) }}</span>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <span class="icon">💰</span>
+          <div class="detail-content">
+            <span class="label">{{ 'bookingsList.totalAmount' | translate }}</span>
+            <span class="value price">{{ formatPrice(booking.totalAmount) }}</span>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <span class="icon">📍</span>
+          <div class="detail-content">
+            <span class="label">{{ 'bookingsList.location' | translate }}</span>
+            <span class="value">{{ booking.address.city }}, {{ booking.address.region }}</span>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <span class="icon">💳</span>
+          <div class="detail-content">
+            <span class="label">{{ 'bookingsList.payment' | translate }}</span>
+            <span class="value">{{ booking.paymentMethod }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="booking-actions" (click)="$event.stopPropagation()">
+        <button
+          class="btn btn-primary"
+          (click)="viewBookingDetails(booking.bookingId)"
+        >
+          {{ 'bookingsList.actions.viewDetails' | translate }}
+        </button>
+
+        <button
+          *ngIf="canCancelBooking(booking)"
+          class="btn btn-danger"
+          (click)="cancelBooking(booking)"
+        >
+          {{ 'bookingsList.actions.cancel' | translate }}
+        </button>
+
+        <button
+          *ngIf="canReviewBooking(booking)"
+          class="btn btn-success"
+          (click)="viewBookingDetails(booking.bookingId)"
+        >
+          {{ 'bookingsList.actions.review' | translate }}
+        </button>
+
+        <button
+          class="btn btn-secondary"
+          (click)="bookAgain(booking)"
+        >
+          {{ 'bookingsList.actions.bookAgain' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>{{ 'common.loading' | translate }}</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && bookings.length === 0">
+    <div class="empty-icon">📋</div>
+    <h2>{{ 'bookingsList.empty.title' | translate }}</h2>
+    <p *ngIf="hasActiveFilters()">
+      {{ 'bookingsList.empty.filtered' | translate }}
+    </p>
+    <p *ngIf="!hasActiveFilters()">
+      {{ 'bookingsList.empty.noBookings' | translate }}
+    </p>
+    <button class="btn btn-primary" routerLink="/services" *ngIf="!hasActiveFilters()">
+      {{ 'bookingsList.empty.browseServices' | translate }}
+    </button>
+    <button class="btn btn-secondary" (click)="clearFilters()" *ngIf="hasActiveFilters()">
+      {{ 'bookingsList.filters.clear' | translate }}
+    </button>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="!loading && totalPages > 1">
+    <button
+      class="page-btn"
+      (click)="previousPage()"
+      [disabled]="currentPage === 1"
+    >
+      ← {{ 'pagination.previous' | translate }}
+    </button>
+
+    <button
+      *ngFor="let page of paginationPages"
+      class="page-btn"
+      [class.active]="page === currentPage"
+      (click)="goToPage(page)"
+    >
+      {{ page }}
+    </button>
+
+    <button
+      class="page-btn"
+      (click)="nextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      {{ 'pagination.next' | translate }} →
+    </button>
+  </div>
+
+  <!-- Results Info -->
+  <div class="results-info" *ngIf="!loading && bookings.length > 0">
+    <p>
+      {{ 'bookingsList.showing' | translate:{ start: (currentPage - 1) * pageSize + 1, end: Math.min(currentPage * pageSize, totalCount), total: totalCount } }}
+    </p>
+  </div>
+</div>

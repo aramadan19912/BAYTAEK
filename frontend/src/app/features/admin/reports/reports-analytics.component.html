@@ -1,0 +1,354 @@
+<div class="reports-analytics">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="backToDashboard()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        {{ 'admin.reports.back_to_dashboard' | translate }}
+      </button>
+      <div class="header-content">
+        <h1>{{ 'admin.reports.title' | translate }}</h1>
+        <p class="subtitle">{{ 'admin.reports.subtitle' | translate }}</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-export" (click)="exportReport('pdf')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        {{ 'admin.reports.export_pdf' | translate }}
+      </button>
+      <button class="btn-export" (click)="exportReport('excel')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        {{ 'admin.reports.export_excel' | translate }}
+      </button>
+      <button class="btn-export" (click)="exportReport('csv')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        {{ 'admin.reports.export_csv' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Date Range Filters -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <div class="filter-label">{{ 'admin.reports.date_range' | translate }}</div>
+      <select class="filter-select" [value]="selectedPreset" (change)="onPresetChange($event)">
+        <option value="7">{{ 'admin.reports.last_7_days' | translate }}</option>
+        <option value="30">{{ 'admin.reports.last_30_days' | translate }}</option>
+        <option value="90">{{ 'admin.reports.last_90_days' | translate }}</option>
+        <option value="365">{{ 'admin.reports.last_365_days' | translate }}</option>
+        <option value="custom">{{ 'admin.reports.custom_range' | translate }}</option>
+      </select>
+
+      <input
+        type="date"
+        class="filter-date"
+        [value]="startDate"
+        (change)="onStartDateChange($event)"
+        [max]="endDate"
+      />
+
+      <span class="date-separator">{{ 'admin.reports.to' | translate }}</span>
+
+      <input
+        type="date"
+        class="filter-date"
+        [value]="endDate"
+        (change)="onEndDateChange($event)"
+        [min]="startDate"
+      />
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>{{ 'common.loading' | translate }}</p>
+  </div>
+
+  <!-- Analytics Content -->
+  <div *ngIf="!isLoading && analytics" class="analytics-content">
+
+    <!-- Overview Section -->
+    <div class="section">
+      <h2 class="section-title">{{ 'admin.reports.overview' | translate }}</h2>
+      <div class="metrics-grid">
+        <div class="metric-card highlight">
+          <div class="metric-icon total-revenue">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <div class="metric-label">{{ 'admin.reports.total_revenue' | translate }}</div>
+            <div class="metric-value">{{ formatCurrency(analytics.bookings.totalRevenue) }}</div>
+            <div class="metric-footer">
+              <span class="metric-detail">{{ 'admin.reports.platform_earnings' | translate }}: {{ formatCurrency(analytics.bookings.platformEarnings) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon users">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <div class="metric-label">{{ 'admin.reports.total_users' | translate }}</div>
+            <div class="metric-value">{{ formatNumber(analytics.users.totalUsers) }}</div>
+            <div class="metric-footer">
+              <span class="metric-detail success">{{ analytics.users.activeUsers }} {{ 'admin.reports.active' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon bookings">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <div class="metric-label">{{ 'admin.reports.total_bookings' | translate }}</div>
+            <div class="metric-value">{{ formatNumber(analytics.bookings.totalBookings) }}</div>
+            <div class="metric-footer">
+              <span class="metric-detail success">{{ formatPercent(getBookingCompletionRate()) }} {{ 'admin.reports.completed' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon services">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <div class="metric-label">{{ 'admin.reports.total_services' | translate }}</div>
+            <div class="metric-value">{{ formatNumber(analytics.services.totalServices) }}</div>
+            <div class="metric-footer">
+              <span class="metric-detail success">{{ analytics.services.activeServices }} {{ 'admin.reports.active' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Analytics -->
+    <div class="section">
+      <h2 class="section-title">{{ 'admin.reports.user_analytics' | translate }}</h2>
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <div class="card-header">
+            <h3>{{ 'admin.reports.user_distribution' | translate }}</h3>
+          </div>
+          <div class="card-content">
+            <div class="stat-row">
+              <div class="stat-item">
+                <div class="stat-label">{{ 'admin.reports.customers' | translate }}</div>
+                <div class="stat-value">{{ formatNumber(analytics.users.totalCustomers) }}</div>
+                <div class="stat-bar">
+                  <div class="stat-bar-fill customer" [style.width.%]="(analytics.users.totalCustomers / analytics.users.totalUsers) * 100"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-item">
+                <div class="stat-label">{{ 'admin.reports.providers' | translate }}</div>
+                <div class="stat-value">{{ formatNumber(analytics.users.totalProviders) }}</div>
+                <div class="stat-bar">
+                  <div class="stat-bar-fill provider" [style.width.%]="(analytics.users.totalProviders / analytics.users.totalUsers) * 100"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-item">
+                <div class="stat-label">{{ 'admin.reports.active_users' | translate }}</div>
+                <div class="stat-value">{{ formatNumber(analytics.users.activeUsers) }}</div>
+                <div class="stat-bar">
+                  <div class="stat-bar-fill active" [style.width.%]="(analytics.users.activeUsers / analytics.users.totalUsers) * 100"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="card-header">
+            <h3>{{ 'admin.reports.user_metrics' | translate }}</h3>
+          </div>
+          <div class="card-content">
+            <div class="kpi-grid">
+              <div class="kpi-item">
+                <div class="kpi-label">{{ 'admin.reports.new_users' | translate }}</div>
+                <div class="kpi-value">{{ formatNumber(analytics.users.newUsersThisMonth) }}</div>
+                <div class="kpi-badge success">{{ 'admin.reports.this_month' | translate }}</div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-label">{{ 'admin.reports.user_retention' | translate }}</div>
+                <div class="kpi-value">{{ formatPercent(getUserRetentionRate()) }}</div>
+                <div class="kpi-badge info">{{ 'admin.reports.active_rate' | translate }}</div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-label">{{ 'admin.reports.provider_ratio' | translate }}</div>
+                <div class="kpi-value">{{ getProviderToCustomerRatio() }}</div>
+                <div class="kpi-badge neutral">{{ 'admin.reports.per_customer' | translate }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Analytics -->
+    <div class="section">
+      <h2 class="section-title">{{ 'admin.reports.booking_analytics' | translate }}</h2>
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <div class="card-header">
+            <h3>{{ 'admin.reports.booking_status' | translate }}</h3>
+          </div>
+          <div class="card-content">
+            <div class="stat-row">
+              <div class="stat-item">
+                <div class="stat-label">{{ 'admin.reports.completed_bookings' | translate }}</div>
+                <div class="stat-value">{{ formatNumber(analytics.bookings.completedBookings) }}</div>
+                <div class="stat-bar">
+                  <div class="stat-bar-fill completed" [style.width.%]="getBookingCompletionRate()"></div>
+                </div>
+                <div class="stat-percent">{{ formatPercent(getBookingCompletionRate()) }}</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-item">
+                <div class="stat-label">{{ 'admin.reports.active_bookings' | translate }}</div>
+                <div class="stat-value">{{ formatNumber(analytics.bookings.activeBookings) }}</div>
+                <div class="stat-bar">
+                  <div class="stat-bar-fill active" [style.width.%]="(analytics.bookings.activeBookings / analytics.bookings.totalBookings) * 100"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-item">
+                <div class="stat-label">{{ 'admin.reports.cancelled_bookings' | translate }}</div>
+                <div class="stat-value">{{ formatNumber(analytics.bookings.cancelledBookings) }}</div>
+                <div class="stat-bar">
+                  <div class="stat-bar-fill cancelled" [style.width.%]="getBookingCancellationRate()"></div>
+                </div>
+                <div class="stat-percent">{{ formatPercent(getBookingCancellationRate()) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="card-header">
+            <h3>{{ 'admin.reports.revenue_breakdown' | translate }}</h3>
+          </div>
+          <div class="card-content">
+            <div class="revenue-breakdown">
+              <div class="breakdown-item">
+                <div class="breakdown-label">{{ 'admin.reports.gross_revenue' | translate }}</div>
+                <div class="breakdown-value">{{ formatCurrency(analytics.bookings.totalRevenue) }}</div>
+              </div>
+              <div class="breakdown-divider"></div>
+              <div class="breakdown-item">
+                <div class="breakdown-label">{{ 'admin.reports.platform_commission' | translate }}</div>
+                <div class="breakdown-value success">{{ formatCurrency(analytics.bookings.platformEarnings) }}</div>
+                <div class="breakdown-percent">{{ formatPercent(getAveragePlatformCommission()) }}</div>
+              </div>
+              <div class="breakdown-item">
+                <div class="breakdown-label">{{ 'admin.reports.provider_earnings' | translate }}</div>
+                <div class="breakdown-value">{{ formatCurrency(analytics.bookings.totalRevenue - analytics.bookings.platformEarnings) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Analytics -->
+    <div class="section">
+      <h2 class="section-title">{{ 'admin.reports.service_analytics' | translate }}</h2>
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <div class="card-header">
+            <h3>{{ 'admin.reports.service_metrics' | translate }}</h3>
+          </div>
+          <div class="card-content">
+            <div class="kpi-grid">
+              <div class="kpi-item">
+                <div class="kpi-label">{{ 'admin.reports.total_services' | translate }}</div>
+                <div class="kpi-value">{{ formatNumber(analytics.services.totalServices) }}</div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-label">{{ 'admin.reports.active_services' | translate }}</div>
+                <div class="kpi-value">{{ formatNumber(analytics.services.activeServices) }}</div>
+                <div class="kpi-badge success">{{ formatPercent(getServiceApprovalRate()) }}</div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-label">{{ 'admin.reports.pending_approval' | translate }}</div>
+                <div class="kpi-value">{{ formatNumber(analytics.services.pendingApproval) }}</div>
+                <div class="kpi-badge warning">{{ 'admin.reports.requires_review' | translate }}</div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-label">{{ 'admin.reports.avg_service_price' | translate }}</div>
+                <div class="kpi-value">{{ formatCurrency(analytics.services.averageServicePrice) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="card-header">
+            <h3>{{ 'admin.reports.support_metrics' | translate }}</h3>
+          </div>
+          <div class="card-content">
+            <div class="kpi-grid">
+              <div class="kpi-item">
+                <div class="kpi-label">{{ 'admin.reports.open_tickets' | translate }}</div>
+                <div class="kpi-value">{{ formatNumber(analytics.support.openTickets) }}</div>
+                <div class="kpi-badge warning">{{ 'admin.reports.needs_attention' | translate }}</div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-label">{{ 'admin.reports.resolved_tickets' | translate }}</div>
+                <div class="kpi-value">{{ formatNumber(analytics.support.resolvedTickets) }}</div>
+                <div class="kpi-badge success">{{ 'admin.reports.closed' | translate }}</div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-label">{{ 'admin.reports.avg_resolution_time' | translate }}</div>
+                <div class="kpi-value">{{ analytics.support.averageResolutionTimeHours.toFixed(1) }}h</div>
+                <div class="kpi-badge info">{{ 'admin.reports.average' | translate }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

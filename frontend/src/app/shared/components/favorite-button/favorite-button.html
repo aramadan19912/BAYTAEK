@@ -1,0 +1,12 @@
+<button
+  mat-icon-button
+  [class.favorited]="isFavorite"
+  [disabled]="loading"
+  (click)="toggleFavorite()"
+  [matTooltip]="(isFavorite ? 'favorites.removeFromFavorites' : 'favorites.addToFavorites') | translate">
+  @if (loading) {
+    <mat-spinner diameter="24"></mat-spinner>
+  } @else {
+    <mat-icon>{{ isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+  }
+</button>

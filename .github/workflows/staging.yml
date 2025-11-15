@@ -1,0 +1,74 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - development
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  NODE_VERSION: '20.x'
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build Backend
+        run: |
+          dotnet restore
+          dotnet build --configuration Release --no-restore
+          dotnet publish --configuration Release --output ./publish --no-build
+        working-directory: ./backend
+
+      - name: Build Frontend
+        run: |
+          npm ci
+          npm run build -- --configuration staging
+        working-directory: ./frontend
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+
+      - name: Deploy to Staging Server
+        run: |
+          # Deploy backend
+          rsync -avz --delete ./backend/publish/ ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:/var/www/baytaek-staging/backend/
+
+          # Deploy frontend
+          rsync -avz --delete ./frontend/dist/frontend/browser/ ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:/var/www/baytaek-staging/frontend/dist/frontend/browser/
+
+          # Restart services
+          ssh ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} "
+            sudo systemctl restart baytaek-staging-api
+            sudo systemctl reload nginx
+          "
+
+      - name: Run smoke tests
+        run: |
+          sleep 10
+          HEALTH_STATUS=$(curl -s -o /dev/null -w '%{http_code}' https://staging.yourdomain.com/api/health)
+
+          if [ "$HEALTH_STATUS" = "200" ]; then
+            echo "✅ Staging deployment successful"
+          else
+            echo "❌ Staging health check failed"
+            exit 1
+          fi

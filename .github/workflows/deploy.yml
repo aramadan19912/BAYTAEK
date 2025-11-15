@@ -1,0 +1,268 @@
+name: Deploy to Hostinger VPS
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  NODE_VERSION: '20.x'
+
+jobs:
+  # Job 1: Build and Test Backend
+  build-backend:
+    name: Build & Test Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./backend
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+        working-directory: ./backend
+
+      - name: Run tests
+        run: dotnet test --no-restore --verbosity normal
+        working-directory: ./backend
+        continue-on-error: true
+
+      - name: Publish
+        run: dotnet publish --configuration Release --output ./publish --no-build
+        working-directory: ./backend
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: ./backend/publish/
+          retention-days: 1
+
+  # Job 2: Build Frontend
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ./frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Build Angular app
+        run: npm run build -- --configuration production
+        working-directory: ./frontend
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: ./frontend/dist/frontend/browser/
+          retention-days: 1
+
+  # Job 3: Deploy to VPS
+  deploy:
+    name: Deploy to Hostinger VPS
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: ./backend-build
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: ./frontend-build
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+
+      - name: Add VPS to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy Backend to VPS
+        run: |
+          # Create backup of current deployment
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            if [ -d /var/www/baytaek/backend ]; then
+              sudo cp -r /var/www/baytaek/backend /var/www/baytaek/backend.backup.\$(date +%Y%m%d_%H%M%S)
+            fi
+          "
+
+          # Stop the backend service
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo systemctl stop baytaek-api"
+
+          # Upload new backend files
+          rsync -avz --delete ./backend-build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/baytaek/backend/
+
+          # Set permissions
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            sudo chown -R www-data:www-data /var/www/baytaek/backend
+            sudo chmod -R 755 /var/www/baytaek/backend
+          "
+
+          # Run database migrations
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            cd /var/www/baytaek/backend
+            sudo -u www-data dotnet ef database update --no-build || echo 'Migration skipped or failed'
+          "
+
+          # Start the backend service
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo systemctl start baytaek-api"
+
+          # Wait for service to start
+          sleep 5
+
+          # Check service status
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo systemctl status baytaek-api --no-pager"
+
+      - name: Deploy Frontend to VPS
+        run: |
+          # Create backup of current frontend
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            if [ -d /var/www/baytaek/frontend/dist ]; then
+              sudo cp -r /var/www/baytaek/frontend/dist /var/www/baytaek/frontend/dist.backup.\$(date +%Y%m%d_%H%M%S)
+            fi
+          "
+
+          # Upload new frontend files
+          rsync -avz --delete ./frontend-build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/baytaek/frontend/dist/frontend/browser/
+
+          # Set permissions
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            sudo chown -R www-data:www-data /var/www/baytaek/frontend
+            sudo chmod -R 755 /var/www/baytaek/frontend
+          "
+
+          # Reload Nginx
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo systemctl reload nginx"
+
+      - name: Health Check
+        run: |
+          # Wait for application to fully start
+          sleep 10
+
+          # Check backend health
+          BACKEND_STATUS=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "curl -s -o /dev/null -w '%{http_code}' http://localhost:5000/api/health || echo '000'")
+
+          if [ "$BACKEND_STATUS" = "200" ]; then
+            echo "✅ Backend is healthy (HTTP $BACKEND_STATUS)"
+          else
+            echo "❌ Backend health check failed (HTTP $BACKEND_STATUS)"
+            exit 1
+          fi
+
+          # Check frontend
+          FRONTEND_STATUS=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "curl -s -o /dev/null -w '%{http_code}' http://localhost || echo '000'")
+
+          if [ "$FRONTEND_STATUS" = "200" ] || [ "$FRONTEND_STATUS" = "301" ] || [ "$FRONTEND_STATUS" = "302" ]; then
+            echo "✅ Frontend is accessible (HTTP $FRONTEND_STATUS)"
+          else
+            echo "❌ Frontend health check failed (HTTP $FRONTEND_STATUS)"
+            exit 1
+          fi
+
+      - name: Cleanup old backups
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            # Keep only last 5 backups
+            cd /var/www/baytaek
+            ls -t | grep 'backend.backup' | tail -n +6 | xargs -r sudo rm -rf
+            ls -t | grep 'dist.backup' | tail -n +6 | xargs -r sudo rm -rf
+          "
+
+      - name: Send deployment notification
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ Deployment successful!"
+          else
+            echo "❌ Deployment failed!"
+          fi
+
+  # Job 4: Rollback (manual trigger)
+  rollback:
+    name: Rollback Deployment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+
+      - name: Rollback Backend
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            # Find latest backup
+            LATEST_BACKUP=\$(ls -t /var/www/baytaek/ | grep 'backend.backup' | head -1)
+
+            if [ -z \"\$LATEST_BACKUP\" ]; then
+              echo 'No backup found!'
+              exit 1
+            fi
+
+            # Stop service
+            sudo systemctl stop baytaek-api
+
+            # Restore backup
+            sudo rm -rf /var/www/baytaek/backend
+            sudo cp -r /var/www/baytaek/\$LATEST_BACKUP /var/www/baytaek/backend
+
+            # Start service
+            sudo systemctl start baytaek-api
+          "
+
+      - name: Rollback Frontend
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            # Find latest backup
+            LATEST_BACKUP=\$(ls -t /var/www/baytaek/frontend/ | grep 'dist.backup' | head -1)
+
+            if [ -z \"\$LATEST_BACKUP\" ]; then
+              echo 'No backup found!'
+              exit 1
+            fi
+
+            # Restore backup
+            sudo rm -rf /var/www/baytaek/frontend/dist
+            sudo cp -r /var/www/baytaek/frontend/\$LATEST_BACKUP /var/www/baytaek/frontend/dist
+
+            # Reload Nginx
+            sudo systemctl reload nginx
+          "

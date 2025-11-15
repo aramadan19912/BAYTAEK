@@ -1,0 +1,244 @@
+.address-management-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+      color: #333;
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #1976d2;
+      }
+    }
+
+    button mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  // Loading State
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px;
+    gap: 16px;
+
+    p {
+      color: #666;
+      margin: 0;
+    }
+  }
+
+  // No Addresses State
+  .no-addresses {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 24px;
+    text-align: center;
+    background: #f5f5f5;
+    border-radius: 8px;
+
+    mat-icon {
+      font-size: 96px;
+      width: 96px;
+      height: 96px;
+      color: #bdbdbd;
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      margin: 0 0 12px 0;
+      color: #333;
+      font-size: 24px;
+    }
+
+    p {
+      margin: 0 0 24px 0;
+      color: #666;
+      font-size: 16px;
+      max-width: 400px;
+    }
+
+    button mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  // Addresses Grid
+  .addresses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+
+    .address-card {
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s ease;
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      mat-card-header {
+        padding: 16px 16px 0 16px;
+
+        .card-header-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+
+          .address-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            mat-icon {
+              color: #1976d2;
+              font-size: 24px;
+              width: 24px;
+              height: 24px;
+            }
+
+            span {
+              font-weight: 600;
+              font-size: 18px;
+              color: #333;
+            }
+          }
+
+          .default-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #4caf50;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 12px;
+            text-transform: uppercase;
+          }
+        }
+      }
+
+      mat-card-content {
+        padding: 16px;
+        flex: 1;
+
+        .address-details {
+          p {
+            margin: 0 0 8px 0;
+            line-height: 1.5;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+
+          .address-line {
+            font-size: 16px;
+            color: #333;
+          }
+
+          .address-city {
+            color: #666;
+            font-size: 15px;
+          }
+
+          .address-postal {
+            color: #666;
+            font-size: 14px;
+          }
+
+          .address-additional {
+            color: #999;
+            font-size: 14px;
+            font-style: italic;
+          }
+        }
+      }
+
+      mat-card-actions {
+        padding: 8px 16px 16px 16px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+
+        button {
+          mat-icon {
+            margin-right: 4px;
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// RTL Support
+[dir='rtl'] {
+  .address-management-container {
+    .page-header {
+      h1 mat-icon {
+        margin-left: 12px;
+        margin-right: 0;
+      }
+
+      button mat-icon {
+        margin-right: 0;
+        margin-left: 8px;
+      }
+    }
+
+    .no-addresses button mat-icon {
+      margin-right: 0;
+      margin-left: 8px;
+    }
+
+    .addresses-grid .address-card mat-card-actions button mat-icon {
+      margin-right: 0;
+      margin-left: 4px;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .address-management-container {
+    padding: 16px;
+
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+
+      button {
+        width: 100%;
+      }
+    }
+
+    .addresses-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

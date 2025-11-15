@@ -1,0 +1,64 @@
+<div class="address-selector">
+  <h3 class="selector-title">
+    <mat-icon>location_on</mat-icon>
+    {{ 'address.selectDeliveryAddress' | translate }}
+  </h3>
+
+  @if (addresses.length === 0) {
+    <!-- No Addresses -->
+    <div class="no-addresses">
+      <mat-icon>add_location</mat-icon>
+      <p>{{ 'address.noAddresses' | translate }}</p>
+      <button mat-raised-button color="primary" (click)="openAddAddressDialog()">
+        <mat-icon>add</mat-icon>
+        {{ 'address.addFirstAddress' | translate }}
+      </button>
+    </div>
+  } @else {
+    <!-- Address List -->
+    <div class="address-list">
+      @for (address of addresses; track address.addressId) {
+        <mat-card
+          class="address-card"
+          [class.selected]="selectedAddressId === address.addressId"
+          (click)="selectAddress(address)">
+          <mat-card-content>
+            <div class="address-header">
+              <div class="address-label">
+                <mat-icon>{{ getAddressIcon(address.label) }}</mat-icon>
+                <span class="label-text">{{ address.label }}</span>
+                @if (address.isDefault) {
+                  <span class="default-badge">{{ 'address.default' | translate }}</span>
+                }
+              </div>
+
+              <mat-radio-button
+                [checked]="selectedAddressId === address.addressId"
+                (click)="$event.stopPropagation(); selectAddress(address)">
+              </mat-radio-button>
+            </div>
+
+            <div class="address-details">
+              <p class="address-line">{{ address.addressLine }}</p>
+              <p class="address-city">{{ address.city }}, {{ address.region }}</p>
+              @if (address.postalCode) {
+                <p class="address-postal">{{ address.postalCode }}</p>
+              }
+              @if (address.additionalDetails) {
+                <p class="address-additional">{{ address.additionalDetails }}</p>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    <!-- Add New Address Button -->
+    <div class="add-address-section">
+      <button mat-stroked-button (click)="openAddAddressDialog()">
+        <mat-icon>add</mat-icon>
+        {{ 'address.addNewAddress' | translate }}
+      </button>
+    </div>
+  }
+</div>

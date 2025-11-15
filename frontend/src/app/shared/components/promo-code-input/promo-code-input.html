@@ -1,0 +1,49 @@
+<div class="promo-code-input">
+  <div class="input-row">
+    <mat-form-field appearance="outline" class="promo-field">
+      <mat-label>{{ 'promoCode.label' | translate }}</mat-label>
+      <input
+        matInput
+        [(ngModel)]="promoCode"
+        [placeholder]="'promoCode.placeholder' | translate"
+        [disabled]="isApplied || loading"
+        (keyup.enter)="onKeyEnter($event)">
+      @if (isApplied) {
+        <mat-icon matSuffix color="primary">check_circle</mat-icon>
+      }
+    </mat-form-field>
+
+    @if (!isApplied) {
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="applyPromoCode()"
+        [disabled]="!promoCode.trim() || loading">
+        @if (loading) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          {{ 'promoCode.apply' | translate }}
+        }
+      </button>
+    } @else {
+      <button mat-stroked-button (click)="removePromoCode()">
+        <mat-icon>close</mat-icon>
+        {{ 'promoCode.remove' | translate }}
+      </button>
+    }
+  </div>
+
+  @if (errorMessage) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+
+  @if (discount && isApplied) {
+    <div class="success-message">
+      <mat-icon>check_circle</mat-icon>
+      <span>{{ 'promoCode.applied' | translate }} - {{ discount.discountAmount | currency:'USD':'symbol':'1.2-2' }} {{ 'common.off' | translate }}!</span>
+    </div>
+  }
+</div>

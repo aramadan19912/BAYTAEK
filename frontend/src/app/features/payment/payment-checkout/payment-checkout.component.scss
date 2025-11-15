@@ -1,0 +1,246 @@
+.payment-checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: calc(100vh - 200px);
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 20px;
+
+    p {
+      font-size: 16px;
+      color: #666;
+    }
+  }
+
+  .error-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    gap: 16px;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    p {
+      font-size: 16px;
+      color: #666;
+      margin: 0;
+    }
+
+    button {
+      margin-top: 16px;
+    }
+  }
+
+  .checkout-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+
+    @media (max-width: 968px) {
+      grid-template-columns: 1fr;
+
+      .booking-summary-section {
+        order: 2;
+      }
+
+      .payment-form-section {
+        order: 1;
+      }
+    }
+
+    .booking-summary-section {
+      mat-card {
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+
+        mat-card-header {
+          margin-bottom: 20px;
+
+          mat-card-title {
+            font-size: 20px;
+            font-weight: 600;
+          }
+        }
+
+        mat-card-content {
+          .summary-item {
+            padding: 16px 0;
+
+            &.service-item {
+              display: flex;
+              gap: 16px;
+              align-items: flex-start;
+
+              .service-image {
+                width: 80px;
+                height: 80px;
+                border-radius: 8px;
+                overflow: hidden;
+                flex-shrink: 0;
+
+                img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                }
+              }
+
+              .service-details {
+                flex: 1;
+
+                h3 {
+                  font-size: 18px;
+                  font-weight: 600;
+                  margin: 0 0 8px 0;
+                  color: #333;
+                }
+
+                .booking-number {
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  font-size: 14px;
+                  color: #666;
+
+                  mat-icon {
+                    font-size: 18px;
+                    width: 18px;
+                    height: 18px;
+                  }
+                }
+              }
+            }
+
+            .item-label {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 14px;
+              font-weight: 500;
+              color: #666;
+              margin-bottom: 4px;
+
+              mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+              }
+            }
+
+            .item-value {
+              font-size: 14px;
+              color: #333;
+              padding-left: 28px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+
+              &.address-value {
+                line-height: 1.5;
+              }
+
+              .verified-badge {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+              }
+            }
+          }
+
+          mat-divider {
+            margin: 16px 0;
+          }
+
+          .pricing-section {
+            margin-top: 16px;
+
+            h4 {
+              font-size: 16px;
+              font-weight: 600;
+              margin: 0 0 16px 0;
+              color: #333;
+            }
+
+            .price-item {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 8px 0;
+              font-size: 14px;
+
+              &.discount {
+                color: #4caf50;
+
+                span:last-child {
+                  font-weight: 600;
+                }
+              }
+
+              &.total {
+                padding-top: 16px;
+                font-size: 16px;
+                font-weight: 600;
+                color: #333;
+
+                .total-amount {
+                  font-size: 22px;
+                  color: #1976d2;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .payment-form-section {
+      // Payment form styles are in the component itself
+    }
+  }
+}
+
+// RTL Support
+[dir='rtl'] {
+  .payment-checkout-container {
+    .checkout-content {
+      .booking-summary-section {
+        mat-card {
+          mat-card-content {
+            .summary-item {
+              &.service-item {
+                .service-details {
+                  text-align: right;
+                }
+              }
+
+              .item-value {
+                padding-left: 0;
+                padding-right: 28px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

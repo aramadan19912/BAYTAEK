@@ -1,0 +1,13 @@
+button {
+  &.favorited mat-icon {
+    color: #e91e63;
+  }
+
+  mat-icon {
+    transition: transform 0.2s;
+  }
+
+  &:hover mat-icon {
+    transform: scale(1.2);
+  }
+}

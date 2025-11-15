@@ -1,0 +1,112 @@
+<h2 mat-dialog-title>
+  {{ (isEditMode ? 'address.editAddress' : 'address.addAddress') | translate }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="addressForm" class="address-form">
+    <!-- Location Button -->
+    <div class="location-button-container">
+      <button
+        type="button"
+        mat-stroked-button
+        (click)="getCurrentLocation()"
+        [disabled]="gettingLocation">
+        @if (gettingLocation) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          <mat-icon>my_location</mat-icon>
+        }
+        {{ 'address.useCurrentLocation' | translate }}
+      </button>
+    </div>
+
+    <!-- Label -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'address.label' | translate }}</mat-label>
+      <mat-select formControlName="label">
+        @for (label of labels; track label.value) {
+          <mat-option [value]="label.value">
+            <mat-icon>{{ label.icon }}</mat-icon>
+            {{ label.label }}
+          </mat-option>
+        }
+      </mat-select>
+      <mat-error>{{ getErrorMessage('label') }}</mat-error>
+    </mat-form-field>
+
+    <!-- Address Line -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'address.addressLine' | translate }}</mat-label>
+      <input matInput formControlName="addressLine" placeholder="{{ 'address.addressLinePlaceholder' | translate }}">
+      <mat-icon matPrefix>location_on</mat-icon>
+      <mat-error>{{ getErrorMessage('addressLine') }}</mat-error>
+    </mat-form-field>
+
+    <!-- Region and City Row -->
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'address.region' | translate }}</mat-label>
+        <mat-select formControlName="region">
+          @for (region of regions; track region.value) {
+            <mat-option [value]="region.value">{{ region.label }}</mat-option>
+          }
+        </mat-select>
+        <mat-error>{{ getErrorMessage('region') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'address.city' | translate }}</mat-label>
+        <input matInput formControlName="city" placeholder="{{ 'address.cityPlaceholder' | translate }}">
+        <mat-error>{{ getErrorMessage('city') }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Postal Code (Optional) -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'address.postalCode' | translate }}</mat-label>
+      <input matInput formControlName="postalCode" placeholder="{{ 'address.postalCodePlaceholder' | translate }}">
+      <mat-icon matPrefix>mail_outline</mat-icon>
+    </mat-form-field>
+
+    <!-- Additional Details -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'address.additionalDetails' | translate }}</mat-label>
+      <textarea
+        matInput
+        formControlName="additionalDetails"
+        rows="3"
+        placeholder="{{ 'address.additionalDetailsPlaceholder' | translate }}">
+      </textarea>
+      <mat-icon matPrefix>notes</mat-icon>
+    </mat-form-field>
+
+    <!-- Set as Default -->
+    <mat-checkbox formControlName="isDefault">
+      {{ 'address.setAsDefault' | translate }}
+    </mat-checkbox>
+
+    <!-- Coordinates Info (Hidden fields, but show if available) -->
+    @if (addressForm.value.latitude && addressForm.value.longitude) {
+      <div class="coordinates-info">
+        <mat-icon>location_on</mat-icon>
+        <span>
+          {{ 'address.locationSaved' | translate }}:
+          {{ addressForm.value.latitude | number:'1.4-4' }}, {{ addressForm.value.longitude | number:'1.4-4' }}
+        </span>
+      </div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="loading">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading || addressForm.invalid">
+    @if (loading) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      {{ (isEditMode ? 'common.update' : 'common.save') | translate }}
+    }
+  </button>
+</mat-dialog-actions>

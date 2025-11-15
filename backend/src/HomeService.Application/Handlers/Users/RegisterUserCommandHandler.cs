@@ -1,0 +1,82 @@
+using AutoMapper;
+using HomeService.Application.Commands.Users;
+using HomeService.Application.Common;
+using HomeService.Application.DTOs;
+using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
+using HomeService.Infrastructure.Identity;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace HomeService.Application.Handlers.Users;
+
+public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<UserDto>>
+{
+    private readonly IRepository<User> _userRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IPasswordHasher _passwordHasher;
+    private readonly IMapper _mapper;
+    private readonly ILogger<RegisterUserCommandHandler> _logger;
+
+    public RegisterUserCommandHandler(
+        IRepository<User> userRepository,
+        IUnitOfWork unitOfWork,
+        IPasswordHasher passwordHasher,
+        IMapper mapper,
+        ILogger<RegisterUserCommandHandler> logger)
+    {
+        _userRepository = userRepository;
+        _unitOfWork = unitOfWork;
+        _passwordHasher = passwordHasher;
+        _mapper = mapper;
+        _logger = logger;
+    }
+
+    public async Task<Result<UserDto>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Check if user already exists
+            var existingUsers = await _userRepository.FindAsync(
+                u => u.Email == request.Email || u.PhoneNumber == request.PhoneNumber,
+                cancellationToken);
+
+            if (existingUsers.Any())
+            {
+                return Result.Failure<UserDto>("User with this email or phone number already exists");
+            }
+
+            // Create new user
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                PhoneNumber = request.PhoneNumber,
+                PasswordHash = _passwordHasher.HashPassword(request.Password),
+                Role = request.Role,
+                PreferredLanguage = request.PreferredLanguage,
+                Region = request.Region,
+                IsEmailVerified = false,
+                IsPhoneVerified = false,
+                IsTwoFactorEnabled = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _userRepository.AddAsync(user, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            var userDto = _mapper.Map<UserDto>(user);
+
+            _logger.LogInformation("User registered successfully: {Email}", user.Email);
+
+            return Result.Success(userDto, "User registered successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error registering user: {Email}", request.Email);
+            return Result.Failure<UserDto>("An error occurred while registering user", ex.Message);
+        }
+    }
+}

@@ -1,0 +1,119 @@
+<div class="review-list">
+  <!-- Stats Section -->
+  @if (serviceId && !loading) {
+    <div class="review-stats">
+      <div class="overall-rating">
+        <div class="rating-number">{{ averageRating | number:'1.1-1' }}</div>
+        <div class="stars">
+          @for (star of [1,2,3,4,5]; track star) {
+            <mat-icon [class.filled]="star <= averageRating">
+              {{ star <= averageRating ? 'star' : 'star_border' }}
+            </mat-icon>
+          }
+        </div>
+        <div class="total-reviews">{{ totalCount }} {{ 'reviews.stats.totalReviews' | translate }}</div>
+      </div>
+
+      <div class="rating-breakdown">
+        @for (rating of [5,4,3,2,1]; track rating) {
+          <div class="rating-row" (click)="onRatingFilterChange(selectedRating === rating ? undefined : rating)">
+            <span class="rating-label">{{ rating }} <mat-icon class="star-small">star</mat-icon></span>
+            <div class="rating-bar">
+              <div class="rating-fill" [style.width.%]="getRatingPercentage(rating)"></div>
+            </div>
+            <span class="rating-count">{{ ratingDistribution[rating] || 0 }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Filters & Sort -->
+  <div class="filter-bar">
+    <div class="filter-section">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'reviews.filters.sortBy' | translate }}</mat-label>
+        <mat-select [(ngModel)]="selectedSort" (selectionChange)="onSortChange()">
+          <mat-option value="newest">{{ 'reviews.filters.newest' | translate }}</mat-option>
+          <mat-option value="oldest">{{ 'reviews.filters.oldest' | translate }}</mat-option>
+          <mat-option value="highest">{{ 'reviews.filters.highestRated' | translate }}</mat-option>
+          <mat-option value="lowest">{{ 'reviews.filters.lowestRated' | translate }}</mat-option>
+          <mat-option value="helpful">{{ 'reviews.filters.mostHelpful' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      @if (selectedRating) {
+        <mat-chip-set>
+          <mat-chip (removed)="onRatingFilterChange(undefined)">
+            {{ selectedRating }} {{ 'reviews.stats.stars' | translate }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+        </mat-chip-set>
+      }
+
+      <button
+        mat-stroked-button
+        [class.active]="showVerifiedOnly"
+        (click)="onVerifiedFilterChange()">
+        <mat-icon>{{ showVerifiedOnly ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+        {{ 'reviews.filters.verifiedOnly' | translate }}
+      </button>
+    </div>
+
+    <div class="results-count">
+      {{ 'reviews.stats.showingResults' | translate : { count: filteredCount, total: totalCount } }}
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  }
+
+  <!-- Reviews List -->
+  @if (!loading) {
+    @if (reviews.length === 0) {
+      <div class="no-reviews">
+        <mat-icon>rate_review</mat-icon>
+        <h3>{{ 'reviews.noReviews' | translate }}</h3>
+        <p>{{ 'reviews.noReviewsMessage' | translate }}</p>
+      </div>
+    } @else {
+      <div class="reviews-container">
+        @for (review of reviews; track review.id) {
+          <app-review-card
+            [review]="review"
+            [showServiceInfo]="showServiceInfo"
+            [showActions]="showActions"
+            [canRespond]="canRespond"
+            [canEdit]="review.userId === currentUserId"
+            [canDelete]="review.userId === currentUserId"
+            (helpful)="onMarkHelpful($event)"
+            (respond)="onRespondToReview($event)"
+            (edit)="onEditReview($event)"
+            (delete)="onDeleteReview($event)">
+          </app-review-card>
+        }
+      </div>
+
+      <!-- Load More Button -->
+      @if (hasMore) {
+        <div class="load-more">
+          <button mat-stroked-button (click)="loadMore()" [disabled]="loadingMore">
+            @if (loadingMore) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <mat-icon>expand_more</mat-icon>
+              {{ 'common.loadMore' | translate }}
+            }
+          </button>
+        </div>
+      }
+    }
+  }
+</div>
