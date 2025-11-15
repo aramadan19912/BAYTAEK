@@ -170,32 +170,41 @@ jobs:
           category: "/language:${{ matrix.language }}"
 
   # ================================================
-  # SAST - Static Application Security Testing
+  # SAST - Static Application Security Testing (Semgrep)
   # ================================================
   sast-scan:
     name: Static Application Security Testing
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Run Semgrep
+        uses: semgrep/semgrep-action@v1
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          config: >-
+            p/security-audit
+            p/csharp
+            p/owasp-top-ten
+          generateSarif: true
 
-      - name: Install Security Code Scan
-        run: dotnet tool install --global security-code-scan
+      - name: Upload SARIF results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep.sarif
 
-      - name: Restore dependencies
-        run: dotnet restore backend/HomeService.sln
-
-      - name: Build and analyze
-        run: |
-          cd backend
-          dotnet build HomeService.sln --configuration Release
-          echo "✅ SAST analysis completed"
+      - name: Run Semgrep (report format)
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/csharp
+            p/owasp-top-ten
 
   # ================================================
   # License Compliance
