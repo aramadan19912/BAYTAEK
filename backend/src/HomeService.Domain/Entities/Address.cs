@@ -20,6 +20,11 @@ public class Address : AuditableEntity
     public string? AdditionalDirections { get; set; }
     public bool IsDefault { get; set; }
 
+    // Computed/Alias properties for backward compatibility
+    public string FullAddress => $"{Street}, {City}, {State} {PostalCode}";
+    public string District => State; // Alias for State
+    public string? AdditionalInfo => AdditionalDirections; // Alias
+
     // Navigation properties
     public virtual User User { get; set; } = null!;
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();

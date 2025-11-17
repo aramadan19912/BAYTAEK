@@ -5,6 +5,7 @@ using HomeService.Domain.Enums;
 using HomeService.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace HomeService.Application.Features.Bookings;
 
