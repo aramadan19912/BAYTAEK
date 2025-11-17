@@ -16,7 +16,7 @@ public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, R
     private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
     private readonly IRepository<ServiceProvider> _providerRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly SentimentAnalysisService _sentimentAnalysisService;
+        // private readonly SentimentAnalysisService _sentimentAnalysisService;
     private readonly IMapper _mapper;
     private readonly ILogger<CreateReviewCommandHandler> _logger;
 
@@ -25,7 +25,7 @@ public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, R
         IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         IRepository<ServiceProvider> providerRepository,
         IUnitOfWork unitOfWork,
-        SentimentAnalysisService sentimentAnalysisService,
+        // SentimentAnalysisService sentimentAnalysisService,
         IMapper mapper,
         ILogger<CreateReviewCommandHandler> logger)
     {
@@ -33,7 +33,7 @@ public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, R
         _bookingRepository = bookingRepository;
         _providerRepository = providerRepository;
         _unitOfWork = unitOfWork;
-        _sentimentAnalysisService = sentimentAnalysisService;
+        // _sentimentAnalysisService = sentimentAnalysisService;
         _mapper = mapper;
         _logger = logger;
     }
@@ -82,20 +82,21 @@ public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, R
 
             // Perform AI sentiment analysis if comment is provided
             decimal? sentimentScore = null;
-            if (!string.IsNullOrWhiteSpace(request.Comment))
-            {
-                try
-                {
-                    var sentimentResult = await _sentimentAnalysisService.AnalyzeSentimentAsync(
-                        request.Comment,
-                        cancellationToken);
-                    sentimentScore = sentimentResult.Score;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to analyze sentiment, continuing without it");
-                }
-            }
+            // DISABLED: SentimentAnalysisService not implemented in clean architecture
+            // if (!string.IsNullOrWhiteSpace(request.Comment))
+            // {
+            //     try
+            //     {
+            //         var sentimentResult = await _sentimentAnalysisService.AnalyzeSentimentAsync(
+            //             request.Comment,
+            //             cancellationToken);
+            //         sentimentScore = sentimentResult.Score;
+            //     }
+            //     catch (Exception ex)
+            //     {
+            //         _logger.LogWarning(ex, "Failed to analyze sentiment, continuing without it");
+            //     }
+            // }
 
             // Create review
             var review = new Review

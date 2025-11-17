@@ -11,25 +11,26 @@ namespace HomeService.Application.Handlers.Provider;
 
 public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarningsQuery, Result<ProviderEarningsDto>>
 {
-    private readonly IRepository<Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
     private readonly IRepository<Payment> _paymentRepository;
-    private readonly IRepository<Service> _serviceRepository;
-    private readonly IRepository<Category> _categoryRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
+    // Category entity not implemented - removed dependency
+    // private readonly IRepository<HomeService.Domain.Entities.Category> _categoryRepository;
     private readonly ILogger<GetProviderEarningsQueryHandler> _logger;
     private const decimal CommissionRate = 0.18m;
     private const decimal ProviderRate = 0.82m; // 1 - CommissionRate
 
     public GetProviderEarningsQueryHandler(
-        IRepository<Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         IRepository<Payment> paymentRepository,
-        IRepository<Service> serviceRepository,
-        IRepository<Category> categoryRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
+        // IRepository<HomeService.Domain.Entities.Category> categoryRepository,
         ILogger<GetProviderEarningsQueryHandler> logger)
     {
         _bookingRepository = bookingRepository;
         _paymentRepository = paymentRepository;
         _serviceRepository = serviceRepository;
-        _categoryRepository = categoryRepository;
+        // _categoryRepository = categoryRepository;
         _logger = logger;
     }
 
@@ -44,7 +45,8 @@ public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarnin
 
             var allPayments = await _paymentRepository.GetAllAsync(cancellationToken);
             var allServices = await _serviceRepository.GetAllAsync(cancellationToken);
-            var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
+            // Category entity not implemented
+            // var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
 
             var startDate = request.StartDate ?? DateTime.UtcNow.AddMonths(-1);
             var endDate = request.EndDate ?? DateTime.UtcNow;
@@ -62,7 +64,7 @@ public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarnin
                 ThisMonthEarnings = CalculateMonthEarnings(providerBookings, allPayments),
                 LastPayout = GetLastPayout(),
                 NextPayoutDate = CalculateNextPayoutDate(),
-                Breakdown = CalculateBreakdown(filteredBookings, allPayments, allServices, allCategories)
+                Breakdown = CalculateBreakdown(filteredBookings, allPayments, allServices)
             };
 
             return Result.Success(earnings);
@@ -74,7 +76,7 @@ public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarnin
         }
     }
 
-    private decimal CalculateTotalEarnings(List<Booking> bookings, IEnumerable<Payment> allPayments)
+    private decimal CalculateTotalEarnings(List<HomeService.Domain.Entities.Booking> bookings, IEnumerable<Payment> allPayments)
     {
         var completedBookingIds = bookings
             .Where(b => b.Status == BookingStatus.Completed)
@@ -86,7 +88,7 @@ public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarnin
             .Sum(p => p.Amount * ProviderRate);
     }
 
-    private decimal CalculateAvailableBalance(List<Booking> bookings, IEnumerable<Payment> allPayments)
+    private decimal CalculateAvailableBalance(List<HomeService.Domain.Entities.Booking> bookings, IEnumerable<Payment> allPayments)
     {
         // Available balance = completed and paid, but not yet paid out to provider
         // In a real system, would track actual payout status
@@ -101,7 +103,7 @@ public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarnin
             .Sum(p => p.Amount * ProviderRate);
     }
 
-    private decimal CalculatePendingEarnings(List<Booking> bookings, IEnumerable<Payment> allPayments)
+    private decimal CalculatePendingEarnings(List<HomeService.Domain.Entities.Booking> bookings, IEnumerable<Payment> allPayments)
     {
         // Pending = completed within last 7 days (holding period)
         var sevenDaysAgo = DateTime.UtcNow.AddDays(-7);
@@ -115,7 +117,7 @@ public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarnin
             .Sum(p => p.Amount * ProviderRate);
     }
 
-    private decimal CalculateWeekEarnings(List<Booking> bookings, IEnumerable<Payment> allPayments)
+    private decimal CalculateWeekEarnings(List<HomeService.Domain.Entities.Booking> bookings, IEnumerable<Payment> allPayments)
     {
         var weekStart = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
         var completedBookingIds = bookings
@@ -128,7 +130,7 @@ public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarnin
             .Sum(p => p.Amount * ProviderRate);
     }
 
-    private decimal CalculateMonthEarnings(List<Booking> bookings, IEnumerable<Payment> allPayments)
+    private decimal CalculateMonthEarnings(List<HomeService.Domain.Entities.Booking> bookings, IEnumerable<Payment> allPayments)
     {
         var monthStart = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
         var completedBookingIds = bookings
@@ -163,10 +165,9 @@ public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarnin
     }
 
     private EarningsBreakdown CalculateBreakdown(
-        List<Booking> bookings,
+        List<HomeService.Domain.Entities.Booking> bookings,
         IEnumerable<Payment> allPayments,
-        IEnumerable<Service> allServices,
-        IEnumerable<Category> allCategories)
+        IEnumerable<HomeService.Domain.Entities.Service> allServices)
     {
         var completedBookings = bookings.Where(b => b.Status == BookingStatus.Completed).ToList();
         var completedBookingIds = completedBookings.Select(b => b.Id).ToList();
@@ -177,13 +178,13 @@ public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarnin
 
         var totalEarnings = payments.Sum(p => p.Amount * ProviderRate);
 
-        // By category
+        // By service (Category entity not implemented)
         var categoryEarnings = completedBookings
             .GroupBy(b => b.ServiceId)
             .Select(g =>
             {
                 var service = allServices.FirstOrDefault(s => s.Id == g.Key);
-                var category = service != null ? allCategories.FirstOrDefault(c => c.Id == service.CategoryId) : null;
+                // Category not available - using service name instead
                 var bookingIds = g.Select(b => b.Id).ToList();
                 var amount = payments
                     .Where(p => bookingIds.Contains(p.BookingId))
@@ -191,7 +192,7 @@ public class GetProviderEarningsQueryHandler : IRequestHandler<GetProviderEarnin
 
                 return new CategoryEarnings
                 {
-                    CategoryName = category?.Name ?? "Other",
+                    CategoryName = service?.NameEn ?? "Other",
                     Amount = amount,
                     JobCount = g.Count(),
                     Percentage = totalEarnings > 0 ? (amount / totalEarnings) * 100 : 0

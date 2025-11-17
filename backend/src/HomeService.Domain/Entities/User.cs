@@ -22,6 +22,12 @@ public class User : AuditableEntity
     public string? ProfileImageUrl { get; set; }
     public DateTime? LastLoginAt { get; set; }
 
+    // Alias properties for backward compatibility
+    public bool EmailVerified => IsEmailVerified;
+    public bool PhoneVerified => IsPhoneVerified;
+    public bool TwoFactorEnabled => IsTwoFactorEnabled;
+    public bool IsActive => !IsDeleted;
+
     // Navigation properties
     public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();

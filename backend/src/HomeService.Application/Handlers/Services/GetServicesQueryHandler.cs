@@ -82,7 +82,7 @@ public class GetServicesQueryHandler : IRequestHandler<GetServicesQuery, Result<
             //     query = query.Where(s => s.Provider.IsVerified);
             // }
 
-            // TODO: Implement MinRating filter when service ratings are available
+            // TODO: Implement MinRating filter when HomeService.Domain.Entities.Service ratings are available
             // This would require calculating average rating from reviews
             // if (request.MinRating.HasValue)
             // {
@@ -123,7 +123,7 @@ public class GetServicesQueryHandler : IRequestHandler<GetServicesQuery, Result<
         }
     }
 
-    private IEnumerable<Service> ApplySorting(IEnumerable<Service> query, string? sortBy, string? sortOrder)
+    private IEnumerable<HomeService.Domain.Entities.Service> ApplySorting(IEnumerable<HomeService.Domain.Entities.Service> query, string? sortBy, string? sortOrder)
     {
         var isDescending = sortOrder?.ToLower() == "desc";
 
@@ -141,7 +141,7 @@ public class GetServicesQueryHandler : IRequestHandler<GetServicesQuery, Result<
                 ? query.OrderByDescending(s => s.NameEn)
                 : query.OrderBy(s => s.NameEn),
 
-            // TODO: Implement rating sort when service ratings are available
+            // TODO: Implement rating sort when HomeService.Domain.Entities.Service ratings are available
             // "rating" => isDescending
             //     ? query.OrderByDescending(s => s.AverageRating)
             //     : query.OrderBy(s => s.AverageRating),

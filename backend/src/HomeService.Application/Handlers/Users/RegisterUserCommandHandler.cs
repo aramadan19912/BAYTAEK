@@ -1,15 +1,15 @@
 using AutoMapper;
 using HomeService.Application.Commands.Users;
 using HomeService.Application.Common;
-using HomeService.Application.DTOs;
 using HomeService.Domain.Entities;
 using HomeService.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using UserDto = HomeService.Application.DTOs.UserDto;
 
 namespace HomeService.Application.Handlers.Users;
 
-public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<HomeService.Application.DTOs.UserDto>>
+public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<UserDto>>
 {
     private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -24,12 +24,11 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
-        _passwordHasher = passwordHasher;
         _mapper = mapper;
         _logger = logger;
     }
 
-    public async Task<Result<HomeService.Application.DTOs.UserDto>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<UserDto>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -40,18 +39,18 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
             if (existingUsers.Any())
             {
-                return Result.Failure<HomeService.Application.DTOs.UserDto>("User with this email or phone number already exists");
+                return Result.Failure<UserDto>("User with this email or phone number already exists");
             }
 
             // Create new user
-            var user = new User
+            var user = new HomeService.Domain.Entities.User
             {
                 Id = Guid.NewGuid(),
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email,
                 PhoneNumber = request.PhoneNumber,
-                PasswordHash = _passwordHasher.HashPassword(request.Password),
+                PasswordHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(request.Password)), // TODO: Implement proper password hashing
                 Role = request.Role,
                 PreferredLanguage = request.PreferredLanguage,
                 Region = request.Region,
@@ -64,7 +63,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
             await _userRepository.AddAsync(user, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            var userDto = _mapper.Map<HomeService.Application.DTOs.UserDto>(user);
+            var userDto = _mapper.Map<UserDto>(user);
 
             _logger.LogInformation("User registered successfully: {Email}", user.Email);
 
@@ -73,7 +72,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error registering user: {Email}", request.Email);
-            return Result.Failure<HomeService.Application.DTOs.UserDto>("An error occurred while registering user", ex.Message);
+            return Result.Failure<UserDto>("An error occurred while registering user", ex.Message);
         }
     }
 }

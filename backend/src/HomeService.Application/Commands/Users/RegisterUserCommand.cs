@@ -1,11 +1,10 @@
 using HomeService.Application.Common;
-using HomeService.Application.DTOs;
 using HomeService.Domain.Enums;
 using MediatR;
 
 namespace HomeService.Application.Commands.Users;
 
-public record RegisterUserCommand : IRequest<Result<UserDto>>
+public record RegisterUserCommand : IRequest<Result<HomeService.Application.DTOs.UserDto>>
 {
     public string FirstName { get; init; } = string.Empty;
     public string LastName { get; init; } = string.Empty;

@@ -11,17 +11,17 @@ namespace HomeService.Application.Handlers.Provider;
 
 public class GetProviderDashboardQueryHandler : IRequestHandler<GetProviderDashboardQuery, Result<ProviderDashboardDto>>
 {
-    private readonly IRepository<User> _userRepository;
-    private readonly IRepository<Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
     private readonly IRepository<Payment> _paymentRepository;
-    private readonly IRepository<Review> _reviewRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
     private readonly ILogger<GetProviderDashboardQueryHandler> _logger;
 
     public GetProviderDashboardQueryHandler(
-        IRepository<User> userRepository,
-        IRepository<Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         IRepository<Payment> paymentRepository,
-        IRepository<Review> reviewRepository,
+        IRepository<HomeService.Domain.Entities.Review> reviewRepository,
         ILogger<GetProviderDashboardQueryHandler> logger)
     {
         _userRepository = userRepository;
@@ -66,7 +66,7 @@ public class GetProviderDashboardQueryHandler : IRequestHandler<GetProviderDashb
         }
     }
 
-    private TodaySummary CalculateTodaySummary(List<Booking> bookings, IEnumerable<Payment> allPayments, IEnumerable<Review> allReviews)
+    private TodaySummary CalculateTodaySummary(List<HomeService.Domain.Entities.Booking> bookings, IEnumerable<Payment> allPayments, IEnumerable<HomeService.Domain.Entities.Review> allReviews)
     {
         var today = DateTime.UtcNow.Date;
         var todaysBookings = bookings.Where(b => b.ScheduledDate.Date == today).ToList();
@@ -95,7 +95,7 @@ public class GetProviderDashboardQueryHandler : IRequestHandler<GetProviderDashb
         };
     }
 
-    private QuickStats CalculateQuickStats(List<Booking> bookings, IEnumerable<Payment> allPayments, IEnumerable<Review> allReviews)
+    private QuickStats CalculateQuickStats(List<HomeService.Domain.Entities.Booking> bookings, IEnumerable<Payment> allPayments, IEnumerable<HomeService.Domain.Entities.Review> allReviews)
     {
         var now = DateTime.UtcNow;
         var weekStart = now.Date.AddDays(-(int)now.DayOfWeek);
@@ -142,7 +142,7 @@ public class GetProviderDashboardQueryHandler : IRequestHandler<GetProviderDashb
         };
     }
 
-    private List<UpcomingJob> GetUpcomingJobs(List<Booking> bookings, IEnumerable<User> users)
+    private List<UpcomingJob> GetUpcomingJobs(List<HomeService.Domain.Entities.Booking> bookings, IEnumerable<HomeService.Domain.Entities.User> users)
     {
         var upcomingBookings = bookings
             .Where(b => b.ScheduledDate >= DateTime.UtcNow &&
@@ -169,7 +169,7 @@ public class GetProviderDashboardQueryHandler : IRequestHandler<GetProviderDashb
         }).ToList();
     }
 
-    private EarningsChart CalculateSevenDayEarnings(List<Booking> bookings, IEnumerable<Payment> allPayments)
+    private EarningsChart CalculateSevenDayEarnings(List<HomeService.Domain.Entities.Booking> bookings, IEnumerable<Payment> allPayments)
     {
         var today = DateTime.UtcNow.Date;
         var sevenDaysAgo = today.AddDays(-6);
