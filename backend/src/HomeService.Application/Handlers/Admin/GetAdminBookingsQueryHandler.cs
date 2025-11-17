@@ -10,27 +10,24 @@ namespace HomeService.Application.Handlers.Admin;
 
 public class GetAdminBookingsQueryHandler : IRequestHandler<GetAdminBookingsQuery, Result<PagedResult<AdminBookingListDto>>>
 {
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<User> _userRepository;
-    private readonly IRepository<Service> _serviceRepository;
-    private readonly IRepository<Category> _categoryRepository;
-    private readonly IRepository<Payment> _paymentRepository;
-    private readonly IRepository<Review> _reviewRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
     private readonly ILogger<GetAdminBookingsQueryHandler> _logger;
 
     public GetAdminBookingsQueryHandler(
-        IRepository<Booking> bookingRepository,
-        IRepository<User> userRepository,
-        IRepository<Service> serviceRepository,
-        IRepository<Category> categoryRepository,
-        IRepository<Payment> paymentRepository,
-        IRepository<Review> reviewRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
+        IRepository<HomeService.Domain.Entities.Review> reviewRepository,
         ILogger<GetAdminBookingsQueryHandler> logger)
     {
         _bookingRepository = bookingRepository;
         _userRepository = userRepository;
         _serviceRepository = serviceRepository;
-        _categoryRepository = categoryRepository;
         _paymentRepository = paymentRepository;
         _reviewRepository = reviewRepository;
         _logger = logger;
@@ -43,7 +40,6 @@ public class GetAdminBookingsQueryHandler : IRequestHandler<GetAdminBookingsQuer
             var query = await _bookingRepository.GetAllAsync(cancellationToken);
             var users = await _userRepository.GetAllAsync(cancellationToken);
             var services = await _serviceRepository.GetAllAsync(cancellationToken);
-            var categories = await _categoryRepository.GetAllAsync(cancellationToken);
             var payments = await _paymentRepository.GetAllAsync(cancellationToken);
             var reviews = await _reviewRepository.GetAllAsync(cancellationToken);
 

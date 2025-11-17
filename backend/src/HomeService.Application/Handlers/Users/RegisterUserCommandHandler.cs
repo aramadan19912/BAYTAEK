@@ -4,24 +4,21 @@ using HomeService.Application.Common;
 using HomeService.Application.DTOs;
 using HomeService.Domain.Entities;
 using HomeService.Domain.Interfaces;
-using HomeService.Infrastructure.Identity;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace HomeService.Application.Handlers.Users;
 
-public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<UserDto>>
+public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<HomeService.Application.DTOs.UserDto>>
 {
-    private readonly IRepository<User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPasswordHasher _passwordHasher;
     private readonly IMapper _mapper;
     private readonly ILogger<RegisterUserCommandHandler> _logger;
 
     public RegisterUserCommandHandler(
-        IRepository<User> userRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
         IUnitOfWork unitOfWork,
-        IPasswordHasher passwordHasher,
         IMapper mapper,
         ILogger<RegisterUserCommandHandler> logger)
     {
@@ -32,7 +29,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         _logger = logger;
     }
 
-    public async Task<Result<UserDto>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<HomeService.Application.DTOs.UserDto>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -43,7 +40,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
             if (existingUsers.Any())
             {
-                return Result.Failure<UserDto>("User with this email or phone number already exists");
+                return Result.Failure<HomeService.Application.DTOs.UserDto>("User with this email or phone number already exists");
             }
 
             // Create new user
@@ -67,7 +64,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
             await _userRepository.AddAsync(user, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            var userDto = _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<HomeService.Application.DTOs.UserDto>(user);
 
             _logger.LogInformation("User registered successfully: {Email}", user.Email);
 
@@ -76,7 +73,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error registering user: {Email}", request.Email);
-            return Result.Failure<UserDto>("An error occurred while registering user", ex.Message);
+            return Result.Failure<HomeService.Application.DTOs.UserDto>("An error occurred while registering user", ex.Message);
         }
     }
 }

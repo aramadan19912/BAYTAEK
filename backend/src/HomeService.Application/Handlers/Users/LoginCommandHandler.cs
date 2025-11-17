@@ -4,7 +4,6 @@ using HomeService.Application.Common;
 using HomeService.Application.Interfaces;
 using HomeService.Domain.Entities;
 using HomeService.Domain.Interfaces;
-using HomeService.Infrastructure.Identity;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -12,17 +11,13 @@ namespace HomeService.Application.Handlers.Users;
 
 public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginResponse>>
 {
-    private readonly IRepository<User> _userRepository;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IMapper _mapper;
     private readonly ILogger<LoginCommandHandler> _logger;
 
     public LoginCommandHandler(
-        IRepository<User> userRepository,
-        IPasswordHasher passwordHasher,
-        IJwtTokenService jwtTokenService,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
         IRefreshTokenService refreshTokenService,
         IMapper mapper,
         ILogger<LoginCommandHandler> logger)

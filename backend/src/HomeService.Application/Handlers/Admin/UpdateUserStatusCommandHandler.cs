@@ -9,12 +9,12 @@ namespace HomeService.Application.Handlers.Admin;
 
 public class UpdateUserStatusCommandHandler : IRequestHandler<UpdateUserStatusCommand, Result>
 {
-    private readonly IRepository<User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateUserStatusCommandHandler> _logger;
 
     public UpdateUserStatusCommandHandler(
-        IRepository<User> userRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
         IUnitOfWork unitOfWork,
         ILogger<UpdateUserStatusCommandHandler> logger)
     {

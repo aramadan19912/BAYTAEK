@@ -1,8 +1,13 @@
 using HomeService.Application.Commands.Address;
-using HomeService.Application.Common.Models;
+using HomeService.Domain.Interfaces;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.Address;
 

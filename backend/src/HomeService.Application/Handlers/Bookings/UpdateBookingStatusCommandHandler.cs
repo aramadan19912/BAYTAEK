@@ -10,12 +10,12 @@ namespace HomeService.Application.Handlers.Bookings;
 
 public class UpdateBookingStatusCommandHandler : IRequestHandler<UpdateBookingStatusCommand, Result>
 {
-    private readonly IRepository<Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateBookingStatusCommandHandler> _logger;
 
     public UpdateBookingStatusCommandHandler(
-        IRepository<Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         IUnitOfWork unitOfWork,
         ILogger<UpdateBookingStatusCommandHandler> logger)
     {

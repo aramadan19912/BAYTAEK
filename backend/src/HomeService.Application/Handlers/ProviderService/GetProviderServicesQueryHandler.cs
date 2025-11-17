@@ -1,30 +1,34 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.ProviderService;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Enums;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.ProviderService;
 
 public class GetProviderServicesQueryHandler : IRequestHandler<GetProviderServicesQuery, Result<List<ProviderServiceDto>>>
 {
-    private readonly IRepository<Service> _serviceRepository;
-    private readonly IRepository<Category> _categoryRepository;
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<Review> _reviewRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
     private readonly ILogger<GetProviderServicesQueryHandler> _logger;
 
     public GetProviderServicesQueryHandler(
-        IRepository<Service> serviceRepository,
-        IRepository<Category> categoryRepository,
-        IRepository<Booking> bookingRepository,
-        IRepository<Review> reviewRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Review> reviewRepository,
         ILogger<GetProviderServicesQueryHandler> logger)
     {
         _serviceRepository = serviceRepository;
-        _categoryRepository = categoryRepository;
         _bookingRepository = bookingRepository;
         _reviewRepository = reviewRepository;
         _logger = logger;
@@ -51,13 +55,6 @@ public class GetProviderServicesQueryHandler : IRequestHandler<GetProviderServic
                 return Result<List<ProviderServiceDto>>.Success(new List<ProviderServiceDto>());
             }
 
-            // Get categories
-            var categoryIds = services.Select(s => s.CategoryId).Distinct().ToList();
-            var categories = await _categoryRepository.FindAsync(
-                c => categoryIds.Contains(c.Id),
-                cancellationToken);
-            var categoriesDict = categories?.ToDictionary(c => c.Id) ?? new Dictionary<Guid, Category>();
-
             // Get bookings for statistics
             var serviceIds = services.Select(s => s.Id).ToList();
             var bookings = await _bookingRepository.FindAsync(
@@ -78,7 +75,6 @@ public class GetProviderServicesQueryHandler : IRequestHandler<GetProviderServic
             // Build DTOs
             var serviceDtos = services.Select(service =>
             {
-                var category = categoriesDict.GetValueOrDefault(service.CategoryId);
                 var serviceBookings = bookingsDict.GetValueOrDefault(service.Id, new List<Booking>());
                 var serviceReviews = reviewsDict.GetValueOrDefault(service.Id, new List<Review>());
 
@@ -86,8 +82,8 @@ public class GetProviderServicesQueryHandler : IRequestHandler<GetProviderServic
                 {
                     Id = service.Id,
                     CategoryId = service.CategoryId,
-                    CategoryNameEn = category?.NameEn ?? "",
-                    CategoryNameAr = category?.NameAr ?? "",
+                    CategoryNameEn = "",
+                    CategoryNameAr = "",
                     NameEn = service.NameEn,
                     NameAr = service.NameAr,
                     DescriptionEn = service.DescriptionEn,

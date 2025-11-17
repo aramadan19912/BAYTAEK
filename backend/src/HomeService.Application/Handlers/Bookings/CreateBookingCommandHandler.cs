@@ -12,17 +12,17 @@ namespace HomeService.Application.Handlers.Bookings;
 
 public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand, Result<BookingDto>>
 {
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<Service> _serviceRepository;
-    private readonly IRepository<Address> _addressRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Address> _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<CreateBookingCommandHandler> _logger;
 
     public CreateBookingCommandHandler(
-        IRepository<Booking> bookingRepository,
-        IRepository<Service> serviceRepository,
-        IRepository<Address> addressRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Address> addressRepository,
         IUnitOfWork unitOfWork,
         IMapper mapper,
         ILogger<CreateBookingCommandHandler> logger)

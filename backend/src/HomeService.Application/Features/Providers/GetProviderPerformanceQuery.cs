@@ -3,7 +3,6 @@ using HomeService.Domain.Entities;
 using HomeService.Domain.Enums;
 using HomeService.Domain.Interfaces;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace HomeService.Application.Features.Providers;

@@ -74,7 +74,7 @@ public class BookingTests
     [InlineData(BookingStatus.InProgress)]
     [InlineData(BookingStatus.Completed)]
     [InlineData(BookingStatus.Cancelled)]
-    [InlineData(BookingStatus.Rejected)]
+    [InlineData(BookingStatus.Disputed)]
     public void Booking_ShouldSupportAllStatuses(BookingStatus status)
     {
         // Arrange

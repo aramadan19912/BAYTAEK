@@ -4,9 +4,7 @@ using HomeService.Domain.Entities;
 using HomeService.Domain.Enums;
 using HomeService.Domain.Interfaces;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Stripe;
 
 namespace HomeService.Application.Features.Payments;
 

@@ -1,7 +1,11 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.Auth;
 
@@ -10,13 +14,11 @@ public record ResetPasswordCommand(string Email, string Token, string NewPasswor
 public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result<bool>>
 {
     private readonly IRepository<Domain.Entities.User> _userRepository;
-    private readonly IPasswordHasher _passwordHasher;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ResetPasswordCommandHandler> _logger;
 
     public ResetPasswordCommandHandler(
         IRepository<Domain.Entities.User> userRepository,
-        IPasswordHasher passwordHasher,
         IUnitOfWork unitOfWork,
         ILogger<ResetPasswordCommandHandler> logger)
     {

@@ -1,23 +1,30 @@
 using HomeService.Application.Commands.ProviderService;
-using HomeService.Application.Common.Models;
+using HomeService.Domain.Interfaces;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Enums;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.ProviderService;
 
 public class DeleteProviderServiceCommandHandler : IRequestHandler<DeleteProviderServiceCommand, Result<bool>>
 {
-    private readonly IRepository<Service> _serviceRepository;
-    private readonly IRepository<Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteProviderServiceCommandHandler> _logger;
 
     public DeleteProviderServiceCommandHandler(
-        IRepository<Service> serviceRepository,
-        IRepository<Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         IUnitOfWork unitOfWork,
         ILogger<DeleteProviderServiceCommandHandler> logger)
     {

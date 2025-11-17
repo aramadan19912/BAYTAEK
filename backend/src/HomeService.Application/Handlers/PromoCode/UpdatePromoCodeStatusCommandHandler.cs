@@ -1,18 +1,23 @@
 using HomeService.Application.Commands.PromoCode;
-using HomeService.Application.Common.Models;
+using HomeService.Domain.Interfaces;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.PromoCode;
 
 public class UpdatePromoCodeStatusCommandHandler : IRequestHandler<UpdatePromoCodeStatusCommand, Result<bool>>
 {
-    // TODO: Add IRepository<PromoCode> when PromoCode entity is created in Domain layer
+    // TODO: Add IRepository<HomeService.Domain.Entities.PromoCode> when PromoCode entity is created in Domain layer
     private readonly ILogger<UpdatePromoCodeStatusCommandHandler> _logger;
 
     public UpdatePromoCodeStatusCommandHandler(
-        // IRepository<PromoCode> promoCodeRepository,
+        // IRepository<HomeService.Domain.Entities.PromoCode> promoCodeRepository,
         // IUnitOfWork unitOfWork,
         ILogger<UpdatePromoCodeStatusCommandHandler> logger)
     {

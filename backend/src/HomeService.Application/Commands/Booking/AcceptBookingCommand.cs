@@ -1,4 +1,5 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Application.DTOs;
 using MediatR;
 
 namespace HomeService.Application.Commands.Booking;

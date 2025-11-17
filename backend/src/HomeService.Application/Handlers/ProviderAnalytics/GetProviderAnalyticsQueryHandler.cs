@@ -1,31 +1,38 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.ProviderAnalytics;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Enums;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.ProviderAnalytics;
 
 public class GetProviderAnalyticsQueryHandler : IRequestHandler<GetProviderAnalyticsQuery, Result<ProviderAnalyticsDto>>
 {
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<Payment> _paymentRepository;
-    private readonly IRepository<Review> _reviewRepository;
-    private readonly IRepository<Service> _serviceRepository;
-    private readonly IRepository<User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
     private readonly IRepository<ServiceProvider> _providerRepository;
     private readonly ILogger<GetProviderAnalyticsQueryHandler> _logger;
 
     private const decimal PlatformFeePercentage = 15m;
 
     public GetProviderAnalyticsQueryHandler(
-        IRepository<Booking> bookingRepository,
-        IRepository<Payment> paymentRepository,
-        IRepository<Review> reviewRepository,
-        IRepository<Service> serviceRepository,
-        IRepository<User> userRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
+        IRepository<HomeService.Domain.Entities.Review> reviewRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
         IRepository<ServiceProvider> providerRepository,
         ILogger<GetProviderAnalyticsQueryHandler> logger)
     {

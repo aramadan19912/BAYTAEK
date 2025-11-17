@@ -5,7 +5,6 @@ using HomeService.Application.Mappings;
 using HomeService.Domain.Entities;
 using HomeService.Domain.Enums;
 using HomeService.Domain.Interfaces;
-using HomeService.Infrastructure.AI.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -13,8 +12,8 @@ namespace HomeService.Application.Handlers.Reviews;
 
 public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, Result<ReviewDto>>
 {
-    private readonly IRepository<Review> _reviewRepository;
-    private readonly IRepository<Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
     private readonly IRepository<ServiceProvider> _providerRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly SentimentAnalysisService _sentimentAnalysisService;
@@ -22,8 +21,8 @@ public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, R
     private readonly ILogger<CreateReviewCommandHandler> _logger;
 
     public CreateReviewCommandHandler(
-        IRepository<Review> reviewRepository,
-        IRepository<Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Review> reviewRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         IRepository<ServiceProvider> providerRepository,
         IUnitOfWork unitOfWork,
         SentimentAnalysisService sentimentAnalysisService,

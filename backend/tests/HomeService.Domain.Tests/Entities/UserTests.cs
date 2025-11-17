@@ -50,7 +50,7 @@ public class UserTests
         user.IsPhoneVerified = true;
         user.IsTwoFactorEnabled = true;
         user.PreferredLanguage = Language.English;
-        user.Region = Region.Riyadh;
+        user.Region = Region.SaudiArabia;
         user.ProfileImageUrl = "https://example.com/profile.jpg";
         user.LastLoginAt = now;
 
@@ -65,7 +65,7 @@ public class UserTests
         user.IsPhoneVerified.Should().BeTrue();
         user.IsTwoFactorEnabled.Should().BeTrue();
         user.PreferredLanguage.Should().Be(Language.English);
-        user.Region.Should().Be(Region.Riyadh);
+        user.Region.Should().Be(Region.SaudiArabia);
         user.ProfileImageUrl.Should().Be("https://example.com/profile.jpg");
         user.LastLoginAt.Should().Be(now);
     }
@@ -103,11 +103,8 @@ public class UserTests
     }
 
     [Theory]
-    [InlineData(Region.Riyadh)]
-    [InlineData(Region.Makkah)]
-    [InlineData(Region.Madinah)]
-    [InlineData(Region.Cairo)]
-    [InlineData(Region.Alexandria)]
+    [InlineData(Region.SaudiArabia)]
+    [InlineData(Region.Egypt)]
     public void User_ShouldSupportAllRegions(Region region)
     {
         // Arrange
@@ -128,13 +125,13 @@ public class UserTests
         var address1 = new Address
         {
             Label = "Home",
-            AddressLine = "123 Main St",
+            Street = "123 Main St",
             City = "Riyadh"
         };
         var address2 = new Address
         {
             Label = "Work",
-            AddressLine = "456 Business Ave",
+            Street = "456 Business Ave",
             City = "Riyadh"
         };
 
@@ -155,12 +152,12 @@ public class UserTests
         var user = new User();
         var booking1 = new Booking
         {
-            ScheduledDateTime = DateTime.UtcNow.AddDays(1),
+            ScheduledAt = DateTime.UtcNow.AddDays(1),
             Status = BookingStatus.Pending
         };
         var booking2 = new Booking
         {
-            ScheduledDateTime = DateTime.UtcNow.AddDays(2),
+            ScheduledAt = DateTime.UtcNow.AddDays(2),
             Status = BookingStatus.Confirmed
         };
 
@@ -210,7 +207,7 @@ public class UserTests
         };
         var serviceProvider = new ServiceProvider
         {
-            Bio = "Experienced technician",
+            Description = "Experienced technician",
             IsVerified = true
         };
 
@@ -219,7 +216,7 @@ public class UserTests
 
         // Assert
         user.ServiceProvider.Should().NotBeNull();
-        user.ServiceProvider.Bio.Should().Be("Experienced technician");
+        user.ServiceProvider.Description.Should().Be("Experienced technician");
         user.ServiceProvider.IsVerified.Should().BeTrue();
     }
 

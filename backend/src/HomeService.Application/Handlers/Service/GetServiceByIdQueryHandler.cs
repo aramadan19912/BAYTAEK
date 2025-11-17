@@ -1,31 +1,34 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.Service;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.Service;
 
 public class GetServiceByIdQueryHandler : IRequestHandler<GetServiceByIdQuery, Result<ServiceDetailDto>>
 {
     private readonly IRepository<Domain.Entities.Service> _serviceRepository;
-    private readonly IRepository<ServiceCategory> _categoryRepository;
     private readonly IRepository<ServiceProvider> _providerRepository;
-    private readonly IRepository<User> _userRepository;
-    private readonly IRepository<Review> _reviewRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
     private readonly ILogger<GetServiceByIdQueryHandler> _logger;
 
     public GetServiceByIdQueryHandler(
         IRepository<Domain.Entities.Service> serviceRepository,
-        IRepository<ServiceCategory> categoryRepository,
         IRepository<ServiceProvider> providerRepository,
-        IRepository<User> userRepository,
-        IRepository<Review> reviewRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
+        IRepository<HomeService.Domain.Entities.Review> reviewRepository,
         ILogger<GetServiceByIdQueryHandler> logger)
     {
         _serviceRepository = serviceRepository;
-        _categoryRepository = categoryRepository;
         _providerRepository = providerRepository;
         _userRepository = userRepository;
         _reviewRepository = reviewRepository;
@@ -50,7 +53,6 @@ public class GetServiceByIdQueryHandler : IRequestHandler<GetServiceByIdQuery, R
             }
 
             // Get category
-            var category = await _categoryRepository.GetByIdAsync(service.CategoryId, cancellationToken);
 
             // Get provider info
             var provider = await _providerRepository.FindAsync(

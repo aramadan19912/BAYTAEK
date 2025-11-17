@@ -1,20 +1,26 @@
 using HomeService.Application.Commands.ProviderService;
-using HomeService.Application.Common.Models;
+using HomeService.Domain.Interfaces;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.ProviderService;
 
 public class UpdateProviderServiceCommandHandler : IRequestHandler<UpdateProviderServiceCommand, Result<bool>>
 {
-    private readonly IRepository<Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateProviderServiceCommandHandler> _logger;
 
     public UpdateProviderServiceCommandHandler(
-        IRepository<Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
         IUnitOfWork unitOfWork,
         ILogger<UpdateProviderServiceCommandHandler> logger)
     {

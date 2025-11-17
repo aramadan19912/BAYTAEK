@@ -1,19 +1,26 @@
 using HomeService.Application.Commands.Booking;
-using HomeService.Application.Common.Models;
+using HomeService.Domain.Interfaces;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Enums;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.Booking;
 
 public class AcceptBookingCommandHandler : IRequestHandler<AcceptBookingCommand, Result<BookingDto>>
 {
     private readonly IRepository<Domain.Entities.Booking> _bookingRepository;
-    private readonly IRepository<User> _userRepository;
-    private readonly IRepository<Service> _serviceRepository;
-    private readonly IRepository<Address> _addressRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Address> _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
     private readonly IPushNotificationService _pushNotificationService;
@@ -21,9 +28,9 @@ public class AcceptBookingCommandHandler : IRequestHandler<AcceptBookingCommand,
 
     public AcceptBookingCommandHandler(
         IRepository<Domain.Entities.Booking> bookingRepository,
-        IRepository<User> userRepository,
-        IRepository<Service> serviceRepository,
-        IRepository<Address> addressRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Address> addressRepository,
         IUnitOfWork unitOfWork,
         IEmailService emailService,
         IPushNotificationService pushNotificationService,

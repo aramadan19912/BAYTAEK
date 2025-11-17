@@ -1,9 +1,15 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.SupportTicket;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Enums;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.SupportTicket;
 
@@ -16,7 +22,7 @@ public class GetUserTicketsQueryHandler : IRequestHandler<GetUserTicketsQuery, R
     public GetUserTicketsQueryHandler(
         // IRepository<SupportTicket> ticketRepository,
         // IRepository<TicketMessage> ticketMessageRepository,
-        // IRepository<User> userRepository,
+        // IRepository<HomeService.Domain.Entities.User> userRepository,
         ILogger<GetUserTicketsQueryHandler> logger)
     {
         // _ticketRepository = ticketRepository;

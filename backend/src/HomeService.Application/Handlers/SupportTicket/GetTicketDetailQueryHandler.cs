@@ -1,8 +1,13 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.SupportTicket;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.SupportTicket;
 
@@ -10,14 +15,14 @@ public class GetTicketDetailQueryHandler : IRequestHandler<GetTicketDetailQuery,
 {
     // TODO: Add IRepository<SupportTicket> when SupportTicket entity is created in Domain layer
     // TODO: Add IRepository<TicketMessage> for messages
-    // TODO: Add IRepository<Booking> for booking info
+    // TODO: Add IRepository<HomeService.Domain.Entities.Booking> for booking info
     private readonly ILogger<GetTicketDetailQueryHandler> _logger;
 
     public GetTicketDetailQueryHandler(
         // IRepository<SupportTicket> ticketRepository,
         // IRepository<TicketMessage> ticketMessageRepository,
-        // IRepository<User> userRepository,
-        // IRepository<Booking> bookingRepository,
+        // IRepository<HomeService.Domain.Entities.User> userRepository,
+        // IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         ILogger<GetTicketDetailQueryHandler> logger)
     {
         // _ticketRepository = ticketRepository;

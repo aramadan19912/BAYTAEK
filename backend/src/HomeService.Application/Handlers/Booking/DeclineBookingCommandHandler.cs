@@ -1,17 +1,24 @@
 using HomeService.Application.Commands.Booking;
-using HomeService.Application.Common.Models;
+using HomeService.Domain.Interfaces;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Enums;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.Booking;
 
 public class DeclineBookingCommandHandler : IRequestHandler<DeclineBookingCommand, Result<bool>>
 {
     private readonly IRepository<Domain.Entities.Booking> _bookingRepository;
-    private readonly IRepository<User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
     private readonly IPushNotificationService _pushNotificationService;
@@ -19,7 +26,7 @@ public class DeclineBookingCommandHandler : IRequestHandler<DeclineBookingComman
 
     public DeclineBookingCommandHandler(
         IRepository<Domain.Entities.Booking> bookingRepository,
-        IRepository<User> userRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
         IUnitOfWork unitOfWork,
         IEmailService emailService,
         IPushNotificationService pushNotificationService,

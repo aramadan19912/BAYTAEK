@@ -12,15 +12,15 @@ namespace HomeService.Application.Handlers.Payments;
 
 public class ProcessPaymentCommandHandler : IRequestHandler<ProcessPaymentCommand, Result<PaymentDto>>
 {
-    private readonly IRepository<Payment> _paymentRepository;
-    private readonly IRepository<Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<ProcessPaymentCommandHandler> _logger;
 
     public ProcessPaymentCommandHandler(
-        IRepository<Payment> paymentRepository,
-        IRepository<Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         IUnitOfWork unitOfWork,
         IMapper mapper,
         ILogger<ProcessPaymentCommandHandler> logger)

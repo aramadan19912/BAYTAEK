@@ -1,8 +1,13 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.Favorite;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.Favorite;
 
@@ -12,20 +17,17 @@ public class GetUserFavoritesQueryHandler : IRequestHandler<GetUserFavoritesQuer
     // private readonly IRepository<Domain.Entities.Favorite> _favoriteRepository;
     private readonly IRepository<Domain.Entities.Service> _serviceRepository;
     private readonly IRepository<Domain.Entities.ServiceProvider> _providerRepository;
-    private readonly IRepository<Domain.Entities.Category> _categoryRepository;
     private readonly ILogger<GetUserFavoritesQueryHandler> _logger;
 
     public GetUserFavoritesQueryHandler(
         // IRepository<Domain.Entities.Favorite> favoriteRepository,
         IRepository<Domain.Entities.Service> serviceRepository,
         IRepository<Domain.Entities.ServiceProvider> providerRepository,
-        IRepository<Domain.Entities.Category> categoryRepository,
         ILogger<GetUserFavoritesQueryHandler> logger)
     {
         // _favoriteRepository = favoriteRepository;
         _serviceRepository = serviceRepository;
         _providerRepository = providerRepository;
-        _categoryRepository = categoryRepository;
         _logger = logger;
     }
 
@@ -61,12 +63,10 @@ public class GetUserFavoritesQueryHandler : IRequestHandler<GetUserFavoritesQuer
                 p => providerIds.Contains(p.Id),
                 cancellationToken);
 
-            var categories = await _categoryRepository.FindAsync(
                 c => categoryIds.Contains(c.Id),
                 cancellationToken);
 
             var providersDict = providers?.ToDictionary(p => p.Id) ?? new Dictionary<Guid, Domain.Entities.ServiceProvider>();
-            var categoriesDict = categories?.ToDictionary(c => c.Id) ?? new Dictionary<Guid, Domain.Entities.Category>();
 
             // Build DTOs
             var favoriteDtos = favoritesList.Select(fav =>

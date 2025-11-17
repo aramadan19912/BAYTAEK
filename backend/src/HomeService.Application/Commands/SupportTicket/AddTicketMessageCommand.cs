@@ -1,4 +1,4 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
 using MediatR;
 
 namespace HomeService.Application.Commands.SupportTicket;

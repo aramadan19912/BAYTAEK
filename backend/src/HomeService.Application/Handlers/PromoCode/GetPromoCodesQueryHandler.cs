@@ -1,18 +1,23 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.PromoCode;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.PromoCode;
 
 public class GetPromoCodesQueryHandler : IRequestHandler<GetPromoCodesQuery, Result<PromoCodesListDto>>
 {
-    // TODO: Add IRepository<PromoCode> when PromoCode entity is created in Domain layer
+    // TODO: Add IRepository<HomeService.Domain.Entities.PromoCode> when PromoCode entity is created in Domain layer
     private readonly ILogger<GetPromoCodesQueryHandler> _logger;
 
     public GetPromoCodesQueryHandler(
-        // IRepository<PromoCode> promoCodeRepository,
+        // IRepository<HomeService.Domain.Entities.PromoCode> promoCodeRepository,
         ILogger<GetPromoCodesQueryHandler> logger)
     {
         // _promoCodeRepository = promoCodeRepository;

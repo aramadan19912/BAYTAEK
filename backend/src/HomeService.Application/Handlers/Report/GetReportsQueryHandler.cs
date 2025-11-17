@@ -1,9 +1,15 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.Report;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Enums;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.Report;
 
@@ -14,8 +20,8 @@ public class GetReportsQueryHandler : IRequestHandler<GetReportsQuery, Result<Re
 
     public GetReportsQueryHandler(
         // IRepository<Report> reportRepository,
-        // IRepository<User> userRepository,
-        // IRepository<Booking> bookingRepository,
+        // IRepository<HomeService.Domain.Entities.User> userRepository,
+        // IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         ILogger<GetReportsQueryHandler> logger)
     {
         // _reportRepository = reportRepository;

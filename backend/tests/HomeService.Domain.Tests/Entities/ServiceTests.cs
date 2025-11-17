@@ -49,7 +49,7 @@ public class ServiceTests
             EstimatedDurationMinutes = 120,
             IsActive = true,
             IsFeatured = true,
-            AvailableRegions = new[] { Region.Riyadh, Region.Jeddah },
+            AvailableRegions = new[] { Region.SaudiArabia, Region.SaudiArabia },
             ImageUrls = new[] { "https://example.com/image1.jpg", "https://example.com/image2.jpg" },
             VideoUrl = "https://example.com/video.mp4",
             RequiredMaterials = "Cleaning supplies provided",
@@ -208,18 +208,18 @@ public class ServiceTests
         {
             AvailableRegions = new[]
             {
-                Region.Riyadh,
-                Region.Jeddah,
-                Region.Dammam,
-                Region.Cairo,
-                Region.Alexandria
+                Region.SaudiArabia,
+                Region.SaudiArabia,
+                Region.SaudiArabia,
+                Region.Egypt,
+                Region.Egypt
             }
         };
 
         // Assert
         service.AvailableRegions.Should().HaveCount(5);
-        service.AvailableRegions.Should().Contain(Region.Riyadh);
-        service.AvailableRegions.Should().Contain(Region.Cairo);
+        service.AvailableRegions.Should().Contain(Region.SaudiArabia);
+        service.AvailableRegions.Should().Contain(Region.Egypt);
     }
 
     [Fact]

@@ -11,12 +11,12 @@ namespace HomeService.Application.Handlers.Services;
 
 public class GetServicesQueryHandler : IRequestHandler<GetServicesQuery, Result<PagedResult<ServiceDto>>>
 {
-    private readonly IRepository<Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<GetServicesQueryHandler> _logger;
 
     public GetServicesQueryHandler(
-        IRepository<Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
         IMapper mapper,
         ILogger<GetServicesQueryHandler> logger)
     {

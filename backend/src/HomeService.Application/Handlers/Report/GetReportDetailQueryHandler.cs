@@ -1,8 +1,13 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.Report;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.Report;
 
@@ -13,10 +18,10 @@ public class GetReportDetailQueryHandler : IRequestHandler<GetReportDetailQuery,
 
     public GetReportDetailQueryHandler(
         // IRepository<Report> reportRepository,
-        // IRepository<User> userRepository,
-        // IRepository<Booking> bookingRepository,
-        // IRepository<Review> reviewRepository,
-        // IRepository<Service> serviceRepository,
+        // IRepository<HomeService.Domain.Entities.User> userRepository,
+        // IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        // IRepository<HomeService.Domain.Entities.Review> reviewRepository,
+        // IRepository<HomeService.Domain.Entities.Service> serviceRepository,
         ILogger<GetReportDetailQueryHandler> logger)
     {
         // _reportRepository = reportRepository;

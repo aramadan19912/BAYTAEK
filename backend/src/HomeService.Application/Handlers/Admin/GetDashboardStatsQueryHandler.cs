@@ -11,16 +11,16 @@ namespace HomeService.Application.Handlers.Admin;
 
 public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQuery, Result<DashboardStatsDto>>
 {
-    private readonly IRepository<User> _userRepository;
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<Payment> _paymentRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
     private readonly IRepository<ServiceProvider> _providerRepository;
     private readonly ILogger<GetDashboardStatsQueryHandler> _logger;
 
     public GetDashboardStatsQueryHandler(
-        IRepository<User> userRepository,
-        IRepository<Booking> bookingRepository,
-        IRepository<Payment> paymentRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
         IRepository<ServiceProvider> providerRepository,
         ILogger<GetDashboardStatsQueryHandler> logger)
     {
@@ -67,7 +67,7 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
         }
     }
 
-    private UserStats CalculateUserStats(IEnumerable<User> users, DateTime weekStart, DateTime monthStart)
+    private UserStats CalculateUserStats(IEnumerable<HomeService.Domain.Entities.User> users, DateTime weekStart, DateTime monthStart)
     {
         var customers = users.Where(u => u.Role == UserRole.Customer).ToList();
         var providers = users.Where(u => u.Role == UserRole.ServiceProvider).ToList();
@@ -85,7 +85,7 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
         };
     }
 
-    private BookingStats CalculateBookingStats(IEnumerable<Booking> bookings, DateTime today)
+    private BookingStats CalculateBookingStats(IEnumerable<HomeService.Domain.Entities.Booking> bookings, DateTime today)
     {
         var todayBookings = bookings.Where(b => b.CreatedAt.Date == today).ToList();
         var totalBookings = bookings.Count();
@@ -144,7 +144,7 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
         };
     }
 
-    private SystemStats CalculateSystemStats(IEnumerable<Booking> bookings)
+    private SystemStats CalculateSystemStats(IEnumerable<HomeService.Domain.Entities.Booking> bookings)
     {
         return new SystemStats
         {
@@ -155,7 +155,7 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
         };
     }
 
-    private List<RecentBooking> GetRecentBookings(IEnumerable<Booking> bookings)
+    private List<RecentBooking> GetRecentBookings(IEnumerable<HomeService.Domain.Entities.Booking> bookings)
     {
         return bookings
             .OrderByDescending(b => b.CreatedAt)
@@ -172,7 +172,7 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
             .ToList();
     }
 
-    private List<TopService> GetTopServices(IEnumerable<Booking> bookings)
+    private List<TopService> GetTopServices(IEnumerable<HomeService.Domain.Entities.Booking> bookings)
     {
         return bookings
             .GroupBy(b => new { b.ServiceId, ServiceName = b.Service?.NameEn })
@@ -189,8 +189,8 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
     }
 
     private RegionalStats CalculateRegionalStats(
-        IEnumerable<User> users,
-        IEnumerable<Booking> bookings,
+        IEnumerable<HomeService.Domain.Entities.User> users,
+        IEnumerable<HomeService.Domain.Entities.Booking> bookings,
         IEnumerable<Payment> payments,
         IEnumerable<ServiceProvider> providers)
     {
@@ -215,7 +215,7 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
         };
     }
 
-    private decimal CalculateGrowthRate(IEnumerable<User> users, DateTime monthStart)
+    private decimal CalculateGrowthRate(IEnumerable<HomeService.Domain.Entities.User> users, DateTime monthStart)
     {
         var currentMonth = users.Count(u => u.CreatedAt >= monthStart);
         var lastMonthStart = monthStart.AddMonths(-1);

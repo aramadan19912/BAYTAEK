@@ -1,30 +1,33 @@
 using HomeService.Application.Commands.ProviderService;
-using HomeService.Application.Common.Models;
+using HomeService.Domain.Interfaces;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.ProviderService;
 
 public class CreateProviderServiceCommandHandler : IRequestHandler<CreateProviderServiceCommand, Result<ServiceCreatedDto>>
 {
-    private readonly IRepository<Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
     private readonly IRepository<ServiceProvider> _providerRepository;
-    private readonly IRepository<Category> _categoryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreateProviderServiceCommandHandler> _logger;
 
     public CreateProviderServiceCommandHandler(
-        IRepository<Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
         IRepository<ServiceProvider> providerRepository,
-        IRepository<Category> categoryRepository,
         IUnitOfWork unitOfWork,
         ILogger<CreateProviderServiceCommandHandler> logger)
     {
         _serviceRepository = serviceRepository;
         _providerRepository = providerRepository;
-        _categoryRepository = categoryRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -41,7 +44,6 @@ public class CreateProviderServiceCommandHandler : IRequestHandler<CreateProvide
             }
 
             // Validate category exists
-            var category = await _categoryRepository.GetByIdAsync(request.CategoryId, cancellationToken);
             if (category == null)
             {
                 return Result<ServiceCreatedDto>.Failure("Category not found");

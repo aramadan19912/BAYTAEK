@@ -10,15 +10,15 @@ namespace HomeService.Application.Handlers.Admin;
 
 public class GetAdminUsersQueryHandler : IRequestHandler<GetAdminUsersQuery, Result<PagedResult<AdminUserListDto>>>
 {
-    private readonly IRepository<User> _userRepository;
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<Payment> _paymentRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
     private readonly ILogger<GetAdminUsersQueryHandler> _logger;
 
     public GetAdminUsersQueryHandler(
-        IRepository<User> userRepository,
-        IRepository<Booking> bookingRepository,
-        IRepository<Payment> paymentRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
         ILogger<GetAdminUsersQueryHandler> logger)
     {
         _userRepository = userRepository;

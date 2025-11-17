@@ -10,17 +10,17 @@ namespace HomeService.Application.Handlers.Admin;
 
 public class GetAdminTransactionsQueryHandler : IRequestHandler<GetAdminTransactionsQuery, Result<PagedResult<AdminTransactionDto>>>
 {
-    private readonly IRepository<Payment> _paymentRepository;
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<User> _userRepository;
-    private readonly IRepository<Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
     private readonly ILogger<GetAdminTransactionsQueryHandler> _logger;
 
     public GetAdminTransactionsQueryHandler(
-        IRepository<Payment> paymentRepository,
-        IRepository<Booking> bookingRepository,
-        IRepository<User> userRepository,
-        IRepository<Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
         ILogger<GetAdminTransactionsQueryHandler> logger)
     {
         _paymentRepository = paymentRepository;

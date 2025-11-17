@@ -1,34 +1,39 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.CustomerBooking;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Enums;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.CustomerBooking;
 
 public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookingsQuery, Result<CustomerBookingsDto>>
 {
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
     private readonly IRepository<ServiceProvider> _providerRepository;
-    private readonly IRepository<User> _userRepository;
-    private readonly IRepository<Address> _addressRepository;
-    private readonly IRepository<Payment> _paymentRepository;
-    private readonly IRepository<Review> _reviewRepository;
-    private readonly IRepository<Category> _categoryRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Address> _addressRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
     private readonly ILogger<GetCustomerBookingsQueryHandler> _logger;
 
     public GetCustomerBookingsQueryHandler(
-        IRepository<Booking> bookingRepository,
-        IRepository<Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
         IRepository<ServiceProvider> providerRepository,
-        IRepository<User> userRepository,
-        IRepository<Address> addressRepository,
-        IRepository<Payment> paymentRepository,
-        IRepository<Review> reviewRepository,
-        IRepository<Category> categoryRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
+        IRepository<HomeService.Domain.Entities.Address> addressRepository,
+        IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
+        IRepository<HomeService.Domain.Entities.Review> reviewRepository,
         ILogger<GetCustomerBookingsQueryHandler> logger)
     {
         _bookingRepository = bookingRepository;
@@ -38,7 +43,6 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
         _addressRepository = addressRepository;
         _paymentRepository = paymentRepository;
         _reviewRepository = reviewRepository;
-        _categoryRepository = categoryRepository;
         _logger = logger;
     }
 
@@ -191,7 +195,6 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
 
             // Get categories
             var categoryIds = servicesDict.Values.Select(s => s.CategoryId).Distinct().ToList();
-            var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
             var categoriesDict = allCategories
                 .Where(c => categoryIds.Contains(c.Id))
                 .ToDictionary(c => c.Id);

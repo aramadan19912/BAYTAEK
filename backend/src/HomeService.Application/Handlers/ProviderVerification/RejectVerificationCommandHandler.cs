@@ -1,16 +1,22 @@
 using HomeService.Application.Commands.ProviderVerification;
-using HomeService.Application.Common.Models;
+using HomeService.Domain.Interfaces;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.ProviderVerification;
 
 public class RejectVerificationCommandHandler : IRequestHandler<RejectVerificationCommand, Result<bool>>
 {
     private readonly IRepository<ServiceProvider> _providerRepository;
-    private readonly IRepository<User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
     private readonly IPushNotificationService _pushNotificationService;
@@ -18,7 +24,7 @@ public class RejectVerificationCommandHandler : IRequestHandler<RejectVerificati
 
     public RejectVerificationCommandHandler(
         IRepository<ServiceProvider> providerRepository,
-        IRepository<User> userRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
         IUnitOfWork unitOfWork,
         IEmailService emailService,
         IPushNotificationService pushNotificationService,

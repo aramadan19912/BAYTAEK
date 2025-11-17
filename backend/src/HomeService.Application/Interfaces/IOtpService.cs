@@ -29,9 +29,3 @@ public interface IOtpService
     /// </summary>
     Task InvalidateOtpAsync(string phoneNumber, OtpPurpose purpose, CancellationToken cancellationToken = default);
 }
-
-public interface ISmsService
-{
-    Task<bool> SendSmsAsync(string phoneNumber, string message, CancellationToken cancellationToken = default);
-    Task<bool> SendSmsWithTemplateAsync(string phoneNumber, string templateId, Dictionary<string, string> parameters, CancellationToken cancellationToken = default);
-}

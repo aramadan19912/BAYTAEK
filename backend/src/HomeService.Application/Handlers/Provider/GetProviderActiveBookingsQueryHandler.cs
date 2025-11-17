@@ -1,28 +1,35 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.Provider;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Enums;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.Provider;
 
 public class GetProviderActiveBookingsQueryHandler : IRequestHandler<GetProviderActiveBookingsQuery, Result<List<ProviderBookingDto>>>
 {
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<User> _userRepository;
-    private readonly IRepository<Service> _serviceRepository;
-    private readonly IRepository<Address> _addressRepository;
-    private readonly IRepository<Payment> _paymentRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Address> _addressRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
     private readonly ILogger<GetProviderActiveBookingsQueryHandler> _logger;
 
     public GetProviderActiveBookingsQueryHandler(
-        IRepository<Booking> bookingRepository,
-        IRepository<User> userRepository,
-        IRepository<Service> serviceRepository,
-        IRepository<Address> addressRepository,
-        IRepository<Payment> paymentRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
+        IRepository<HomeService.Domain.Entities.Service> serviceRepository,
+        IRepository<HomeService.Domain.Entities.Address> addressRepository,
+        IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
         ILogger<GetProviderActiveBookingsQueryHandler> logger)
     {
         _bookingRepository = bookingRepository;

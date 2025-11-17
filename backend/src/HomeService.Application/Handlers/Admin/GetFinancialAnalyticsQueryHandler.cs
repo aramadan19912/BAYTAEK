@@ -11,15 +11,15 @@ namespace HomeService.Application.Handlers.Admin;
 
 public class GetFinancialAnalyticsQueryHandler : IRequestHandler<GetFinancialAnalyticsQuery, Result<FinancialAnalyticsDto>>
 {
-    private readonly IRepository<Payment> _paymentRepository;
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<User> _userRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
     private readonly ILogger<GetFinancialAnalyticsQueryHandler> _logger;
 
     public GetFinancialAnalyticsQueryHandler(
-        IRepository<Payment> paymentRepository,
-        IRepository<Booking> bookingRepository,
-        IRepository<User> userRepository,
+        IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.User> userRepository,
         ILogger<GetFinancialAnalyticsQueryHandler> logger)
     {
         _paymentRepository = paymentRepository;
@@ -77,7 +77,7 @@ public class GetFinancialAnalyticsQueryHandler : IRequestHandler<GetFinancialAna
         }
     }
 
-    private RevenueBreakdown CalculateRevenue(List<Payment> payments, List<Booking> bookings, DateTime startDate, DateTime endDate)
+    private RevenueBreakdown CalculateRevenue(List<Payment> payments, List<HomeService.Domain.Entities.Booking> bookings, DateTime startDate, DateTime endDate)
     {
         var completedPayments = payments.Where(p => p.Status == PaymentStatus.Completed).ToList();
         var totalRevenue = completedPayments.Sum(p => p.Amount);
@@ -107,7 +107,7 @@ public class GetFinancialAnalyticsQueryHandler : IRequestHandler<GetFinancialAna
         };
     }
 
-    private CommissionBreakdown CalculateCommission(List<Payment> payments, List<Booking> bookings)
+    private CommissionBreakdown CalculateCommission(List<Payment> payments, List<HomeService.Domain.Entities.Booking> bookings)
     {
         var completedPayments = payments.Where(p => p.Status == PaymentStatus.Completed).ToList();
         var commissionRate = 0.18m; // 18%
@@ -133,7 +133,7 @@ public class GetFinancialAnalyticsQueryHandler : IRequestHandler<GetFinancialAna
         };
     }
 
-    private PayoutSummary CalculatePayouts(List<Payment> payments, List<Booking> bookings, IEnumerable<User> users)
+    private PayoutSummary CalculatePayouts(List<Payment> payments, List<HomeService.Domain.Entities.Booking> bookings, IEnumerable<HomeService.Domain.Entities.User> users)
     {
         var completedPayments = payments.Where(p => p.Status == PaymentStatus.Completed).ToList();
         var completedBookings = bookings.Where(b => completedPayments.Any(p => p.BookingId == b.Id) &&
@@ -181,7 +181,7 @@ public class GetFinancialAnalyticsQueryHandler : IRequestHandler<GetFinancialAna
         };
     }
 
-    private List<DailyFinancialData> CalculateDailyData(List<Payment> payments, List<Booking> bookings, DateTime startDate, DateTime endDate)
+    private List<DailyFinancialData> CalculateDailyData(List<Payment> payments, List<HomeService.Domain.Entities.Booking> bookings, DateTime startDate, DateTime endDate)
     {
         var dailyData = new List<DailyFinancialData>();
         var commissionRate = 0.18m;
@@ -211,7 +211,7 @@ public class GetFinancialAnalyticsQueryHandler : IRequestHandler<GetFinancialAna
         return dailyData;
     }
 
-    private RegionalFinancials CalculateRegionalBreakdown(List<Payment> payments, List<Booking> bookings)
+    private RegionalFinancials CalculateRegionalBreakdown(List<Payment> payments, List<HomeService.Domain.Entities.Booking> bookings)
     {
         var completedPayments = payments.Where(p => p.Status == PaymentStatus.Completed).ToList();
         var commissionRate = 0.18m;

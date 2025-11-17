@@ -1,8 +1,13 @@
 using HomeService.Application.Commands.Messaging;
-using HomeService.Application.Common.Models;
+using HomeService.Domain.Interfaces;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.Messaging;
 
@@ -15,7 +20,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
     public SendMessageCommandHandler(
         // IRepository<Conversation> conversationRepository,
         // IRepository<Message> messageRepository,
-        // IRepository<User> userRepository,
+        // IRepository<HomeService.Domain.Entities.User> userRepository,
         // IUnitOfWork unitOfWork,
         // IPushNotificationService pushNotificationService,
         ILogger<SendMessageCommandHandler> logger)

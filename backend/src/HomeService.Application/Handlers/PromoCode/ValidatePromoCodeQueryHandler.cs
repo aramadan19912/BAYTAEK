@@ -1,21 +1,27 @@
-using HomeService.Application.Common.Models;
+using HomeService.Application.Common;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
+using HomeService.Domain.Interfaces;
 using HomeService.Application.Queries.PromoCode;
+using HomeService.Domain.Interfaces;
 using HomeService.Domain.Enums;
+using HomeService.Domain.Interfaces;
 using MediatR;
+using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using HomeService.Domain.Interfaces;
 
 namespace HomeService.Application.Handlers.PromoCode;
 
 public class ValidatePromoCodeQueryHandler : IRequestHandler<ValidatePromoCodeQuery, Result<PromoCodeValidationDto>>
 {
-    // TODO: Add IRepository<PromoCode> when PromoCode entity is created in Domain layer
-    // TODO: Add IRepository<Booking> to check usage per customer
+    // TODO: Add IRepository<HomeService.Domain.Entities.PromoCode> when PromoCode entity is created in Domain layer
+    // TODO: Add IRepository<HomeService.Domain.Entities.Booking> to check usage per customer
     private readonly ILogger<ValidatePromoCodeQueryHandler> _logger;
 
     public ValidatePromoCodeQueryHandler(
-        // IRepository<PromoCode> promoCodeRepository,
-        // IRepository<Booking> bookingRepository,
+        // IRepository<HomeService.Domain.Entities.PromoCode> promoCodeRepository,
+        // IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         ILogger<ValidatePromoCodeQueryHandler> logger)
     {
         // _promoCodeRepository = promoCodeRepository;

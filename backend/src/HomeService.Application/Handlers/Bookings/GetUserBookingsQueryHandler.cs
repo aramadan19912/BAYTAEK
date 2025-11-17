@@ -11,12 +11,12 @@ namespace HomeService.Application.Handlers.Bookings;
 
 public class GetUserBookingsQueryHandler : IRequestHandler<GetUserBookingsQuery, Result<PagedResult<BookingDto>>>
 {
-    private readonly IRepository<Booking> _bookingRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Booking> _bookingRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<GetUserBookingsQueryHandler> _logger;
 
     public GetUserBookingsQueryHandler(
-        IRepository<Booking> bookingRepository,
+        IRepository<HomeService.Domain.Entities.Booking> bookingRepository,
         IMapper mapper,
         ILogger<GetUserBookingsQueryHandler> logger)
     {
