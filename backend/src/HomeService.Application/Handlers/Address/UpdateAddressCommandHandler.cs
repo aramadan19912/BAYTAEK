@@ -58,7 +58,6 @@ public class UpdateAddressCommandHandler : IRequestHandler<UpdateAddressCommand,
 
             if (!string.IsNullOrWhiteSpace(request.FullAddress) && request.FullAddress != address.FullAddress)
             {
-                address.FullAddress = request.FullAddress.Trim();
                 hasChanges = true;
             }
 
@@ -76,7 +75,6 @@ public class UpdateAddressCommandHandler : IRequestHandler<UpdateAddressCommand,
 
             if (request.District != null && request.District != address.District)
             {
-                address.District = string.IsNullOrWhiteSpace(request.District) ? null : request.District.Trim();
                 hasChanges = true;
             }
 
@@ -122,7 +120,6 @@ public class UpdateAddressCommandHandler : IRequestHandler<UpdateAddressCommand,
 
             if (request.AdditionalInfo != null && request.AdditionalInfo != address.AdditionalInfo)
             {
-                address.AdditionalInfo = string.IsNullOrWhiteSpace(request.AdditionalInfo) ? null : request.AdditionalInfo.Trim();
                 hasChanges = true;
             }
 

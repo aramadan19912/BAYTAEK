@@ -61,7 +61,7 @@ public class VerifyEmailCommandHandler : IRequestHandler<VerifyEmailCommand, Res
             }
 
             // Mark email as verified
-            user.EmailVerified = true;
+            user.IsEmailVerified = true;
             user.UpdatedAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user, cancellationToken);

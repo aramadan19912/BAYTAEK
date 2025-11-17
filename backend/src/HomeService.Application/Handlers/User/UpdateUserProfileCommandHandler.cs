@@ -59,7 +59,7 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
                 // TODO: Validate phone number format
                 // TODO: If phone number changes, should reset PhoneVerified to false
                 user.PhoneNumber = request.PhoneNumber.Trim();
-                user.PhoneVerified = false; // Require re-verification
+                user.IsPhoneVerified = false; // Require re-verification
                 hasChanges = true;
             }
 

@@ -59,7 +59,7 @@ public class ManageUserCommandHandler : IRequestHandler<ManageUserCommand, Resul
             switch (request.Action)
             {
                 case UserManagementAction.Suspend:
-                    user.IsActive = false;
+                    user.IsDeleted = true;
                     actionMessage = "User suspended successfully";
                     notificationTitle = "Account Suspended";
                     notificationMessage = !string.IsNullOrEmpty(request.Reason)
@@ -68,23 +68,23 @@ public class ManageUserCommandHandler : IRequestHandler<ManageUserCommand, Resul
                     break;
 
                 case UserManagementAction.Activate:
-                    user.IsActive = true;
+                    user.IsDeleted = false;
                     actionMessage = "User activated successfully";
                     notificationTitle = "Account Activated";
                     notificationMessage = "Your account has been activated. You can now access all features.";
                     break;
 
                 case UserManagementAction.Verify:
-                    user.EmailVerified = true;
-                    user.PhoneVerified = true;
+                    user.IsEmailVerified = true;
+                    user.IsPhoneVerified = true;
                     actionMessage = "User verified successfully";
                     notificationTitle = "Account Verified";
                     notificationMessage = "Your account has been verified. Enjoy full platform access!";
                     break;
 
                 case UserManagementAction.Unverify:
-                    user.EmailVerified = false;
-                    user.PhoneVerified = false;
+                    user.IsEmailVerified = false;
+                    user.IsPhoneVerified = false;
                     actionMessage = "User unverified successfully";
                     notificationTitle = "Verification Removed";
                     notificationMessage = !string.IsNullOrEmpty(request.Reason)
@@ -94,7 +94,7 @@ public class ManageUserCommandHandler : IRequestHandler<ManageUserCommand, Resul
 
                 case UserManagementAction.Delete:
                     // Soft delete - mark as inactive and anonymize data
-                    user.IsActive = false;
+                    user.IsDeleted = true;
                     user.Email = $"deleted_{user.Id}@deleted.com";
                     user.PhoneNumber = null;
                     actionMessage = "User deleted successfully";
