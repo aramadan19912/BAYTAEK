@@ -61,7 +61,7 @@ public class VerifyPhoneCommandHandler : IRequestHandler<VerifyPhoneCommand, Res
             }
 
             // Mark phone as verified
-            user.PhoneVerified = true;
+            user.IsPhoneVerified = true;
             user.UpdatedAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user, cancellationToken);

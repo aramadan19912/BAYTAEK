@@ -16,7 +16,8 @@
       "Bash(dotnet restore:*)",
       "Bash(dotnet build:*)",
       "Bash(powershell:*)",
-      "Bash(dotnet clean:*)"
+      "Bash(dotnet clean:*)",
+      "Bash(cut:*)"
     ],
     "deny": [],
     "ask": []
