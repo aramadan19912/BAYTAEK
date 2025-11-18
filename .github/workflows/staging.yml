@@ -38,7 +38,11 @@ jobs:
 
       - name: Build Frontend
         run: |
-          npm ci
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
           npm run build -- --configuration staging
         working-directory: ./frontend
 
