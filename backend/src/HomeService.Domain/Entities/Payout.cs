@@ -22,6 +22,18 @@ public class Payout : AuditableEntity
     public string? TransactionId { get; set; }
     public string? FailureReason { get; set; }
     public string? Notes { get; set; }
+    public DateTime? PeriodStart { get; set; }
+    public DateTime? PeriodEnd { get; set; }
+    public decimal? TotalRevenue { get; set; }
+    public decimal? PlatformFee { get; set; }
+    public int? BookingCount { get; set; }
+
+    // Alias properties for backward compatibility
+    public string? TransactionReference
+    {
+        get => TransactionId;
+        set => TransactionId = value;
+    }
 
     // Navigation properties
     public virtual ServiceProvider Provider { get; set; } = null!;

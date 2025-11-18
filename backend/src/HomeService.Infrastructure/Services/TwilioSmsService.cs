@@ -29,7 +29,7 @@ public class TwilioSmsService : ISmsService
         TwilioClient.Init(_accountSid, _authToken);
     }
 
-    public async Task<bool> SendSmsAsync(string phoneNumber, string message, CancellationToken cancellationToken = default)
+    public async Task<SmsResult> SendSmsAsync(string phoneNumber, string message, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -44,36 +44,78 @@ public class TwilioSmsService : ISmsService
             {
                 _logger.LogError("SMS failed to send to {PhoneNumber}. Status: {Status}, Error: {ErrorMessage}",
                     phoneNumber, messageResource.Status, messageResource.ErrorMessage);
-                return false;
+                return new SmsResult
+                {
+                    Success = false,
+                    ErrorMessage = messageResource.ErrorMessage
+                };
             }
 
             _logger.LogInformation("SMS sent successfully to {PhoneNumber}. SID: {MessageSid}",
                 phoneNumber, messageResource.Sid);
 
-            return true;
+            return new SmsResult
+            {
+                Success = true,
+                MessageId = messageResource.Sid
+            };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending SMS to {PhoneNumber}", phoneNumber);
-            return false;
+            return new SmsResult
+            {
+                Success = false,
+                ErrorMessage = ex.Message
+            };
         }
     }
 
-    public async Task<bool> SendSmsWithTemplateAsync(string phoneNumber, string templateId, Dictionary<string, string> parameters, CancellationToken cancellationToken = default)
+    public async Task<SmsBatchResult> SendBatchSmsAsync(List<string> phoneNumbers, string message, CancellationToken cancellationToken = default)
     {
-        // Twilio doesn't have built-in templates like SendGrid
-        // You would build the message from a template repository
-        try
+        var results = new List<SmsResult>();
+        foreach (var phoneNumber in phoneNumbers)
         {
-            // For now, just send a simple message
-            var message = BuildMessageFromTemplate(templateId, parameters);
-            return await SendSmsAsync(phoneNumber, message, cancellationToken);
+            var result = await SendSmsAsync(phoneNumber, message, cancellationToken);
+            results.Add(result);
         }
-        catch (Exception ex)
+
+        return new SmsBatchResult
         {
-            _logger.LogError(ex, "Error sending SMS with template {TemplateId} to {PhoneNumber}", templateId, phoneNumber);
-            return false;
-        }
+            SuccessCount = results.Count(r => r.Success),
+            FailureCount = results.Count(r => !r.Success),
+            Results = results
+        };
+    }
+
+    public async Task<SmsResult> SendOtpSmsAsync(string phoneNumber, string otpCode, CancellationToken cancellationToken = default)
+    {
+        var message = $"Your verification code is: {otpCode}. Valid for 10 minutes.";
+        return await SendSmsAsync(phoneNumber, message, cancellationToken);
+    }
+
+    public async Task<SmsResult> SendBookingConfirmationSmsAsync(string phoneNumber, string bookingId, string serviceName, DateTime scheduledDate, CancellationToken cancellationToken = default)
+    {
+        var message = $"Your booking #{bookingId} for {serviceName} is confirmed for {scheduledDate:MMM dd, yyyy HH:mm}. Thank you for using our service!";
+        return await SendSmsAsync(phoneNumber, message, cancellationToken);
+    }
+
+    public async Task<SmsResult> SendBookingReminderSmsAsync(string phoneNumber, string serviceName, DateTime scheduledDate, CancellationToken cancellationToken = default)
+    {
+        var message = $"Reminder: Your {serviceName} appointment is scheduled for {scheduledDate:MMM dd, yyyy HH:mm}.";
+        return await SendSmsAsync(phoneNumber, message, cancellationToken);
+    }
+
+    public async Task<SmsResult> SendProviderOnTheWaySmsAsync(string phoneNumber, string providerName, int estimatedMinutes, CancellationToken cancellationToken = default)
+    {
+        var message = $"{providerName} is on the way! Estimated arrival in {estimatedMinutes} minutes.";
+        return await SendSmsAsync(phoneNumber, message, cancellationToken);
+    }
+
+    public async Task<SmsResult> SendServiceCompletedSmsAsync(string phoneNumber, string bookingId, string serviceName, CancellationToken cancellationToken = default)
+    {
+        var message = $"Your {serviceName} service (Booking #{bookingId}) has been completed. Please rate your experience!";
+        return await SendSmsAsync(phoneNumber, message, cancellationToken);
     }
 
     private string BuildMessageFromTemplate(string templateId, Dictionary<string, string> parameters)

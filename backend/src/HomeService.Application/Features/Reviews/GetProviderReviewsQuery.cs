@@ -86,7 +86,7 @@ public class GetProviderReviewsQueryHandler
                 BookingId = r.BookingId,
                 CustomerId = r.CustomerId,
                 CustomerName = $"{r.Customer.FirstName} {r.Customer.LastName}",
-                CustomerAvatarUrl = r.Customer.ProfilePhotoUrl,
+                CustomerAvatarUrl = r.Customer.ProfileImageUrl,
                 ProviderId = r.ProviderId,
                 ProviderName = $"{r.Provider.User.FirstName} {r.Provider.User.LastName}",
                 ServiceName = r.Booking.Service.NameEn,

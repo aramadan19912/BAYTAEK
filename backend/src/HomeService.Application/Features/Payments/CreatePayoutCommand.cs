@@ -101,12 +101,15 @@ public class CreatePayoutCommandHandler : IRequestHandler<CreatePayoutCommand, R
             // Create PayoutBooking records for tracking
             foreach (var booking in eligibleBookings)
             {
+                var bookingAmount = booking.Payment!.Amount;
+                var commission = bookingAmount * PlatformCommissionRate;
                 var payoutBooking = new PayoutBooking
                 {
                     PayoutId = payout.Id,
                     BookingId = booking.Id,
-                    Amount = booking.Payment!.Amount,
-                    Commission = booking.Payment.Amount * PlatformCommissionRate
+                    BookingAmount = bookingAmount,
+                    Commission = commission,
+                    NetAmount = bookingAmount - commission
                 };
 
                 await _unitOfWork.Repository<PayoutBooking>().AddAsync(payoutBooking, cancellationToken);
@@ -125,11 +128,11 @@ public class CreatePayoutCommandHandler : IRequestHandler<CreatePayoutCommand, R
                 Amount = payout.Amount,
                 Currency = payout.Currency.ToString(),
                 Status = payout.Status.ToString(),
-                PeriodStart = payout.PeriodStart,
-                PeriodEnd = payout.PeriodEnd,
-                TotalRevenue = payout.TotalRevenue,
-                PlatformFee = payout.PlatformFee,
-                BookingCount = payout.BookingCount,
+                PeriodStart = payout.PeriodStart ?? DateTime.UtcNow,
+                PeriodEnd = payout.PeriodEnd ?? DateTime.UtcNow,
+                TotalRevenue = payout.TotalRevenue ?? 0,
+                PlatformFee = payout.PlatformFee ?? 0,
+                BookingCount = payout.BookingCount ?? 0,
                 CreatedAt = payout.CreatedAt
             };
 

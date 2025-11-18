@@ -10,5 +10,6 @@ public enum PaymentMethod
     ApplePay = 6,
     GooglePay = 7,
     Cash = 8,
-    BankTransfer = 9
+    BankTransfer = 9,
+    Wallet = 10
 }

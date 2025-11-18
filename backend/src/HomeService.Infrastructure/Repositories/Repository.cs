@@ -74,4 +74,20 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
 
         return await query.CountAsync(cancellationToken);
     }
+
+    public virtual void Update(T entity)
+    {
+        _dbSet.Update(entity);
+    }
+
+    public virtual void Delete(T entity)
+    {
+        entity.IsDeleted = true;
+        _dbSet.Update(entity);
+    }
+
+    public virtual IQueryable<T> GetQueryable()
+    {
+        return _dbSet.Where(x => !x.IsDeleted).AsQueryable();
+    }
 }

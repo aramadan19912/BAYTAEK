@@ -1,5 +1,6 @@
 using HomeService.Application.Common;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Enums;
 using HomeService.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -44,7 +45,7 @@ public class RegisterDeviceTokenCommandHandler
             {
                 // Update existing token
                 existingToken.UserId = request.UserId;
-                existingToken.DeviceType = request.DeviceType;
+                existingToken.DeviceType = Enum.Parse<DevicePlatform>(request.DeviceType, true);
                 existingToken.DeviceId = request.DeviceId;
                 existingToken.IsActive = true;
                 existingToken.LastUsedAt = DateTime.UtcNow;
@@ -58,7 +59,7 @@ public class RegisterDeviceTokenCommandHandler
                 {
                     UserId = request.UserId,
                     Token = request.Token,
-                    DeviceType = request.DeviceType,
+                    DeviceType = Enum.Parse<DevicePlatform>(request.DeviceType, true),
                     DeviceId = request.DeviceId,
                     IsActive = true,
                     LastUsedAt = DateTime.UtcNow

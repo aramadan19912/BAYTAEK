@@ -116,8 +116,8 @@ public class GetProviderProfileQueryHandler : IRequestHandler<GetProviderProfile
                 AvailableUntil = provider.AvailableUntil,
 
                 // Documents & Portfolio
-                CertificationDocuments = provider.CertificationDocuments?.ToList() ?? new List<string>(),
-                PortfolioImages = provider.PortfolioImages?.ToList() ?? new List<string>(),
+                CertificationDocuments = provider.CertificationDocuments?.Split(',').ToList() ?? new List<string>(),
+                PortfolioImages = provider.PortfolioImages?.Split(',').ToList() ?? new List<string>(),
 
                 // Service Categories (TODO: Implement when service categories relationship is ready)
                 ServiceCategories = new List<ServiceCategoryDto>(),
@@ -125,12 +125,12 @@ public class GetProviderProfileQueryHandler : IRequestHandler<GetProviderProfile
                 // Financial
                 TotalEarnings = totalEarnings,
                 PendingPayouts = pendingPayouts,
-                BankAccountNumber = provider.BankAccountNumber ?? "",
-                BankName = provider.BankName ?? "",
-                IbanNumber = provider.IbanNumber ?? "",
+                BankAccountNumber = "", // Property doesn't exist in ServiceProvider
+                BankName = "", // Property doesn't exist in ServiceProvider
+                IbanNumber = "", // Property doesn't exist in ServiceProvider
 
                 // Account Settings
-                PreferredLanguage = user.PreferredLanguage,
+                PreferredLanguage = user.PreferredLanguage.ToString(),
                 Region = user.Region.ToString(),
                 EmailVerified = user.EmailVerified,
                 PhoneVerified = user.PhoneVerified,

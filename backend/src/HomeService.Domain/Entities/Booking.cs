@@ -27,6 +27,11 @@ public class Booking : AuditableEntity
     public decimal? DiscountAmount { get; set; }
     public bool ReminderSent { get; set; }
     public bool ReviewRequestSent { get; set; }
+    public Region Region { get; set; }
+    public string? ProviderNotes { get; set; }
+
+    // Computed/Alias properties for backward compatibility
+    public DateTime ScheduledDate => ScheduledAt;
 
     // Navigation properties
     public virtual User Customer { get; set; } = null!;

@@ -24,6 +24,7 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
     private readonly IRepository<HomeService.Domain.Entities.Address> _addressRepository;
     private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
     private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
+    private readonly IRepository<ServiceCategory> _categoryRepository;
     private readonly ILogger<GetCustomerBookingsQueryHandler> _logger;
 
     public GetCustomerBookingsQueryHandler(
@@ -34,6 +35,7 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
         IRepository<HomeService.Domain.Entities.Address> addressRepository,
         IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
         IRepository<HomeService.Domain.Entities.Review> reviewRepository,
+        IRepository<ServiceCategory> categoryRepository,
         ILogger<GetCustomerBookingsQueryHandler> logger)
     {
         _bookingRepository = bookingRepository;
@@ -43,6 +45,7 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
         _addressRepository = addressRepository;
         _paymentRepository = paymentRepository;
         _reviewRepository = reviewRepository;
+        _categoryRepository = categoryRepository;
         _logger = logger;
     }
 
@@ -77,20 +80,20 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
 
             if (request.StartDate.HasValue)
             {
-                bookings = bookings.Where(b => b.ScheduledDateTime >= request.StartDate.Value).ToList();
+                bookings = bookings.Where(b => b.ScheduledAt >= request.StartDate.Value).ToList();
             }
 
             if (request.EndDate.HasValue)
             {
-                bookings = bookings.Where(b => b.ScheduledDateTime <= request.EndDate.Value).ToList();
+                bookings = bookings.Where(b => b.ScheduledAt <= request.EndDate.Value).ToList();
             }
 
             // Search term (search in booking number, service name, provider name)
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 var searchTerm = request.SearchTerm.ToLower();
-                var serviceIds = new HashSet<Guid>();
-                var providerIds = new HashSet<Guid>();
+                var searchServiceIds = new HashSet<Guid>();
+                var searchProviderIds = new HashSet<Guid>();
 
                 // Search in services
                 var services = await _serviceRepository.GetAllAsync(cancellationToken);
@@ -99,7 +102,7 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
                     s.NameAr.Contains(searchTerm)).ToList();
                 foreach (var service in matchingServices)
                 {
-                    serviceIds.Add(service.Id);
+                    searchServiceIds.Add(service.Id);
                 }
 
                 // Search in providers
@@ -108,20 +111,20 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
                     p.BusinessName != null && p.BusinessName.ToLower().Contains(searchTerm)).ToList();
                 foreach (var provider in matchingProviders)
                 {
-                    providerIds.Add(provider.Id);
+                    searchProviderIds.Add(provider.Id);
                 }
 
                 bookings = bookings.Where(b =>
-                    b.BookingNumber.ToLower().Contains(searchTerm) ||
-                    serviceIds.Contains(b.ServiceId) ||
-                    providerIds.Contains(b.ProviderId)).ToList();
+                    b.Id.ToString().ToLower().Contains(searchTerm) ||
+                    searchServiceIds.Contains(b.ServiceId) ||
+                    (b.ProviderId.HasValue && searchProviderIds.Contains(b.ProviderId.Value))).ToList();
             }
 
             // Calculate summary statistics
             var allCustomerBookings = await _bookingRepository.FindAsync(
                 b => b.CustomerId == request.CustomerId,
                 cancellationToken);
-            var allBookingsList = allCustomerBookings?.ToList() ?? new List<Booking>();
+            var allBookingsList = allCustomerBookings?.ToList() ?? new List<Domain.Entities.Booking>();
 
             var totalBookings = allBookingsList.Count;
             var activeBookings = allBookingsList.Count(b =>
@@ -143,7 +146,7 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
                 .Sum(p => p.Amount);
 
             // Order by scheduled date (most recent first)
-            bookings = bookings.OrderByDescending(b => b.ScheduledDateTime).ToList();
+            bookings = bookings.OrderByDescending(b => b.ScheduledAt).ToList();
 
             // Pagination
             var totalCount = bookings.Count;
@@ -155,7 +158,7 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
 
             // Load related entities efficiently
             var serviceIds = paginatedBookings.Select(b => b.ServiceId).Distinct().ToList();
-            var providerIds = paginatedBookings.Select(b => b.ProviderId).Distinct().ToList();
+            var providerIds = paginatedBookings.Where(b => b.ProviderId.HasValue).Select(b => b.ProviderId!.Value).Distinct().ToList();
             var addressIds = paginatedBookings.Select(b => b.AddressId).Distinct().ToList();
             var bookingIds = paginatedBookings.Select(b => b.Id).ToList();
 
@@ -195,6 +198,7 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
 
             // Get categories
             var categoryIds = servicesDict.Values.Select(s => s.CategoryId).Distinct().ToList();
+            var allCategories = await _categoryRepository.GetAllAsync(cancellationToken);
             var categoriesDict = allCategories
                 .Where(c => categoryIds.Contains(c.Id))
                 .ToDictionary(c => c.Id);
@@ -203,7 +207,7 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
             var bookingDtos = paginatedBookings.Select(booking =>
             {
                 var service = servicesDict.GetValueOrDefault(booking.ServiceId);
-                var provider = providersDict.GetValueOrDefault(booking.ProviderId);
+                var provider = booking.ProviderId.HasValue ? providersDict.GetValueOrDefault(booking.ProviderId.Value) : null;
                 var address = addressesDict.GetValueOrDefault(booking.AddressId);
                 var payment = paymentsDict.GetValueOrDefault(booking.Id);
                 var hasReview = reviewsDict.ContainsKey(booking.Id);
@@ -216,9 +220,9 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
                 return new CustomerBookingDto
                 {
                     BookingId = booking.Id,
-                    BookingNumber = booking.BookingNumber,
+                    BookingNumber = $"BK-{booking.Id.ToString().Substring(0, 8).ToUpper()}",
                     Status = booking.Status,
-                    ScheduledDateTime = booking.ScheduledDateTime,
+                    // ScheduledAt = booking.ScheduledAt, // Property doesn't exist in CustomerBookingDto
                     CreatedAt = booking.CreatedAt,
                     CompletedAt = booking.CompletedAt,
 
@@ -226,12 +230,12 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
                     ServiceId = booking.ServiceId,
                     ServiceNameEn = service?.NameEn ?? "Unknown Service",
                     ServiceNameAr = service?.NameAr ?? "خدمة غير معروفة",
-                    ServiceImageUrl = service?.Images?.FirstOrDefault(),
+                    ServiceImageUrl = service?.ImageUrls?.FirstOrDefault(),
                     CategoryNameEn = category?.NameEn ?? "Unknown Category",
                     CategoryNameAr = category?.NameAr ?? "فئة غير معروفة",
 
                     // Provider details
-                    ProviderId = booking.ProviderId,
+                    ProviderId = booking.ProviderId ?? Guid.Empty,
                     ProviderName = providerName,
                     ProviderProfileImageUrl = providerUser?.ProfileImageUrl,
                     ProviderRating = provider?.AverageRating ?? 0,
@@ -243,19 +247,19 @@ public class GetCustomerBookingsQueryHandler : IRequestHandler<GetCustomerBookin
                     FullAddress = address?.FullAddress ?? "",
 
                     // Pricing
-                    ServicePrice = booking.ServicePrice,
+                    ServicePrice = service?.BasePrice ?? booking.TotalAmount,
                     TotalAmount = booking.TotalAmount,
-                    Currency = booking.Currency,
+                    Currency = booking.Currency.ToString(),
 
                     // Payment
-                    IsPaid = booking.IsPaid,
+                    IsPaid = payment != null && payment.Status == PaymentStatus.Completed,
                     PaymentStatus = payment?.Status,
 
                     // Review
                     HasReviewed = hasReview,
 
                     // Additional info
-                    CustomerNotes = booking.CustomerNotes,
+                    CustomerNotes = booking.SpecialInstructions,
                     ProviderNotes = booking.ProviderNotes
                 };
             }).ToList();

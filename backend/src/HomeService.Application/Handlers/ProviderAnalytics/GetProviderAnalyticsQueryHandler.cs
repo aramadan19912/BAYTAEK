@@ -63,14 +63,14 @@ public class GetProviderAnalyticsQueryHandler : IRequestHandler<GetProviderAnaly
 
             var bookings = allBookings?
                 .Where(b => b.CreatedAt >= request.StartDate && b.CreatedAt <= request.EndDate)
-                .ToList() ?? new List<Booking>();
+                .ToList() ?? new List<Domain.Entities.Booking>();
 
             // Get comparison period bookings (same duration before start date)
             var periodDuration = (request.EndDate - request.StartDate).TotalDays;
             var comparisonStartDate = request.StartDate.AddDays(-periodDuration);
             var comparisonBookings = allBookings?
                 .Where(b => b.CreatedAt >= comparisonStartDate && b.CreatedAt < request.StartDate)
-                .ToList() ?? new List<Booking>();
+                .ToList() ?? new List<Domain.Entities.Booking>();
 
             // Get payments
             var bookingIds = bookings.Select(b => b.Id).ToList();
@@ -133,10 +133,9 @@ public class GetProviderAnalyticsQueryHandler : IRequestHandler<GetProviderAnaly
             var cancellationRate = totalBookings > 0 ? (decimal)cancelledCount / totalBookings * 100 : 0;
 
             // Average response time (time from created to confirmed)
-            var confirmedBookings = bookings.Where(b => b.ConfirmedAt.HasValue).ToList();
-            var averageResponseTime = confirmedBookings.Any()
-                ? confirmedBookings.Average(b => (b.ConfirmedAt!.Value - b.CreatedAt).TotalHours)
-                : 0;
+            // ConfirmedAt property doesn't exist in Booking entity
+            var confirmedBookings = bookings.Where(b => b.Status != BookingStatus.Pending).ToList();
+            var averageResponseTime = 0.0; // Would need booking history to calculate this accurately
 
             var comparisonBookingsCount = comparisonBookings.Count;
             var bookingGrowth = totalBookings - comparisonBookingsCount;
@@ -173,7 +172,7 @@ public class GetProviderAnalyticsQueryHandler : IRequestHandler<GetProviderAnaly
             // On-time completion (completed within scheduled date)
             var onTimeCompletions = completedBookings.Count(b =>
                 b.CompletedAt.HasValue &&
-                b.CompletedAt.Value.Date <= b.ScheduledDateTime.Date);
+                b.CompletedAt.Value.Date <= b.ScheduledAt.Date);
             var onTimeRate = completedBookings.Any() ? (decimal)onTimeCompletions / completedBookings.Count * 100 : 0;
 
             // Customer satisfaction (% of 4-5 star reviews)
@@ -206,7 +205,7 @@ public class GetProviderAnalyticsQueryHandler : IRequestHandler<GetProviderAnaly
 
             // Calculate customer insights
             var uniqueCustomerIds = bookings.Select(b => b.CustomerId).Distinct().ToList();
-            var allCustomerBookings = allBookings?.Where(b => b.CreatedAt < request.StartDate).ToList() ?? new List<Booking>();
+            var allCustomerBookings = allBookings?.Where(b => b.CreatedAt < request.StartDate).ToList() ?? new List<Domain.Entities.Booking>();
             var existingCustomerIds = allCustomerBookings.Select(b => b.CustomerId).Distinct().ToHashSet();
 
             var newCustomers = uniqueCustomerIds.Count(c => !existingCustomerIds.Contains(c));

@@ -77,8 +77,9 @@ public class StartServiceCommandHandler : IRequestHandler<StartServiceCommand, R
             {
                 BookingId = booking.Id,
                 Status = BookingStatus.InProgress,
-                ChangedBy = request.ProviderId,
-                Notes = historyNotes
+                ChangedById = request.ProviderId,
+                Notes = historyNotes,
+                ChangedAt = DateTime.UtcNow
             };
             await _unitOfWork.Repository<BookingHistory>().AddAsync(history, cancellationToken);
 

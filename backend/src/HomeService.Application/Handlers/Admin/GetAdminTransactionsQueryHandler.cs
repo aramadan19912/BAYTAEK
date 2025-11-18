@@ -99,7 +99,7 @@ public class GetAdminTransactionsQueryHandler : IRequestHandler<GetAdminTransact
                     .ToList();
 
                 var matchingBookingIds = bookings.Where(b =>
-                    b.BookingNumber.ToLower().Contains(searchLower) ||
+                    b.Id.ToString().ToLower().Contains(searchLower) ||
                     matchingUserIds.Contains(b.CustomerId) ||
                     (b.ProviderId.HasValue && matchingUserIds.Contains(b.ProviderId.Value)))
                     .Select(b => b.Id)
@@ -129,7 +129,7 @@ public class GetAdminTransactionsQueryHandler : IRequestHandler<GetAdminTransact
                 var service = booking != null ? services.FirstOrDefault(s => s.Id == booking.ServiceId) : null;
 
                 var commissionRate = 0.18m;
-                var servicePrice = booking?.ServicePrice ?? 0;
+                var servicePrice = booking?.TotalAmount ?? 0;
                 var vatAmount = booking?.VatAmount ?? 0;
                 var platformCommission = servicePrice * commissionRate;
                 var providerEarnings = servicePrice * (1 - commissionRate);
@@ -142,7 +142,7 @@ public class GetAdminTransactionsQueryHandler : IRequestHandler<GetAdminTransact
                     ProcessedAt = p.ProcessedAt,
 
                     BookingId = p.BookingId,
-                    BookingNumber = booking?.BookingNumber ?? "N/A",
+                    BookingNumber = booking != null ? $"BK-{booking.Id.ToString().Substring(0, 8).ToUpper()}" : "N/A",
 
                     CustomerId = customer?.Id ?? Guid.Empty,
                     CustomerName = customer != null ? $"{customer.FirstName} {customer.LastName}" : "Unknown",
@@ -152,7 +152,7 @@ public class GetAdminTransactionsQueryHandler : IRequestHandler<GetAdminTransact
                     ProviderName = provider != null ? $"{provider.FirstName} {provider.LastName}" : null,
                     ProviderEmail = provider?.Email,
 
-                    ServiceName = service?.Name ?? "Unknown",
+                    ServiceName = service?.NameEn ?? "Unknown",
 
                     Amount = p.Amount,
                     PaymentMethod = p.PaymentMethod,

@@ -65,7 +65,7 @@ public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, R
                 PhoneNumber = user.PhoneNumber,
                 Role = user.Role.ToString(),
                 Region = user.Region.ToString(),
-                PreferredLanguage = user.PreferredLanguage,
+                PreferredLanguage = user.PreferredLanguage.ToString(),
                 ProfileImageUrl = user.ProfileImageUrl,
                 EmailVerified = user.EmailVerified,
                 PhoneVerified = user.PhoneVerified,
@@ -96,8 +96,8 @@ public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, R
                         CompletedBookings = provider.CompletedBookings,
                         IsVerified = provider.IsVerified,
                         LicenseNumber = provider.LicenseNumber,
-                        CertificationDocuments = provider.CertificationDocuments?.ToList() ?? new List<string>(),
-                        PortfolioImages = provider.PortfolioImages?.ToList() ?? new List<string>(),
+                        CertificationDocuments = provider.CertificationDocuments?.Split(',').ToList() ?? new List<string>(),
+                        PortfolioImages = provider.PortfolioImages?.Split(',').ToList() ?? new List<string>(),
                         ServiceCategories = new List<ServiceCategoryDto>() // TODO: Implement service categories relationship
                     };
                 }

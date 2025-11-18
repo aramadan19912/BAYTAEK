@@ -10,11 +10,14 @@ namespace HomeService.Application.Handlers.Services;
 
 public class GetServiceCategoriesQueryHandler : IRequestHandler<GetServiceCategoriesQuery, Result<List<ServiceCategoryDto>>>
 {
+    private readonly IRepository<ServiceCategory> _categoryRepository;
     private readonly IMapper _mapper;
 
     public GetServiceCategoriesQueryHandler(
+        IRepository<ServiceCategory> categoryRepository,
         IMapper mapper)
     {
+        _categoryRepository = categoryRepository;
         _mapper = mapper;
     }
 
@@ -22,6 +25,8 @@ public class GetServiceCategoriesQueryHandler : IRequestHandler<GetServiceCatego
     {
         try
         {
+            var allCategories = await _categoryRepository.GetAllAsync(cancellationToken) ?? new List<ServiceCategory>();
+            var query = allCategories.AsQueryable();
 
             if (!request.IncludeInactive)
             {

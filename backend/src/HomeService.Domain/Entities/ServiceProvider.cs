@@ -16,6 +16,12 @@ public class ServiceProvider : AuditableEntity
     public DateTime? LicenseExpiryDate { get; set; }
     public string? CertificationDocuments { get; set; }
     public string? Portfolio { get; set; }
+    public bool IsAvailable { get; set; }
+    public bool IsOnline { get; set; }
+    public DateTime? AvailableFrom { get; set; }
+    public DateTime? AvailableUntil { get; set; }
+    public DateTime? LastOnlineAt { get; set; }
+    public string? PortfolioImages { get; set; }
 
     // Navigation properties
     public virtual User User { get; set; } = null!;

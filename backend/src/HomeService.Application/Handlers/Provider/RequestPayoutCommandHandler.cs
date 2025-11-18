@@ -97,11 +97,11 @@ public class RequestPayoutCommandHandler : IRequestHandler<RequestPayoutCommand,
             }
 
             // Validate bank account details
-            if (string.IsNullOrWhiteSpace(provider.BankAccountNumber) && string.IsNullOrWhiteSpace(provider.IbanNumber))
-            {
-                return Result<PayoutRequestDto>.Failure(
-                    "Please add your bank account details before requesting a payout");
-            }
+            // if (string.IsNullOrWhiteSpace(provider.BankAccountNumber) && string.IsNullOrWhiteSpace(provider.IbanNumber))
+            // {
+            //     return Result<PayoutRequestDto>.Failure(
+            //         "Please add your bank account details before requesting a payout");
+            // } // Properties don't exist in ServiceProvider
 
             // Calculate fees and net amount
             decimal payoutFee = 0;

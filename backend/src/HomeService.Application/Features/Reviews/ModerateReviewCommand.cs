@@ -151,7 +151,7 @@ public class ModerateReviewCommandHandler : IRequestHandler<ModerateReviewComman
         {
             if (reviews.Any())
             {
-                provider.AverageRating = Math.Round(reviews.Average(r => r.Rating), 2);
+                provider.AverageRating = (decimal)Math.Round(reviews.Average(r => r.Rating), 2);
                 provider.TotalReviews = reviews.Count;
             }
             else

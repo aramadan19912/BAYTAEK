@@ -122,7 +122,8 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
                         $"Booking cancelled: {request.Reason}"
                     );
 
-                    if (refundResult.IsSuccess)
+                    // Check refund status (RefundResponseDto has Status property, not IsSuccess)
+                    if (refundResult.Status?.ToLower() == "succeeded")
                     {
                         completedPayment.RefundAmount = refundAmount;
                         completedPayment.RefundedAt = DateTime.UtcNow;
@@ -139,7 +140,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
                     else
                     {
                         _logger.LogError("Refund failed for booking {BookingId}: {Error}",
-                            booking.Id, refundResult.Message);
+                            booking.Id, refundResult.ErrorMessage ?? "Unknown error");
                     }
                 }
                 catch (Exception ex)
@@ -152,7 +153,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
 
             // Send notifications
             var customer = await _userRepository.GetByIdAsync(booking.CustomerId, cancellationToken);
-            var provider = await _userRepository.GetByIdAsync(booking.ProviderId, cancellationToken);
+            var provider = booking.ProviderId.HasValue ? await _userRepository.GetByIdAsync(booking.ProviderId.Value, cancellationToken) : null;
             var service = await _serviceRepository.GetByIdAsync(booking.ServiceId, cancellationToken);
 
             // Notify the other party (customer or provider)
@@ -180,21 +181,22 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
                 }
 
                 // Push notification
-                if (!string.IsNullOrEmpty(recipientUser.DeviceToken))
-                {
-                    try
-                    {
-                        await _pushNotificationService.SendBookingStatusUpdateAsync(
-                            recipientUser.DeviceToken,
-                            booking.Id.ToString(),
-                            "Cancelled"
-                        );
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to send push notification for booking cancellation");
-                    }
-                }
+                // Note: DeviceToken doesn't exist in User entity
+                // if (!string.IsNullOrEmpty(recipientUser.DeviceToken))
+                // {
+                //     try
+                //     {
+                //         await _pushNotificationService.SendBookingStatusUpdateAsync(
+                //             recipientUser.DeviceToken,
+                //             booking.Id.ToString(),
+                //             "Cancelled"
+                //         );
+                //     }
+                //     catch (Exception ex)
+                //     {
+                //         _logger.LogError(ex, "Failed to send push notification for booking cancellation");
+                //     }
+                // }
             }
 
             _logger.LogInformation("Booking {BookingId} cancelled by {CancelledBy}. Refund: {RefundPercentage}%",

@@ -23,33 +23,3 @@ public class Dispute : AuditableEntity
     public virtual User? AssignedToUser { get; set; }
 }
 
-public enum DisputeType
-{
-    ServiceNotCompleted,
-    QualityIssue,
-    PaymentIssue,
-    RefundRequest,
-    ProviderNoShow,
-    CustomerNoShow,
-    DamageOrInjury,
-    PolicyViolation,
-    Other
-}
-
-public enum DisputeStatus
-{
-    Open,
-    UnderReview,
-    AwaitingInformation,
-    Resolved,
-    Closed,
-    Escalated
-}
-
-public enum DisputePriority
-{
-    Low,
-    Medium,
-    High,
-    Critical
-}

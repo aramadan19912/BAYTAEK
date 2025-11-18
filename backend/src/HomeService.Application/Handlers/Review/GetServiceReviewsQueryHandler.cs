@@ -19,6 +19,7 @@ public class GetServiceReviewsQueryHandler : IRequestHandler<GetServiceReviewsQu
     private readonly IRepository<Domain.Entities.Service> _serviceRepository;
     private readonly IRepository<Domain.Entities.User> _userRepository;
     private readonly IRepository<ServiceProvider> _providerRepository;
+    private readonly IRepository<Domain.Entities.Booking> _bookingRepository;
     private readonly ILogger<GetServiceReviewsQueryHandler> _logger;
 
     public GetServiceReviewsQueryHandler(
@@ -26,12 +27,14 @@ public class GetServiceReviewsQueryHandler : IRequestHandler<GetServiceReviewsQu
         IRepository<Domain.Entities.Service> serviceRepository,
         IRepository<Domain.Entities.User> userRepository,
         IRepository<ServiceProvider> providerRepository,
+        IRepository<Domain.Entities.Booking> bookingRepository,
         ILogger<GetServiceReviewsQueryHandler> logger)
     {
         _reviewRepository = reviewRepository;
         _serviceRepository = serviceRepository;
         _userRepository = userRepository;
         _providerRepository = providerRepository;
+        _bookingRepository = bookingRepository;
         _logger = logger;
     }
 
@@ -51,9 +54,14 @@ public class GetServiceReviewsQueryHandler : IRequestHandler<GetServiceReviewsQu
             if (request.PageSize < 1) request.PageSize = 20;
             if (request.PageSize > 100) request.PageSize = 100;
 
-            // Get all reviews for this service
+            // Get all reviews for this service (through bookings)
+            var serviceBookings = await _bookingRepository.FindAsync(
+                b => b.ServiceId == request.ServiceId,
+                cancellationToken);
+            var bookingIds = serviceBookings?.Select(b => b.Id).ToList() ?? new List<Guid>();
+            
             var allReviews = await _reviewRepository.FindAsync(
-                r => r.ServiceId == request.ServiceId && r.IsVisible,
+                r => bookingIds.Contains(r.BookingId) && r.IsVisible,
                 cancellationToken);
 
             var reviewsList = allReviews?.ToList() ?? new List<Domain.Entities.Review>();
@@ -118,16 +126,15 @@ public class GetServiceReviewsQueryHandler : IRequestHandler<GetServiceReviewsQu
                 return new ReviewDetailDto
                 {
                     Id = review.Id,
-                    CustomerName = review.IsAnonymous ? "Anonymous" :
-                        customer != null ? $"{customer.FirstName} {customer.LastName}" : "Unknown",
-                    CustomerProfileImage = review.IsAnonymous ? null : customer?.ProfileImageUrl,
+                    CustomerName = customer != null ? $"{customer.FirstName} {customer.LastName}" : "Unknown",
+                    CustomerProfileImage = customer?.ProfileImageUrl,
                     ProviderName = provider?.BusinessName ?? "",
                     Rating = review.Rating,
                     Comment = review.Comment,
                     ImageUrls = review.ImageUrls?.ToList() ?? new List<string>(),
-                    IsAnonymous = review.IsAnonymous,
+                    IsAnonymous = false, // IsAnonymous property doesn't exist
                     ProviderResponse = review.ProviderResponse,
-                    ProviderResponseAt = review.ProviderResponseAt,
+                    ProviderResponseAt = review.ProviderRespondedAt,
                     ServiceName = service.NameEn,
                     CreatedAt = review.CreatedAt,
                     IsHelpful = false, // TODO: Implement helpful voting

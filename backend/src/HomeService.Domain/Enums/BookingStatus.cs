@@ -7,5 +7,6 @@ public enum BookingStatus
     InProgress = 3,
     Completed = 4,
     Cancelled = 5,
-    Disputed = 6
+    Rejected = 6,
+    Disputed = 7
 }

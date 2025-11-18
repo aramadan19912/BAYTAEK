@@ -91,7 +91,7 @@ public class GetProviderDashboardQueryHandler : IRequestHandler<GetProviderDashb
             TodaysBookings = todaysBookings.Count,
             EarningsToday = earningsToday,
             PendingApprovals = bookings.Count(b => b.Status == BookingStatus.Pending),
-            CurrentRating = averageRating
+            CurrentRating = (decimal)averageRating
         };
     }
 
@@ -138,7 +138,7 @@ public class GetProviderDashboardQueryHandler : IRequestHandler<GetProviderDashb
             ThisMonthEarnings = thisMonthEarnings,
             TotalJobsCompleted = completedBookings.Count,
             AcceptanceRate = acceptanceRate,
-            CustomerSatisfactionScore = satisfactionScore
+            CustomerSatisfactionScore = (decimal)satisfactionScore
         };
     }
 
@@ -162,9 +162,9 @@ public class GetProviderDashboardQueryHandler : IRequestHandler<GetProviderDashb
                 CustomerPhoto = null, // Would come from user profile
                 ServiceType = "Service", // Would come from service entity
                 ScheduledTime = b.ScheduledDate,
-                Location = b.Address,
+                Location = "N/A", // Address is an entity, not a string
                 Distance = 0, // Would calculate based on provider location
-                Earnings = b.ServicePrice * 0.82m
+                Earnings = b.TotalAmount * 0.82m
             };
         }).ToList();
     }

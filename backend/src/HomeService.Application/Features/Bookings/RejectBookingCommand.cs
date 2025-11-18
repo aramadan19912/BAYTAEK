@@ -61,7 +61,7 @@ public class RejectBookingCommandHandler : IRequestHandler<RejectBookingCommand,
             {
                 BookingId = booking.Id,
                 Status = BookingStatus.Cancelled,
-                ChangedBy = request.ProviderId,
+                ChangedById = request.ProviderId,
                 Notes = $"Booking rejected by provider. Reason: {request.Reason}"
             };
             await _unitOfWork.Repository<BookingHistory>().AddAsync(history, cancellationToken);

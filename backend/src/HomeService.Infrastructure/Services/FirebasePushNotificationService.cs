@@ -158,8 +158,7 @@ public class FirebasePushNotificationService : IPushNotificationService
         {
             var response = await _firebaseMessaging.SubscribeToTopicAsync(
                 new List<string> { deviceToken },
-                topic,
-                cancellationToken);
+                topic);
 
             if (response.SuccessCount > 0)
             {
@@ -188,8 +187,7 @@ public class FirebasePushNotificationService : IPushNotificationService
         {
             var response = await _firebaseMessaging.UnsubscribeFromTopicAsync(
                 new List<string> { deviceToken },
-                topic,
-                cancellationToken);
+                topic);
 
             if (response.SuccessCount > 0)
             {

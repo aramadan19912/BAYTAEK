@@ -208,7 +208,7 @@ public class ProviderDashboardResponse
 {
     public Guid ProviderId { get; set; }
     public string ProviderName { get; set; } = string.Empty;
-    public double AverageRating { get; set; }
+    public decimal AverageRating { get; set; }
     public int TotalReviews { get; set; }
     public bool IsVerified { get; set; }
 

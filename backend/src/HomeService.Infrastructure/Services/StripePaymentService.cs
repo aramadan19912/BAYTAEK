@@ -223,19 +223,19 @@ public class StripePaymentService : IStripePaymentService
             // Handle different event types
             switch (stripeEvent.Type)
             {
-                case Events.PaymentIntentSucceeded:
+                case "payment_intent.succeeded":
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
                     _logger.LogInformation("Payment succeeded: {PaymentIntentId}", paymentIntent?.Id);
                     // Update booking payment status
                     break;
 
-                case Events.PaymentIntentPaymentFailed:
+                case "payment_intent.payment_failed":
                     var failedPayment = stripeEvent.Data.Object as PaymentIntent;
                     _logger.LogWarning("Payment failed: {PaymentIntentId}", failedPayment?.Id);
                     // Handle failed payment
                     break;
 
-                case Events.ChargeRefunded:
+                case "charge.refunded":
                     var refund = stripeEvent.Data.Object as Charge;
                     _logger.LogInformation("Charge refunded: {ChargeId}", refund?.Id);
                     // Handle refund

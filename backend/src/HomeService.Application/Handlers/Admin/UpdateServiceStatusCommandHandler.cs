@@ -42,7 +42,7 @@ public class UpdateServiceStatusCommandHandler : IRequestHandler<UpdateServiceSt
 
             var action = request.IsActive ? "activated" : "deactivated";
             _logger.LogInformation("Service {ServiceId} ({ServiceName}) has been {Action} by admin {AdminId}. Reason: {Reason}",
-                request.ServiceId, service.Name, action, request.AdminUserId, request.Reason);
+                request.ServiceId, service.NameEn, action, request.AdminUserId, request.Reason);
 
             return Result.Success($"Service {action} successfully");
         }

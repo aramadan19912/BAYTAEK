@@ -102,15 +102,15 @@ public class DeclineBookingCommandHandler : IRequestHandler<DeclineBookingComman
             }
 
             // Send push notification
-            if (customer != null && !string.IsNullOrEmpty(customer.DeviceToken))
+            if (customer != null) // DeviceToken property doesn't exist in User
             {
                 try
                 {
-                    await _pushNotificationService.SendBookingStatusUpdateAsync(
-                        customer.DeviceToken,
-                        booking.Id.ToString(),
-                        "Cancelled"
-                    );
+                    // await _pushNotificationService.SendBookingStatusUpdateAsync(
+                    //     null, // DeviceToken property doesn't exist
+                    //     booking.Id.ToString(),
+                    //     "Cancelled"
+                    // );
                 }
                 catch (Exception ex)
                 {

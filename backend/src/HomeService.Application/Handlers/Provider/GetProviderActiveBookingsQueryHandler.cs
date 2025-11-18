@@ -57,7 +57,7 @@ public class GetProviderActiveBookingsQueryHandler : IRequestHandler<GetProvider
                 b => b.ProviderId == request.ProviderId && activeStatuses.Contains(b.Status),
                 cancellationToken);
 
-            var bookingsList = bookings?.OrderBy(b => b.ScheduledAt).ToList() ?? new List<Booking>();
+            var bookingsList = bookings?.OrderBy(b => b.ScheduledAt).ToList() ?? new List<Domain.Entities.Booking>();
 
             if (!bookingsList.Any())
             {
@@ -76,9 +76,9 @@ public class GetProviderActiveBookingsQueryHandler : IRequestHandler<GetProvider
             var addresses = await _addressRepository.FindAsync(a => addressIds.Contains(a.Id), cancellationToken);
             var payments = await _paymentRepository.FindAsync(p => bookingIds.Contains(p.BookingId), cancellationToken);
 
-            var customerDict = customers?.ToDictionary(c => c.Id) ?? new Dictionary<Guid, User>();
-            var serviceDict = services?.ToDictionary(s => s.Id) ?? new Dictionary<Guid, Service>();
-            var addressDict = addresses?.ToDictionary(a => a.Id) ?? new Dictionary<Guid, Address>();
+            var customerDict = customers?.ToDictionary(c => c.Id) ?? new Dictionary<Guid, Domain.Entities.User>();
+            var serviceDict = services?.ToDictionary(s => s.Id) ?? new Dictionary<Guid, Domain.Entities.Service>();
+            var addressDict = addresses?.ToDictionary(a => a.Id) ?? new Dictionary<Guid, Domain.Entities.Address>();
             var paymentDict = payments?
                 .Where(p => p.Status == PaymentStatus.Completed)
                 .GroupBy(p => p.BookingId)
@@ -115,7 +115,7 @@ public class GetProviderActiveBookingsQueryHandler : IRequestHandler<GetProvider
                     CompletedAt = booking.CompletedAt,
 
                     TotalAmount = booking.TotalAmount,
-                    Currency = booking.Currency,
+                    Currency = booking.Currency.ToString(),
 
                     IsPaid = isPaid,
 

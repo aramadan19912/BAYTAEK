@@ -15,17 +15,20 @@ public class RespondToReviewCommandHandler : IRequestHandler<RespondToReviewComm
 {
     private readonly IRepository<Domain.Entities.Review> _reviewRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationService _notificationService;
     private readonly IPushNotificationService _pushNotificationService;
     private readonly ILogger<RespondToReviewCommandHandler> _logger;
 
     public RespondToReviewCommandHandler(
         IRepository<Domain.Entities.Review> reviewRepository,
         IUnitOfWork unitOfWork,
+        INotificationService notificationService,
         IPushNotificationService pushNotificationService,
         ILogger<RespondToReviewCommandHandler> logger)
     {
         _reviewRepository = reviewRepository;
         _unitOfWork = unitOfWork;
+        _notificationService = notificationService;
         _pushNotificationService = pushNotificationService;
         _logger = logger;
     }
@@ -68,7 +71,7 @@ public class RespondToReviewCommandHandler : IRequestHandler<RespondToReviewComm
 
             // Add provider response
             review.ProviderResponse = request.Response.Trim();
-            review.ProviderResponseAt = DateTime.UtcNow;
+            review.ProviderRespondedAt = DateTime.UtcNow;
             review.UpdatedAt = DateTime.UtcNow;
             review.UpdatedBy = request.ProviderId.ToString();
 
@@ -81,16 +84,16 @@ public class RespondToReviewCommandHandler : IRequestHandler<RespondToReviewComm
             // Send notification to customer
             try
             {
-                await _pushNotificationService.SendNotificationAsync(
+                await _notificationService.SendNotificationAsync(
                     review.CustomerId,
                     "Provider Response",
+                    "رد مقدم الخدمة",
                     "The provider has responded to your review",
-                    new Dictionary<string, string>
-                    {
-                        { "type", "review_response" },
-                        { "reviewId", review.Id.ToString() },
-                        { "bookingId", review.BookingId.ToString() }
-                    },
+                    "قام مقدم الخدمة بالرد على مراجعتك",
+                    NotificationCategory.Booking,
+                    review.Id,
+                    "Review",
+                    null,
                     cancellationToken);
             }
             catch (Exception ex)

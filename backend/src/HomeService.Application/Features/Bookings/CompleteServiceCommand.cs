@@ -87,7 +87,7 @@ public class CompleteServiceCommandHandler : IRequestHandler<CompleteServiceComm
             {
                 BookingId = booking.Id,
                 Status = BookingStatus.Completed,
-                ChangedBy = request.ProviderId,
+                ChangedById = request.ProviderId,
                 Notes = historyNotes
             };
             await _unitOfWork.Repository<BookingHistory>().AddAsync(history, cancellationToken);

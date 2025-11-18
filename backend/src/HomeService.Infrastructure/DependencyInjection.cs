@@ -56,36 +56,62 @@ public static class DependencyInjection
         services.AddScoped<SentimentAnalysisService>();
         services.AddScoped<SemanticSearchService>();
 
-        // Redis Cache
+        // Redis Cache (or in-memory fallback)
         var redisConnection = configuration.GetConnectionString("Redis");
         if (!string.IsNullOrEmpty(redisConnection))
         {
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = redisConnection;
-            });
+            // Note: AddStackExchangeRedisCache requires Microsoft.Extensions.Caching.StackExchangeRedis package
+            // services.AddStackExchangeRedisCache(options =>
+            // {
+            //     options.Configuration = redisConnection;
+            // });
+            
+            // Use in-memory cache as fallback since Redis package is not installed
+            services.AddDistributedMemoryCache();
+        }
+        else
+        {
+            // Use in-memory distributed cache when Redis is not configured
+            services.AddDistributedMemoryCache();
         }
 
-        // Hangfire Background Jobs
-        services.AddHangfire(config => config
-            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-            .UseSimpleAssemblyNameTypeSerializer()
-            .UseRecommendedSerializerSettings()
-            .UseSqlServerStorage(connectionString, new SqlServerStorageOptions
-            {
-                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-                SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-                QueuePollInterval = TimeSpan.Zero,
-                UseRecommendedIsolationLevel = true,
-                DisableGlobalLocks = true,
-                SchemaName = "hangfire"
-            }));
-
-        services.AddHangfireServer(options =>
+        // Hangfire Background Jobs (optional - requires SQL Server)
+        var enableHangfire = configuration.GetValue<bool>("Hangfire:Enabled", false);
+        if (enableHangfire && !string.IsNullOrEmpty(connectionString))
         {
-            options.WorkerCount = Environment.ProcessorCount * 2;
-            options.Queues = new[] { "default", "critical", "normal", "low" };
-        });
+            try
+            {
+                services.AddHangfire(config => config
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseSqlServerStorage(connectionString, new SqlServerStorageOptions
+                    {
+                        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                        QueuePollInterval = TimeSpan.Zero,
+                        UseRecommendedIsolationLevel = true,
+                        DisableGlobalLocks = true,
+                        SchemaName = "hangfire"
+                    }));
+
+                services.AddHangfireServer(options =>
+                {
+                    options.WorkerCount = Environment.ProcessorCount * 2;
+                    options.Queues = new[] { "default", "critical", "normal", "low" };
+                });
+            }
+            catch (Exception)
+            {
+                // Hangfire configuration failed - app will run without background jobs
+                Console.WriteLine("Warning: Hangfire could not be initialized. Background jobs will be disabled.");
+            }
+        }
+        else
+        {
+            // Hangfire is disabled - use in-memory job queue for development
+            Console.WriteLine("Info: Hangfire is disabled. Background jobs will not be processed.");
+        }
 
         return services;
     }

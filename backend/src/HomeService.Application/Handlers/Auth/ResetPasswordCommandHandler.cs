@@ -23,7 +23,6 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
         ILogger<ResetPasswordCommandHandler> logger)
     {
         _userRepository = userRepository;
-        _passwordHasher = passwordHasher;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -59,7 +58,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
             // This should be enhanced with proper token storage and validation
 
             // Hash the new password
-            var hashedPassword = _passwordHasher.HashPassword(request.NewPassword);
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 
             // Update user password
             user.PasswordHash = hashedPassword;

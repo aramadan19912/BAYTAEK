@@ -98,8 +98,9 @@ public class RescheduleBookingCommandHandler
             {
                 BookingId = booking.Id,
                 Status = booking.Status, // Status remains the same
-                ChangedBy = request.UserId,
-                Notes = historyNotes
+                ChangedById = request.UserId,
+                Notes = historyNotes,
+                ChangedAt = DateTime.UtcNow
             };
             await _unitOfWork.Repository<BookingHistory>().AddAsync(history, cancellationToken);
 

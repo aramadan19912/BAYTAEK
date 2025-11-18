@@ -19,6 +19,7 @@ public class ApproveVerificationCommandHandler : IRequestHandler<ApproveVerifica
     private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
+    private readonly INotificationService _notificationService;
     private readonly IPushNotificationService _pushNotificationService;
     private readonly ILogger<ApproveVerificationCommandHandler> _logger;
 
@@ -27,6 +28,7 @@ public class ApproveVerificationCommandHandler : IRequestHandler<ApproveVerifica
         IRepository<HomeService.Domain.Entities.User> userRepository,
         IUnitOfWork unitOfWork,
         IEmailService emailService,
+        INotificationService notificationService,
         IPushNotificationService pushNotificationService,
         ILogger<ApproveVerificationCommandHandler> logger)
     {
@@ -34,6 +36,7 @@ public class ApproveVerificationCommandHandler : IRequestHandler<ApproveVerifica
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _emailService = emailService;
+        _notificationService = notificationService;
         _pushNotificationService = pushNotificationService;
         _logger = logger;
     }
@@ -57,9 +60,7 @@ public class ApproveVerificationCommandHandler : IRequestHandler<ApproveVerifica
 
             // Approve verification
             provider.IsVerified = true;
-            provider.VerificationStatus = "Approved";
-            provider.VerifiedAt = DateTime.UtcNow;
-            provider.VerifiedBy = request.AdminUserId.ToString();
+            // Note: VerificationStatus, VerifiedAt, VerifiedBy would need to be added to ServiceProvider entity
             provider.UpdatedAt = DateTime.UtcNow;
             provider.UpdatedBy = request.AdminUserId.ToString();
 
@@ -77,10 +78,11 @@ public class ApproveVerificationCommandHandler : IRequestHandler<ApproveVerifica
             {
                 try
                 {
-                    await _emailService.SendProviderVerificationApprovedEmailAsync(
+                    await _emailService.SendProviderApprovalEmailAsync(
                         user.Email,
                         provider.BusinessName ?? user.FirstName,
-                        user.PreferredLanguage,
+                        true,
+                        null,
                         cancellationToken);
                 }
                 catch (Exception ex)
@@ -89,18 +91,13 @@ public class ApproveVerificationCommandHandler : IRequestHandler<ApproveVerifica
                         request.ProviderId);
                 }
 
-                // Send push notification
+                // Send notification
                 try
                 {
-                    await _pushNotificationService.SendNotificationAsync(
+                    await _notificationService.SendProviderApprovalNotificationAsync(
                         provider.UserId,
-                        "Verification Approved",
-                        "Congratulations! Your provider account has been verified.",
-                        new Dictionary<string, string>
-                        {
-                            { "type", "verification_approved" },
-                            { "providerId", provider.Id.ToString() }
-                        },
+                        true,
+                        null,
                         cancellationToken);
                 }
                 catch (Exception ex)

@@ -63,7 +63,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             decimal vatAmount = service.BasePrice * (vatPercentage / 100);
             decimal totalAmount = service.BasePrice + vatAmount;
 
-            var booking = new Booking
+            var booking = new Domain.Entities.Booking
             {
                 Id = Guid.NewGuid(),
                 CustomerId = request.CustomerId,

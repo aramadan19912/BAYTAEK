@@ -12,17 +12,20 @@ namespace HomeService.Application.Handlers.Services;
 public class CreateServiceCommandHandler : IRequestHandler<CreateServiceCommand, Result<ServiceDto>>
 {
     private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
+    private readonly IRepository<ServiceCategory> _categoryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<CreateServiceCommandHandler> _logger;
 
     public CreateServiceCommandHandler(
         IRepository<HomeService.Domain.Entities.Service> serviceRepository,
+        IRepository<ServiceCategory> categoryRepository,
         IUnitOfWork unitOfWork,
         IMapper mapper,
         ILogger<CreateServiceCommandHandler> logger)
     {
         _serviceRepository = serviceRepository;
+        _categoryRepository = categoryRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
@@ -33,12 +36,13 @@ public class CreateServiceCommandHandler : IRequestHandler<CreateServiceCommand,
         try
         {
             // Verify category exists
-            if (!categoryExists)
+            var category = await _categoryRepository.GetByIdAsync(request.CategoryId, cancellationToken);
+            if (category == null)
             {
                 return Result.Failure<ServiceDto>("Service category not found");
             }
 
-            var service = new Service
+            var service = new HomeService.Domain.Entities.Service
             {
                 Id = Guid.NewGuid(),
                 CategoryId = request.CategoryId,

@@ -1,13 +1,10 @@
 using HomeService.Application.Commands.User;
 using HomeService.Domain.Interfaces;
 using HomeService.Application.Common;
-using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
-using HomeService.Domain.Interfaces;
 using MediatR;
-using HomeService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
-using HomeService.Domain.Interfaces;
+using HomeService.Domain.Enums;
 
 namespace HomeService.Application.Handlers.User;
 
@@ -35,7 +32,7 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
             var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
             if (user == null)
             {
-                return Result<bool>.Failure("User not found");
+                return Result.Failure<bool>("User not found");
             }
 
             // Track changes
@@ -63,12 +60,12 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
                 hasChanges = true;
             }
 
-            if (!string.IsNullOrWhiteSpace(request.PreferredLanguage) && request.PreferredLanguage != user.PreferredLanguage)
+            if (!string.IsNullOrWhiteSpace(request.PreferredLanguage))
             {
-                // Validate language is supported (ar or en)
-                if (request.PreferredLanguage.ToLower() == "ar" || request.PreferredLanguage.ToLower() == "en")
+                // Parse and validate language enum
+                if (Enum.TryParse<Language>(request.PreferredLanguage, true, out var language) && language != user.PreferredLanguage)
                 {
-                    user.PreferredLanguage = request.PreferredLanguage.ToLower();
+                    user.PreferredLanguage = language;
                     hasChanges = true;
                 }
             }
@@ -81,7 +78,7 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
 
             if (!hasChanges)
             {
-                return Result<bool>.Success(true, "No changes detected");
+                return Result.Success(true, "No changes detected");
             }
 
             // Update timestamps
@@ -93,12 +90,12 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
 
             _logger.LogInformation("Profile updated for user {UserId}", request.UserId);
 
-            return Result<bool>.Success(true, "Profile updated successfully");
+            return Result.Success(true, "Profile updated successfully");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating profile for user {UserId}", request.UserId);
-            return Result<bool>.Failure("An error occurred while updating the profile");
+            return Result.Failure<bool>("An error occurred while updating the profile");
         }
     }
 }

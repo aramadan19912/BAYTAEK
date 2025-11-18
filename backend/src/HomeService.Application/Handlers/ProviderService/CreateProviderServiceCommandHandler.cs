@@ -5,6 +5,7 @@ using HomeService.Domain.Interfaces;
 using HomeService.Application.Interfaces;
 using HomeService.Domain.Interfaces;
 using HomeService.Domain.Entities;
+using HomeService.Domain.Enums;
 using HomeService.Domain.Interfaces;
 using MediatR;
 using HomeService.Domain.Interfaces;
@@ -17,17 +18,20 @@ public class CreateProviderServiceCommandHandler : IRequestHandler<CreateProvide
 {
     private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
     private readonly IRepository<ServiceProvider> _providerRepository;
+    private readonly IRepository<ServiceCategory> _categoryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreateProviderServiceCommandHandler> _logger;
 
     public CreateProviderServiceCommandHandler(
         IRepository<HomeService.Domain.Entities.Service> serviceRepository,
         IRepository<ServiceProvider> providerRepository,
+        IRepository<ServiceCategory> categoryRepository,
         IUnitOfWork unitOfWork,
         ILogger<CreateProviderServiceCommandHandler> logger)
     {
         _serviceRepository = serviceRepository;
         _providerRepository = providerRepository;
+        _categoryRepository = categoryRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -44,6 +48,7 @@ public class CreateProviderServiceCommandHandler : IRequestHandler<CreateProvide
             }
 
             // Validate category exists
+            var category = await _categoryRepository.GetByIdAsync(request.CategoryId, cancellationToken);
             if (category == null)
             {
                 return Result<ServiceCreatedDto>.Failure("Category not found");
@@ -81,7 +86,7 @@ public class CreateProviderServiceCommandHandler : IRequestHandler<CreateProvide
             }
 
             // Create service
-            var service = new Service
+            var service = new HomeService.Domain.Entities.Service
             {
                 Id = Guid.NewGuid(),
                 ProviderId = request.ProviderId,
@@ -91,7 +96,7 @@ public class CreateProviderServiceCommandHandler : IRequestHandler<CreateProvide
                 DescriptionEn = request.DescriptionEn.Trim(),
                 DescriptionAr = request.DescriptionAr.Trim(),
                 BasePrice = request.BasePrice,
-                Currency = request.Currency,
+                Currency = Enum.Parse<Currency>(request.Currency, true),
                 EstimatedDurationMinutes = request.EstimatedDurationMinutes,
                 AvailableRegions = request.AvailableRegions.ToArray(),
                 RequiredMaterials = request.RequiredMaterials?.Trim(),

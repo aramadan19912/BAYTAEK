@@ -35,4 +35,10 @@ public class Result<T> : Result
     {
         Data = data;
     }
+
+    public static new Result<T> Success(T data, string message = "")
+        => new(true, message, Array.Empty<string>(), data);
+
+    public static new Result<T> Failure(string message, params string[] errors)
+        => new(false, message, errors, default!);
 }

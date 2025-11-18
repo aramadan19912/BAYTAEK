@@ -101,7 +101,7 @@ public class OtpService : IOtpService
             var message = GetOtpMessage(code, purpose);
             var smsSent = await _smsService.SendSmsAsync(normalizedPhone, message, cancellationToken);
 
-            if (!smsSent)
+            if (!smsSent.Success)
             {
                 _logger.LogError("Failed to send OTP SMS to {PhoneNumber}", normalizedPhone);
                 return new OtpResponse

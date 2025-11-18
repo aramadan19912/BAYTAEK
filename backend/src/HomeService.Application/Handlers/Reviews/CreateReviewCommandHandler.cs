@@ -99,7 +99,7 @@ public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, R
             // }
 
             // Create review
-            var review = new Review
+            var review = new Domain.Entities.Review
             {
                 Id = Guid.NewGuid(),
                 BookingId = request.BookingId,

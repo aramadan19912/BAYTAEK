@@ -99,7 +99,7 @@ public class UpdateReviewCommandHandler : IRequestHandler<UpdateReviewCommand, R
 
             if (provider != null)
             {
-                provider.AverageRating = Math.Round(averageRating, 2);
+                provider.AverageRating = (decimal)Math.Round(averageRating, 2);
                 provider.TotalReviews = reviews.Count;
                 _unitOfWork.Repository<ServiceProvider>().Update(provider);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);

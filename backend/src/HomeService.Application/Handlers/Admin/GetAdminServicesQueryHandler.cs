@@ -15,6 +15,7 @@ public class GetAdminServicesQueryHandler : IRequestHandler<GetAdminServicesQuer
     private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
     private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
     private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
+    private readonly IRepository<ServiceCategory> _categoryRepository;
     private readonly ILogger<GetAdminServicesQueryHandler> _logger;
 
     public GetAdminServicesQueryHandler(
@@ -23,6 +24,7 @@ public class GetAdminServicesQueryHandler : IRequestHandler<GetAdminServicesQuer
         IRepository<HomeService.Domain.Entities.Review> reviewRepository,
         IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
         IRepository<HomeService.Domain.Entities.User> userRepository,
+        IRepository<ServiceCategory> categoryRepository,
         ILogger<GetAdminServicesQueryHandler> logger)
     {
         _serviceRepository = serviceRepository;
@@ -30,6 +32,7 @@ public class GetAdminServicesQueryHandler : IRequestHandler<GetAdminServicesQuer
         _reviewRepository = reviewRepository;
         _paymentRepository = paymentRepository;
         _userRepository = userRepository;
+        _categoryRepository = categoryRepository;
         _logger = logger;
     }
 
@@ -42,6 +45,7 @@ public class GetAdminServicesQueryHandler : IRequestHandler<GetAdminServicesQuer
             var reviews = await _reviewRepository.GetAllAsync(cancellationToken);
             var payments = await _paymentRepository.GetAllAsync(cancellationToken);
             var users = await _userRepository.GetAllAsync(cancellationToken);
+            var categories = await _categoryRepository.GetAllAsync(cancellationToken);
 
             // Apply filters
             if (request.CategoryId.HasValue)
@@ -51,7 +55,7 @@ public class GetAdminServicesQueryHandler : IRequestHandler<GetAdminServicesQuer
 
             if (request.Region.HasValue)
             {
-                query = query.Where(s => s.Region == request.Region.Value);
+                query = query.Where(s => s.AvailableRegions.Contains(request.Region.Value));
             }
 
             if (request.IsActive.HasValue)
@@ -63,8 +67,10 @@ public class GetAdminServicesQueryHandler : IRequestHandler<GetAdminServicesQuer
             {
                 var searchLower = request.SearchTerm.ToLower();
                 query = query.Where(s =>
-                    s.Name.ToLower().Contains(searchLower) ||
-                    s.Description.ToLower().Contains(searchLower));
+                    s.NameEn.ToLower().Contains(searchLower) ||
+                    s.NameAr.ToLower().Contains(searchLower) ||
+                    s.DescriptionEn.ToLower().Contains(searchLower) ||
+                    s.DescriptionAr.ToLower().Contains(searchLower));
             }
 
             if (request.MinPrice.HasValue)
@@ -113,20 +119,20 @@ public class GetAdminServicesQueryHandler : IRequestHandler<GetAdminServicesQuer
                 return new AdminServiceListDto
                 {
                     Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
+                    Name = s.NameEn,
+                    Description = s.DescriptionEn,
                     BasePrice = s.BasePrice,
-                    ImageUrl = s.ImageUrl,
+                    ImageUrl = s.ImageUrls.FirstOrDefault(),
 
                     CategoryId = s.CategoryId,
-                    CategoryName = category?.Name ?? "Unknown",
+                    CategoryName = category?.NameEn ?? "Unknown",
 
-                    Region = s.Region,
+                    Region = s.AvailableRegions.FirstOrDefault(),
                     IsActive = !s.IsDeleted,
 
                     TotalBookings = serviceBookings.Count,
                     CompletedBookings = completedBookings.Count,
-                    AverageRating = serviceReviews.Any() ? serviceReviews.Average(r => r.Rating) : 0,
+                    AverageRating = serviceReviews.Any() ? (decimal)serviceReviews.Average(r => r.Rating) : 0,
                     TotalReviews = serviceReviews.Count,
                     TotalRevenue = totalRevenue,
 
@@ -134,7 +140,7 @@ public class GetAdminServicesQueryHandler : IRequestHandler<GetAdminServicesQuer
                     ActiveProviders = activeProviders,
 
                     CreatedAt = s.CreatedAt,
-                    UpdatedAt = s.UpdatedAt
+                    UpdatedAt = s.UpdatedAt ?? s.CreatedAt
                 };
             }).ToList();
 

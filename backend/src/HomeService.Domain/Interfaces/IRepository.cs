@@ -12,6 +12,7 @@ public interface IRepository<T> where T : BaseEntity
     Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
     void Update(T entity); // Synchronous update for unit of work pattern
     Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
+    void Delete(T entity); // Synchronous delete for unit of work pattern
     Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
     Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default);
     IQueryable<T> GetQueryable(); // For LINQ queries

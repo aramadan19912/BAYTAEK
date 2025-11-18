@@ -23,6 +23,7 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
     private readonly IRepository<ServiceProvider> _providerRepository;
     private readonly IRepository<Domain.Entities.Service> _serviceRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationService _notificationService;
     private readonly IPushNotificationService _pushNotificationService;
     private readonly ILogger<SubmitReviewCommandHandler> _logger;
 
@@ -33,6 +34,7 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
         IRepository<ServiceProvider> providerRepository,
         IRepository<Domain.Entities.Service> serviceRepository,
         IUnitOfWork unitOfWork,
+        INotificationService notificationService,
         IPushNotificationService pushNotificationService,
         ILogger<SubmitReviewCommandHandler> logger)
     {
@@ -42,6 +44,7 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
         _providerRepository = providerRepository;
         _serviceRepository = serviceRepository;
         _unitOfWork = unitOfWork;
+        _notificationService = notificationService;
         _pushNotificationService = pushNotificationService;
         _logger = logger;
     }
@@ -99,22 +102,21 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
             {
                 Id = Guid.NewGuid(),
                 BookingId = request.BookingId,
-                ServiceId = booking.ServiceId,
-                ProviderId = booking.ProviderId,
+                ProviderId = booking.ProviderId!.Value,
                 CustomerId = request.CustomerId,
                 Rating = request.Rating,
                 Comment = request.Comment,
-                ImageUrls = request.ImageUrls?.ToArray(),
-                IsAnonymous = request.IsAnonymous,
+                ImageUrls = request.ImageUrls?.ToArray() ?? Array.Empty<string>(),
                 IsVisible = true, // Auto-approve reviews (can add moderation later)
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.CustomerId.ToString()
             };
+            // Note: IsAnonymous property would need to be added to Review entity
 
             await _reviewRepository.AddAsync(review, cancellationToken);
 
             // Update provider's average rating and total reviews
-            var provider = await _providerRepository.GetByIdAsync(booking.ProviderId, cancellationToken);
+            var provider = await _providerRepository.GetByIdAsync(booking.ProviderId!.Value, cancellationToken);
             if (provider != null)
             {
                 var allProviderReviews = await _reviewRepository.FindAsync(
@@ -136,8 +138,9 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
             var service = await _serviceRepository.GetByIdAsync(booking.ServiceId, cancellationToken);
             if (service != null)
             {
+                // Get all reviews for bookings of this service
                 var allServiceReviews = await _reviewRepository.FindAsync(
-                    r => r.ServiceId == booking.ServiceId && r.IsVisible,
+                    r => r.Booking.ServiceId == booking.ServiceId && r.IsVisible,
                     cancellationToken);
 
                 var serviceReviewsList = allServiceReviews?.ToList() ?? new List<Domain.Entities.Review>();
@@ -146,8 +149,9 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
                 // Calculate average rating for the service
                 var averageRating = Math.Round((decimal)serviceReviewsList.Average(r => r.Rating), 2);
 
-                // TODO: Add AverageRating property to Service entity
-                // service.AverageRating = averageRating;
+                // Update service rating
+                service.AverageRating = averageRating;
+                service.TotalReviews = serviceReviewsList.Count;
                 service.UpdatedAt = DateTime.UtcNow;
                 service.UpdatedBy = request.CustomerId.ToString();
 
@@ -166,17 +170,16 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
                     ? $"You received a {request.Rating}-star review!"
                     : $"You received a new review";
 
-                await _pushNotificationService.SendNotificationAsync(
-                    booking.ProviderId,
+                await _notificationService.SendNotificationAsync(
+                    booking.ProviderId!.Value,
                     "New Review",
+                    "مراجعة جديدة",
                     message,
-                    new Dictionary<string, string>
-                    {
-                        { "type", "new_review" },
-                        { "reviewId", review.Id.ToString() },
-                        { "bookingId", booking.Id.ToString() },
-                        { "rating", request.Rating.ToString() }
-                    },
+                    message,
+                    NotificationCategory.Booking,
+                    review.Id,
+                    "Review",
+                    null,
                     cancellationToken);
             }
             catch (Exception ex)
@@ -189,16 +192,16 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
             {
                 Id = review.Id,
                 BookingId = review.BookingId,
-                ServiceId = review.ServiceId,
+                ServiceId = booking.ServiceId,
                 ProviderId = review.ProviderId,
-                CustomerName = review.IsAnonymous ? "Anonymous" : $"{customer.FirstName} {customer.LastName}",
-                CustomerProfileImage = review.IsAnonymous ? null : customer.ProfileImageUrl,
+                CustomerName = $"{customer.FirstName} {customer.LastName}",
+                CustomerProfileImage = customer.ProfileImageUrl,
                 Rating = review.Rating,
                 Comment = review.Comment,
                 ImageUrls = review.ImageUrls?.ToList() ?? new List<string>(),
-                IsAnonymous = review.IsAnonymous,
+                IsAnonymous = false, // IsAnonymous would need to be added to Review entity
                 ProviderResponse = review.ProviderResponse,
-                ProviderResponseAt = review.ProviderResponseAt,
+                ProviderResponseAt = review.ProviderRespondedAt,
                 IsVisible = review.IsVisible,
                 CreatedAt = review.CreatedAt,
                 UpdatedAt = review.UpdatedAt

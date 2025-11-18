@@ -38,16 +38,16 @@ public class GetPlatformAnalyticsQueryHandler
             var endDate = request.EndDate ?? DateTime.UtcNow;
 
             // User metrics
-            var allUsers = await _unitOfWork.Repository<User>()
-                .GetAllAsync(cancellationToken);
+            var allUsers = (await _unitOfWork.Repository<User>()
+                .GetAllAsync(cancellationToken))?.ToList() ?? new List<User>();
 
             var totalUsers = allUsers.Count;
             var activeUsers = allUsers.Count(u => u.IsActive);
             var newUsersInPeriod = allUsers.Count(u => u.CreatedAt >= startDate && u.CreatedAt <= endDate);
 
             // Provider metrics
-            var allProviders = await _unitOfWork.Repository<ServiceProvider>()
-                .GetAllAsync(cancellationToken);
+            var allProviders = (await _unitOfWork.Repository<ServiceProvider>()
+                .GetAllAsync(cancellationToken))?.ToList() ?? new List<ServiceProvider>();
 
             var totalProviders = allProviders.Count;
             var verifiedProviders = allProviders.Count(p => p.IsVerified);
@@ -168,7 +168,7 @@ public class GetPlatformAnalyticsQueryHandler
                     ProviderName = provider != null ? provider.BusinessName : "Unknown",
                     BookingsCount = tp.BookingsCount,
                     Revenue = tp.Revenue,
-                    AverageRating = provider?.AverageRating ?? 0
+                    AverageRating = (double)(provider?.AverageRating ?? 0)
                 };
             }).ToList();
 

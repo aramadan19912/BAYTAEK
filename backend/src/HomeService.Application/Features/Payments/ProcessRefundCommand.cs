@@ -107,7 +107,7 @@ public class ProcessRefundCommandHandler
             {
                 BookingId = payment.BookingId,
                 Status = payment.Booking.Status,
-                ChangedBy = payment.Booking.CustomerId, // System change
+                ChangedById = payment.Booking.CustomerId, // System change
                 Notes = $"Refund processed: {refundAmount} {payment.Currency}. " +
                        $"Reason: {request.Reason}. " +
                        $"Transaction ID: {refundResponse.RefundTransactionId}"

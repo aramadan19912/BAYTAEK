@@ -48,7 +48,7 @@ public class GetProviderServicesQueryHandler : IRequestHandler<GetProviderServic
                     cancellationToken);
 
             var services = servicesQuery?.OrderByDescending(s => s.CreatedAt).ToList()
-                ?? new List<Service>();
+                ?? new List<Domain.Entities.Service>();
 
             if (!services.Any())
             {
@@ -60,23 +60,26 @@ public class GetProviderServicesQueryHandler : IRequestHandler<GetProviderServic
             var bookings = await _bookingRepository.FindAsync(
                 b => serviceIds.Contains(b.ServiceId),
                 cancellationToken);
-            var bookingsDict = bookings?.GroupBy(b => b.ServiceId)
-                .ToDictionary(g => g.Key, g => g.ToList())
-                ?? new Dictionary<Guid, List<Booking>>();
+            var serviceBookings = bookings?.ToList() ?? new List<Domain.Entities.Booking>();
+            var bookingsDict = serviceBookings.GroupBy(b => b.ServiceId)
+                .ToDictionary(g => g.Key, g => g.ToList());
 
-            // Get reviews
-            var reviews = await _reviewRepository.FindAsync(
-                r => serviceIds.Contains(r.ServiceId) && r.IsVisible,
+            // Get reviews (through bookings)
+            var serviceBookingIds = serviceBookings.Select(b => b.Id).ToList();
+            var allReviews = await _reviewRepository.FindAsync(
+                r => serviceBookingIds.Contains(r.BookingId) && r.IsVisible,
                 cancellationToken);
-            var reviewsDict = reviews?.GroupBy(r => r.ServiceId)
+            var reviewsDict = allReviews?
+                .Where(r => serviceBookings.Any(b => b.Id == r.BookingId))
+                .GroupBy(r => serviceBookings.First(b => b.Id == r.BookingId).ServiceId)
                 .ToDictionary(g => g.Key, g => g.ToList())
-                ?? new Dictionary<Guid, List<Review>>();
+                ?? new Dictionary<Guid, List<Domain.Entities.Review>>();
 
             // Build DTOs
             var serviceDtos = services.Select(service =>
             {
-                var serviceBookings = bookingsDict.GetValueOrDefault(service.Id, new List<Booking>());
-                var serviceReviews = reviewsDict.GetValueOrDefault(service.Id, new List<Review>());
+                var serviceBookings = bookingsDict.GetValueOrDefault(service.Id, new List<Domain.Entities.Booking>());
+                var serviceReviews = reviewsDict.GetValueOrDefault(service.Id, new List<Domain.Entities.Review>());
 
                 return new ProviderServiceDto
                 {
@@ -89,7 +92,7 @@ public class GetProviderServicesQueryHandler : IRequestHandler<GetProviderServic
                     DescriptionEn = service.DescriptionEn,
                     DescriptionAr = service.DescriptionAr,
                     BasePrice = service.BasePrice,
-                    Currency = service.Currency,
+                    Currency = service.Currency.ToString(),
                     EstimatedDurationMinutes = service.EstimatedDurationMinutes,
                     AvailableRegions = service.AvailableRegions.Select(r => r.ToString()).ToList(),
                     RequiredMaterials = service.RequiredMaterials,

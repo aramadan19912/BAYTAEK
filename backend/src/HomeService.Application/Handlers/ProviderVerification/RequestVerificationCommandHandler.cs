@@ -62,9 +62,9 @@ public class RequestVerificationCommandHandler : IRequestHandler<RequestVerifica
 
             // Update provider with verification documents
             provider.LicenseNumber = request.LicenseNumber.Trim();
-            provider.CertificationDocuments = request.CertificationDocuments.ToArray();
-            provider.VerificationStatus = "Pending"; // Add this field to ServiceProvider entity
-            provider.VerificationRequestedAt = DateTime.UtcNow;
+            provider.CertificationDocuments = string.Join(",", request.CertificationDocuments);
+            // Note: VerificationStatus and VerificationRequestedAt would need to be added to ServiceProvider entity
+            // For now, using IsVerified field
             provider.UpdatedAt = DateTime.UtcNow;
             provider.UpdatedBy = request.ProviderId.ToString();
 

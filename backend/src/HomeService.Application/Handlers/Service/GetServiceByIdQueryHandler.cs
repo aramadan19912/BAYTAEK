@@ -19,6 +19,8 @@ public class GetServiceByIdQueryHandler : IRequestHandler<GetServiceByIdQuery, R
     private readonly IRepository<ServiceProvider> _providerRepository;
     private readonly IRepository<HomeService.Domain.Entities.User> _userRepository;
     private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
+    private readonly IRepository<Domain.Entities.Booking> _bookingRepository;
+    private readonly IRepository<ServiceCategory> _categoryRepository;
     private readonly ILogger<GetServiceByIdQueryHandler> _logger;
 
     public GetServiceByIdQueryHandler(
@@ -26,12 +28,16 @@ public class GetServiceByIdQueryHandler : IRequestHandler<GetServiceByIdQuery, R
         IRepository<ServiceProvider> providerRepository,
         IRepository<HomeService.Domain.Entities.User> userRepository,
         IRepository<HomeService.Domain.Entities.Review> reviewRepository,
+        IRepository<Domain.Entities.Booking> bookingRepository,
+        IRepository<ServiceCategory> categoryRepository,
         ILogger<GetServiceByIdQueryHandler> logger)
     {
         _serviceRepository = serviceRepository;
         _providerRepository = providerRepository;
         _userRepository = userRepository;
         _reviewRepository = reviewRepository;
+        _bookingRepository = bookingRepository;
+        _categoryRepository = categoryRepository;
         _logger = logger;
     }
 
@@ -61,22 +67,30 @@ public class GetServiceByIdQueryHandler : IRequestHandler<GetServiceByIdQuery, R
             var providerEntity = provider?.FirstOrDefault();
 
             // Get provider user info
-            User? providerUser = null;
+            Domain.Entities.User? providerUser = null;
             if (providerEntity != null)
             {
                 providerUser = await _userRepository.GetByIdAsync(providerEntity.UserId, cancellationToken);
             }
 
-            // Get reviews for this service
+            // Get reviews for this service (through bookings)
+            var serviceBookings = await _bookingRepository.FindAsync(
+                b => b.ServiceId == service.Id,
+                cancellationToken);
+            var bookingIds = serviceBookings?.Select(b => b.Id).ToList() ?? new List<Guid>();
+            
             var allReviews = await _reviewRepository.FindAsync(
-                r => r.ServiceId == service.Id && r.IsVisible,
+                r => bookingIds.Contains(r.BookingId) && r.IsVisible,
                 cancellationToken);
 
-            var reviewsList = allReviews?.OrderByDescending(r => r.CreatedAt).ToList() ?? new List<Review>();
+            var reviewsList = allReviews?.OrderByDescending(r => r.CreatedAt).ToList() ?? new List<Domain.Entities.Review>();
+
+            // Get category
+            var category = await _categoryRepository.GetByIdAsync(service.CategoryId, cancellationToken);
 
             // Calculate average rating
             var averageRating = reviewsList.Any()
-                ? reviewsList.Average(r => r.Rating)
+                ? (decimal)reviewsList.Average(r => r.Rating)
                 : 0;
 
             // Get recent reviews (top 5)
@@ -107,7 +121,7 @@ public class GetServiceByIdQueryHandler : IRequestHandler<GetServiceByIdQuery, R
                 CategoryNameEn = category?.NameEn ?? "Unknown Category",
                 CategoryNameAr = category?.NameAr ?? "فئة غير معروفة",
 
-                ProviderId = service.ProviderId,
+                ProviderId = service.ProviderId ?? Guid.Empty,
                 ProviderName = providerUser != null
                     ? $"{providerUser.FirstName} {providerUser.LastName}"
                     : "Unknown Provider",
@@ -118,7 +132,7 @@ public class GetServiceByIdQueryHandler : IRequestHandler<GetServiceByIdQuery, R
                 ProviderIsVerified = providerEntity?.IsVerified ?? false,
 
                 BasePrice = service.BasePrice,
-                Currency = service.Currency,
+                Currency = service.Currency.ToString(),
                 EstimatedDurationMinutes = service.EstimatedDurationMinutes,
                 IsActive = service.IsActive,
                 IsFeatured = service.IsFeatured,

@@ -14,6 +14,13 @@ public class DeviceToken : BaseEntity
     public bool IsActive { get; set; } = true;
     public DateTime? LastUsedAt { get; set; }
 
+    // Alias properties for backward compatibility
+    public DevicePlatform DeviceType
+    {
+        get => Platform;
+        set => Platform = value;
+    }
+
     // Navigation properties
     public virtual User User { get; set; } = null!;
 }

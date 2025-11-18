@@ -226,8 +226,7 @@ public class FirebasePushNotificationService : IPushNotificationService
 
             var response = await FirebaseMessaging.DefaultInstance.SubscribeToTopicAsync(
                 new List<string> { deviceToken },
-                topic,
-                cancellationToken);
+                topic);
 
             _logger.LogInformation("Device subscribed to topic {Topic}. Success: {SuccessCount}",
                 topic, response.SuccessCount);
@@ -256,8 +255,7 @@ public class FirebasePushNotificationService : IPushNotificationService
 
             var response = await FirebaseMessaging.DefaultInstance.UnsubscribeFromTopicAsync(
                 new List<string> { deviceToken },
-                topic,
-                cancellationToken);
+                topic);
 
             _logger.LogInformation("Device unsubscribed from topic {Topic}. Success: {SuccessCount}",
                 topic, response.SuccessCount);

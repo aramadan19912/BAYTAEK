@@ -27,7 +27,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Dispute> Disputes => Set<Dispute>();
     public DbSet<SystemConfiguration> SystemConfigurations => Set<SystemConfiguration>();
     public DbSet<BookingHistory> BookingHistories => Set<BookingHistory>();
-    public DbSet<NotificationSetting> NotificationSettings => Set<NotificationSetting>();
+    // public DbSet<NotificationSetting> NotificationSettings => Set<NotificationSetting>(); // Entity doesn't exist
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +35,57 @@ public class ApplicationDbContext : DbContext
 
         // Apply all entity configurations from the assembly
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        // Configure Report entity relationships (multiple FKs to User)
+        modelBuilder.Entity<Report>()
+            .HasOne(r => r.Reporter)
+            .WithMany()
+            .HasForeignKey(r => r.ReporterId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Report>()
+            .HasOne(r => r.ReportedUser)
+            .WithMany()
+            .HasForeignKey(r => r.ReportedUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Report>()
+            .HasOne(r => r.ReviewedBy)
+            .WithMany()
+            .HasForeignKey(r => r.ReviewedById)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Dispute entity relationships (multiple FKs to User)
+        modelBuilder.Entity<Dispute>()
+            .HasOne(d => d.RaisedByUser)
+            .WithMany()
+            .HasForeignKey(d => d.RaisedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Dispute>()
+            .HasOne(d => d.AssignedToUser)
+            .WithMany()
+            .HasForeignKey(d => d.AssignedTo)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure SupportTicket entity relationships (multiple FKs to User)
+        modelBuilder.Entity<SupportTicket>()
+            .HasOne(t => t.User)
+            .WithMany()
+            .HasForeignKey(t => t.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<SupportTicket>()
+            .HasOne(t => t.AssignedTo)
+            .WithMany()
+            .HasForeignKey(t => t.AssignedToId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<SupportTicket>()
+            .HasOne(t => t.ResolvedBy)
+            .WithMany()
+            .HasForeignKey(t => t.ResolvedById)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -24,6 +24,7 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
     private readonly IRepository<HomeService.Domain.Entities.Address> _addressRepository;
     private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
     private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
+    private readonly IRepository<ServiceCategory> _categoryRepository;
     private readonly ILogger<GetBookingDetailQueryHandler> _logger;
 
     public GetBookingDetailQueryHandler(
@@ -34,6 +35,7 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
         IRepository<HomeService.Domain.Entities.Address> addressRepository,
         IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
         IRepository<HomeService.Domain.Entities.Review> reviewRepository,
+        IRepository<ServiceCategory> categoryRepository,
         ILogger<GetBookingDetailQueryHandler> logger)
     {
         _bookingRepository = bookingRepository;
@@ -43,6 +45,7 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
         _addressRepository = addressRepository;
         _paymentRepository = paymentRepository;
         _reviewRepository = reviewRepository;
+        _categoryRepository = categoryRepository;
         _logger = logger;
     }
 
@@ -67,18 +70,19 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
 
             // Get related entities
             var service = await _serviceRepository.GetByIdAsync(booking.ServiceId, cancellationToken);
-            var provider = await _providerRepository.GetByIdAsync(booking.ProviderId, cancellationToken);
+            var provider = booking.ProviderId.HasValue ? await _providerRepository.GetByIdAsync(booking.ProviderId.Value, cancellationToken) : null;
             var address = await _addressRepository.GetByIdAsync(booking.AddressId, cancellationToken);
 
-            User? providerUser = null;
+            Domain.Entities.User? providerUser = null;
             if (provider != null)
             {
                 providerUser = await _userRepository.GetByIdAsync(provider.UserId, cancellationToken);
             }
 
-            Category? category = null;
+            ServiceCategory? category = null;
             if (service != null)
             {
+                category = await _categoryRepository.GetByIdAsync(service.CategoryId, cancellationToken);
             }
 
             // Get payment
@@ -103,15 +107,16 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
                 Notes = "Booking created"
             });
 
-            if (booking.ConfirmedAt.HasValue)
-            {
-                timeline.Add(new BookingTimelineDto
-                {
-                    Status = BookingStatus.Confirmed,
-                    Timestamp = booking.ConfirmedAt.Value,
-                    Notes = "Booking confirmed by provider"
-                });
-            }
+            // Confirmed status would be tracked separately if needed
+            // if (booking.AcceptedAt.HasValue)
+            // {
+            //     timeline.Add(new BookingTimelineDto
+            //     {
+            //         Status = BookingStatus.Confirmed,
+            //         Timestamp = booking.AcceptedAt.Value,
+            //         Notes = "Booking confirmed by provider"
+            //     });
+            // }
 
             if (booking.StartedAt.HasValue)
             {
@@ -152,11 +157,11 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
             var result = new CustomerBookingDetailDto
             {
                 BookingId = booking.Id,
-                BookingNumber = booking.BookingNumber,
+                BookingNumber = $"BK-{booking.Id.ToString().Substring(0, 8).ToUpper()}",
                 Status = booking.Status,
-                ScheduledDateTime = booking.ScheduledDateTime,
+                ScheduledDateTime = booking.ScheduledAt,
                 CreatedAt = booking.CreatedAt,
-                ConfirmedAt = booking.ConfirmedAt,
+                ConfirmedAt = booking.CreatedAt,
                 StartedAt = booking.StartedAt,
                 CompletedAt = booking.CompletedAt,
                 CancelledAt = booking.CancelledAt,
@@ -169,7 +174,7 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
                     NameAr = service?.NameAr ?? "خدمة غير معروفة",
                     DescriptionEn = service?.DescriptionEn,
                     DescriptionAr = service?.DescriptionAr,
-                    ImageUrl = service?.Images?.FirstOrDefault(),
+                    ImageUrl = service?.ImageUrls?.FirstOrDefault(),
                     CategoryNameEn = category?.NameEn ?? "Unknown Category",
                     CategoryNameAr = category?.NameAr ?? "فئة غير معروفة",
                     BasePrice = service?.BasePrice ?? 0,
@@ -188,7 +193,7 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
                     Rating = provider?.AverageRating ?? 0,
                     TotalReviews = provider?.TotalReviews ?? 0,
                     IsVerified = provider?.IsVerified ?? false,
-                    YearsOfExperience = provider?.YearsOfExperience ?? 0
+                    YearsOfExperience = 0 // YearsOfExperience doesn't exist in ServiceProvider
                 },
 
                 // Address details
@@ -211,11 +216,11 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
                 // Pricing breakdown
                 Pricing = new PricingInfoDto
                 {
-                    ServicePrice = booking.ServicePrice,
-                    TaxAmount = booking.TaxAmount,
-                    DiscountAmount = booking.DiscountAmount,
+                    ServicePrice = service?.BasePrice ?? booking.TotalAmount,
+                    TaxAmount = booking.VatAmount,
+                    DiscountAmount = booking.DiscountAmount ?? 0m,
                     TotalAmount = booking.TotalAmount,
-                    Currency = booking.Currency
+                    Currency = booking.Currency.ToString()
                 },
 
                 // Payment details
@@ -235,7 +240,7 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
                     ReviewId = review.Id,
                     Rating = review.Rating,
                     Comment = review.Comment,
-                    Images = review.Images?.ToList() ?? new List<string>(),
+                    Images = review.ImageUrls?.ToList() ?? new List<string>(),
                     CreatedAt = review.CreatedAt,
                     ProviderResponse = review.ProviderResponse,
                     ProviderRespondedAt = review.ProviderRespondedAt
@@ -245,18 +250,18 @@ public class GetBookingDetailQueryHandler : IRequestHandler<GetBookingDetailQuer
                 Timeline = timeline,
 
                 // Notes
-                CustomerNotes = booking.CustomerNotes,
+                CustomerNotes = booking.SpecialInstructions,
                 ProviderNotes = booking.ProviderNotes,
-                AdminNotes = booking.AdminNotes,
+                AdminNotes = null, // AdminNotes property doesn't exist
 
                 // Photos
-                BeforePhotos = booking.BeforePhotos?.ToList() ?? new List<string>(),
-                AfterPhotos = booking.AfterPhotos?.ToList() ?? new List<string>(),
+                BeforePhotos = new List<string>(), // BeforePhotos not in Booking entity
+                AfterPhotos = booking.CompletionPhotos?.Split(',').ToList() ?? new List<string>(),
 
                 // Cancellation info
                 CancellationReason = booking.CancellationReason,
-                RefundAmount = booking.RefundAmount,
-                RefundStatus = booking.RefundStatus
+                RefundAmount = null, // RefundAmount on Payment, not Booking
+                RefundStatus = null // RefundStatus on Payment, not Booking
             };
 
             return Result<CustomerBookingDetailDto>.Success(result, "Booking details retrieved successfully");

@@ -154,7 +154,7 @@ public class GetFinancialAnalyticsQueryHandler : IRequestHandler<GetFinancialAna
         return new PayoutSummary
         {
             TotalPayouts = providerPayouts,
-            PendingPayouts = pendingPayoutBookings.Sum(b => b.ServicePrice * (1 - commissionRate)),
+            PendingPayouts = pendingPayoutBookings.Sum(b => b.TotalAmount * (1 - commissionRate)),
             ProcessedPayouts = providerPayouts,
             TotalProvidersPaid = totalProvidersPaid,
             ProvidersAwaitingPayout = pendingPayoutProviders

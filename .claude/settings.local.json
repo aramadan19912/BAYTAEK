@@ -17,7 +17,9 @@
       "Bash(dotnet build:*)",
       "Bash(powershell:*)",
       "Bash(dotnet clean:*)",
-      "Bash(cut:*)"
+      "Bash(cut:*)",
+      "Bash(dotnet new:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

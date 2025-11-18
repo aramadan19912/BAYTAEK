@@ -100,7 +100,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
             {
                 BookingId = booking.Id,
                 Status = BookingStatus.Cancelled,
-                ChangedBy = request.UserId,
+                ChangedById = request.UserId,
                 Notes = $"Cancelled by {(request.IsCustomerCancellation ? "customer" : "provider")}. " +
                        $"Reason: {request.Reason}. " +
                        $"Refund: {refundInfo.RefundAmount:C} ({refundInfo.RefundPercentage}%)"

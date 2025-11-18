@@ -15,6 +15,8 @@ public class GetAdminBookingsQueryHandler : IRequestHandler<GetAdminBookingsQuer
     private readonly IRepository<HomeService.Domain.Entities.Service> _serviceRepository;
     private readonly IRepository<HomeService.Domain.Entities.Payment> _paymentRepository;
     private readonly IRepository<HomeService.Domain.Entities.Review> _reviewRepository;
+    private readonly IRepository<ServiceCategory> _categoryRepository;
+    private readonly IRepository<HomeService.Domain.Entities.Address> _addressRepository;
     private readonly ILogger<GetAdminBookingsQueryHandler> _logger;
 
     public GetAdminBookingsQueryHandler(
@@ -23,6 +25,8 @@ public class GetAdminBookingsQueryHandler : IRequestHandler<GetAdminBookingsQuer
         IRepository<HomeService.Domain.Entities.Service> serviceRepository,
         IRepository<HomeService.Domain.Entities.Payment> paymentRepository,
         IRepository<HomeService.Domain.Entities.Review> reviewRepository,
+        IRepository<ServiceCategory> categoryRepository,
+        IRepository<HomeService.Domain.Entities.Address> addressRepository,
         ILogger<GetAdminBookingsQueryHandler> logger)
     {
         _bookingRepository = bookingRepository;
@@ -30,6 +34,8 @@ public class GetAdminBookingsQueryHandler : IRequestHandler<GetAdminBookingsQuer
         _serviceRepository = serviceRepository;
         _paymentRepository = paymentRepository;
         _reviewRepository = reviewRepository;
+        _categoryRepository = categoryRepository;
+        _addressRepository = addressRepository;
         _logger = logger;
     }
 
@@ -42,6 +48,8 @@ public class GetAdminBookingsQueryHandler : IRequestHandler<GetAdminBookingsQuer
             var services = await _serviceRepository.GetAllAsync(cancellationToken);
             var payments = await _paymentRepository.GetAllAsync(cancellationToken);
             var reviews = await _reviewRepository.GetAllAsync(cancellationToken);
+            var categories = await _categoryRepository.GetAllAsync(cancellationToken);
+            var addresses = await _addressRepository.GetAllAsync(cancellationToken);
 
             // Apply filters
             if (request.Status.HasValue)
@@ -93,7 +101,7 @@ public class GetAdminBookingsQueryHandler : IRequestHandler<GetAdminBookingsQuer
                 query = query.Where(b =>
                     matchingUserIds.Contains(b.CustomerId) ||
                     (b.ProviderId.HasValue && matchingUserIds.Contains(b.ProviderId.Value)) ||
-                    b.BookingNumber.ToLower().Contains(searchLower));
+                    b.Id.ToString().Contains(searchLower));
             }
 
             if (request.IsPaid.HasValue)
@@ -126,13 +134,17 @@ public class GetAdminBookingsQueryHandler : IRequestHandler<GetAdminBookingsQuer
                 var category = service != null ? categories.FirstOrDefault(c => c.Id == service.CategoryId) : null;
                 var payment = payments.FirstOrDefault(p => p.BookingId == b.Id);
                 var review = reviews.FirstOrDefault(r => r.BookingId == b.Id);
+                var address = addresses.FirstOrDefault(a => a.Id == b.AddressId);
+
+                var servicePrice = service?.BasePrice ?? 0;
+                var totalPrice = b.TotalAmount;
 
                 return new AdminBookingListDto
                 {
                     Id = b.Id,
-                    BookingNumber = b.BookingNumber,
+                    BookingNumber = $"BK-{b.Id.ToString().Substring(0, 8).ToUpper()}",
                     CreatedAt = b.CreatedAt,
-                    ScheduledDate = b.ScheduledDate,
+                    ScheduledDate = b.ScheduledAt,
                     Status = b.Status,
 
                     CustomerId = b.CustomerId,
@@ -146,15 +158,15 @@ public class GetAdminBookingsQueryHandler : IRequestHandler<GetAdminBookingsQuer
                     ProviderPhone = provider?.PhoneNumber,
 
                     ServiceId = b.ServiceId,
-                    ServiceName = service?.Name ?? "Unknown",
-                    CategoryName = category?.Name ?? "Unknown",
+                    ServiceName = service?.NameEn ?? "Unknown",
+                    CategoryName = category?.NameEn ?? "Unknown",
 
                     Region = b.Region,
-                    Address = b.Address,
-                    ServicePrice = b.ServicePrice,
+                    Address = address?.FullAddress ?? "N/A",
+                    ServicePrice = servicePrice,
                     VatAmount = b.VatAmount,
-                    TotalPrice = b.TotalPrice,
-                    PlatformCommission = b.ServicePrice * 0.18m, // 18% commission
+                    TotalPrice = totalPrice,
+                    PlatformCommission = servicePrice * 0.18m, // 18% commission
 
                     IsPaid = payment?.Status == Domain.Enums.PaymentStatus.Completed,
                     PaymentMethod = payment?.PaymentMethod.ToString(),

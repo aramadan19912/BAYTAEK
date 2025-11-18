@@ -62,11 +62,11 @@ public class GetProviderPayoutsQueryHandler
                 Amount = p.Amount,
                 Currency = p.Currency.ToString(),
                 Status = p.Status.ToString(),
-                PeriodStart = p.PeriodStart,
-                PeriodEnd = p.PeriodEnd,
-                TotalRevenue = p.TotalRevenue,
-                PlatformFee = p.PlatformFee,
-                BookingCount = p.BookingCount,
+                PeriodStart = p.PeriodStart ?? DateTime.UtcNow,
+                PeriodEnd = p.PeriodEnd ?? DateTime.UtcNow,
+                TotalRevenue = p.TotalRevenue ?? 0,
+                PlatformFee = p.PlatformFee ?? 0,
+                BookingCount = p.BookingCount ?? 0,
                 CreatedAt = p.CreatedAt,
                 ProcessedAt = p.ProcessedAt
             }).ToList();

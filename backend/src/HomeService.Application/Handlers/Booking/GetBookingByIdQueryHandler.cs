@@ -65,10 +65,10 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, R
 
             // Get related entities
             var customer = await _userRepository.GetByIdAsync(booking.CustomerId, cancellationToken);
-            var providerUser = await _userRepository.GetByIdAsync(booking.ProviderId, cancellationToken);
-            var provider = await _providerRepository.FindAsync(
-                p => p.UserId == booking.ProviderId,
-                cancellationToken);
+            var providerUser = booking.ProviderId.HasValue ? await _userRepository.GetByIdAsync(booking.ProviderId.Value, cancellationToken) : null;
+            var provider = booking.ProviderId.HasValue ? await _providerRepository.FindAsync(
+                p => p.UserId == booking.ProviderId.Value,
+                cancellationToken) : null;
             var service = await _serviceRepository.GetByIdAsync(booking.ServiceId, cancellationToken);
             var address = await _addressRepository.GetByIdAsync(booking.AddressId, cancellationToken);
 
@@ -104,7 +104,7 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, R
                 CustomerProfileImage = customer?.ProfileImageUrl,
 
                 // Provider Info
-                ProviderId = booking.ProviderId,
+                ProviderId = booking.ProviderId ?? Guid.Empty,
                 ProviderName = providerUser != null ? $"{providerUser.FirstName} {providerUser.LastName}" : "Unknown Provider",
                 ProviderBusinessName = provider?.FirstOrDefault()?.BusinessName,
                 ProviderPhone = providerUser?.PhoneNumber ?? string.Empty,
@@ -117,7 +117,7 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, R
                 AddressLabel = address?.Label ?? string.Empty,
                 Street = address?.Street ?? string.Empty,
                 City = address?.City ?? string.Empty,
-                Region = address?.Region?.ToString() ?? string.Empty,
+                Region = address != null ? address.Region.ToString() : string.Empty,
                 Latitude = address?.Latitude,
                 Longitude = address?.Longitude,
                 BuildingNumber = address?.BuildingNumber,
@@ -136,7 +136,7 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, R
                 TotalAmount = booking.TotalAmount,
                 VatAmount = booking.VatAmount,
                 VatPercentage = booking.VatPercentage,
-                Currency = booking.Currency,
+                Currency = booking.Currency.ToString(),
 
                 // Payment
                 IsPaid = payment?.FirstOrDefault()?.Status == Domain.Enums.PaymentStatus.Completed,

@@ -25,6 +25,33 @@ public class NotificationSettings : BaseEntity
     public bool BookingCancellations { get; set; } = true;
     public bool PayoutNotifications { get; set; } = true;
 
+    // Alias properties for backward compatibility
+    public bool BookingNotifications
+    {
+        get => BookingUpdates;
+        set => BookingUpdates = value;
+    }
+
+    public bool MessageNotifications
+    {
+        get => Messages;
+        set => Messages = value;
+    }
+
+    public bool PaymentNotifications
+    {
+        get => PaymentUpdates;
+        set => PaymentUpdates = value;
+    }
+
+    public bool PromotionNotifications
+    {
+        get => Promotions;
+        set => Promotions = value;
+    }
+
+    public bool SystemNotifications { get; set; } = true;
+
     // Navigation properties
     public virtual User User { get; set; } = null!;
 }
