@@ -66,9 +66,9 @@ jobs:
       - name: Install dependencies
         run: |
           if [ -f package-lock.json ]; then
-            npm ci
+            npm ci --prefer-offline --no-audit
           else
-            npm install
+            npm install --prefer-offline --no-audit
           fi
         working-directory: ./frontend
 
