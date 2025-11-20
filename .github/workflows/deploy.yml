@@ -179,7 +179,7 @@ jobs:
           "
 
           # Upload new backend files
-          rsync -avz --delete -e "ssh -F ~/.ssh/config" ./backend-build/ vps:/var/www/baytaek/backend/
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./backend-build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/baytaek/backend/
 
           # Set permissions
           ssh vps "
@@ -218,7 +218,7 @@ jobs:
           "
 
           # Upload new frontend files
-          rsync -avz --delete -e "ssh -F ~/.ssh/config" ./frontend-build/ vps:/var/www/baytaek/frontend/dist/frontend/browser/
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./frontend-build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/baytaek/frontend/dist/frontend/browser/
 
           # Set permissions
           ssh vps "
