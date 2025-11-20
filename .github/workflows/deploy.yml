@@ -121,7 +121,33 @@ jobs:
       - name: Add VPS to known hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p 22 -t rsa,ecdsa,ed25519 ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Ensure backend service exists
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            if ! systemctl list-unit-files | grep -q '^baytaek-api.service'; then
+              cat <<'EOF' | sudo tee /etc/systemd/system/baytaek-api.service
+[Unit]
+Description=Baytaek API
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/baytaek/backend
+ExecStart=/usr/bin/dotnet /var/www/baytaek/backend/HomeService.API.dll
+Restart=always
+RestartSec=5
+Environment=ASPNETCORE_ENVIRONMENT=Production
+
+[Install]
+WantedBy=multi-user.target
+EOF
+              sudo systemctl daemon-reload
+              sudo systemctl enable baytaek-api.service
+            fi
+          "
 
       - name: Deploy Backend to VPS
         run: |
@@ -132,8 +158,12 @@ jobs:
             fi
           "
 
-          # Stop the backend service
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo systemctl stop baytaek-api"
+          # Stop the backend service if running
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            if systemctl is-active --quiet baytaek-api; then
+              sudo systemctl stop baytaek-api
+            fi
+          "
 
           # Upload new backend files
           rsync -avz --delete ./backend-build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/baytaek/backend/
