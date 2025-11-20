@@ -118,14 +118,21 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
 
-      - name: Add VPS to known hosts
+      - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -p 22 -t rsa,ecdsa,ed25519 ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          cat >> ~/.ssh/config <<EOF
+          Host vps
+            HostName ${{ secrets.VPS_HOST }}
+            User ${{ secrets.VPS_USER }}
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+          EOF
+          chmod 600 ~/.ssh/config
 
       - name: Ensure backend service exists
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
+          ssh vps '
             if ! systemctl list-unit-files | grep -q "^baytaek-api.service"; then
               cat <<EOF | sudo tee /etc/systemd/system/baytaek-api.service
           [Unit]
@@ -152,75 +159,75 @@ jobs:
       - name: Deploy Backend to VPS
         run: |
           # Ensure directory structure exists
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             sudo mkdir -p /var/www/baytaek/backend
             sudo chown -R \$USER:\$USER /var/www/baytaek
           "
 
           # Create backup of current deployment
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             if [ -d /var/www/baytaek/backend ] && [ \"\$(ls -A /var/www/baytaek/backend)\" ]; then
               sudo cp -r /var/www/baytaek/backend /var/www/baytaek/backend.backup.\$(date +%Y%m%d_%H%M%S)
             fi
           "
 
           # Stop the backend service if running
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             if systemctl is-active --quiet baytaek-api; then
               sudo systemctl stop baytaek-api
             fi
           "
 
           # Upload new backend files
-          rsync -avz --delete ./backend-build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/baytaek/backend/
+          rsync -avz --delete -e "ssh -F ~/.ssh/config" ./backend-build/ vps:/var/www/baytaek/backend/
 
           # Set permissions
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             sudo chown -R www-data:www-data /var/www/baytaek/backend
             sudo chmod -R 755 /var/www/baytaek/backend
           "
 
           # Run database migrations
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             cd /var/www/baytaek/backend
             sudo -u www-data dotnet ef database update --no-build || echo 'Migration skipped or failed'
           "
 
           # Start the backend service
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo systemctl start baytaek-api"
+          ssh vps "sudo systemctl start baytaek-api"
 
           # Wait for service to start
           sleep 5
 
           # Check service status
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo systemctl status baytaek-api --no-pager"
+          ssh vps "sudo systemctl status baytaek-api --no-pager"
 
       - name: Deploy Frontend to VPS
         run: |
           # Ensure directory structure exists
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             sudo mkdir -p /var/www/baytaek/frontend/dist/frontend/browser
             sudo chown -R \$USER:\$USER /var/www/baytaek/frontend
           "
 
           # Create backup of current frontend
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             if [ -d /var/www/baytaek/frontend/dist ] && [ \"\$(ls -A /var/www/baytaek/frontend/dist)\" ]; then
               sudo cp -r /var/www/baytaek/frontend/dist /var/www/baytaek/frontend/dist.backup.\$(date +%Y%m%d_%H%M%S)
             fi
           "
 
           # Upload new frontend files
-          rsync -avz --delete ./frontend-build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/baytaek/frontend/dist/frontend/browser/
+          rsync -avz --delete -e "ssh -F ~/.ssh/config" ./frontend-build/ vps:/var/www/baytaek/frontend/dist/frontend/browser/
 
           # Set permissions
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             sudo chown -R www-data:www-data /var/www/baytaek/frontend
             sudo chmod -R 755 /var/www/baytaek/frontend
           "
 
           # Reload Nginx
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo systemctl reload nginx"
+          ssh vps "sudo systemctl reload nginx"
 
       - name: Health Check
         run: |
@@ -228,7 +235,7 @@ jobs:
           sleep 10
 
           # Check backend health
-          BACKEND_STATUS=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/health || echo "000"')
+          BACKEND_STATUS=$(ssh vps 'curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/health || echo "000"')
 
           if [ "$BACKEND_STATUS" = "200" ]; then
             echo "✅ Backend is healthy (HTTP $BACKEND_STATUS)"
@@ -238,7 +245,7 @@ jobs:
           fi
 
           # Check frontend
-          FRONTEND_STATUS=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'curl -s -o /dev/null -w "%{http_code}" http://localhost || echo "000"')
+          FRONTEND_STATUS=$(ssh vps 'curl -s -o /dev/null -w "%{http_code}" http://localhost || echo "000"')
 
           if [ "$FRONTEND_STATUS" = "200" ] || [ "$FRONTEND_STATUS" = "301" ] || [ "$FRONTEND_STATUS" = "302" ]; then
             echo "✅ Frontend is accessible (HTTP $FRONTEND_STATUS)"
@@ -249,7 +256,7 @@ jobs:
 
       - name: Cleanup old backups
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             # Keep only last 5 backups
             cd /var/www/baytaek
             ls -t | grep 'backend.backup' | tail -n +6 | xargs -r sudo rm -rf
@@ -277,9 +284,21 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
 
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          cat >> ~/.ssh/config <<EOF
+          Host vps
+            HostName ${{ secrets.VPS_HOST }}
+            User ${{ secrets.VPS_USER }}
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+          EOF
+          chmod 600 ~/.ssh/config
+
       - name: Rollback Backend
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             # Find latest backup
             LATEST_BACKUP=\$(ls -t /var/www/baytaek/ | grep 'backend.backup' | head -1)
 
@@ -301,7 +320,7 @@ jobs:
 
       - name: Rollback Frontend
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh vps "
             # Find latest backup
             LATEST_BACKUP=\$(ls -t /var/www/baytaek/frontend/ | grep 'dist.backup' | head -1)
 
