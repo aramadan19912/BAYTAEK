@@ -19,7 +19,8 @@
       "Bash(dotnet clean:*)",
       "Bash(cut:*)",
       "Bash(dotnet new:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

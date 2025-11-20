@@ -1,0 +1,36 @@
+[Unit]
+Description=Baytaek Home Service API
+After=network.target
+
+[Service]
+Type=notify
+# Environment
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_ROOT=/usr/share/dotnet
+
+# Working Directory
+WorkingDirectory=/var/www/baytaek/backend
+
+# Execute
+ExecStart=/usr/bin/dotnet /var/www/baytaek/backend/HomeService.API.dll
+
+# Restart on failure
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+
+# User and Group
+User=www-data
+Group=www-data
+
+# Logging
+SyslogIdentifier=baytaek-api
+StandardOutput=journal
+StandardError=journal
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
