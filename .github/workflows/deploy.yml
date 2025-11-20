@@ -154,7 +154,7 @@ jobs:
           # Ensure directory structure exists
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
             sudo mkdir -p /var/www/baytaek/backend
-            sudo chown -R $USER:$USER /var/www/baytaek
+            sudo chown -R \$USER:\$USER /var/www/baytaek
           "
 
           # Create backup of current deployment
@@ -200,7 +200,7 @@ jobs:
           # Ensure directory structure exists
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
             sudo mkdir -p /var/www/baytaek/frontend/dist/frontend/browser
-            sudo chown -R $USER:$USER /var/www/baytaek/frontend
+            sudo chown -R \$USER:\$USER /var/www/baytaek/frontend
           "
 
           # Create backup of current frontend
