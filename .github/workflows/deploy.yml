@@ -216,7 +216,7 @@ EOF
           sleep 10
 
           # Check backend health
-          BACKEND_STATUS=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "curl -s -o /dev/null -w '%{http_code}' http://localhost:5000/api/health || echo '000'")
+          BACKEND_STATUS=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/health || echo "000"')
 
           if [ "$BACKEND_STATUS" = "200" ]; then
             echo "✅ Backend is healthy (HTTP $BACKEND_STATUS)"
@@ -226,7 +226,7 @@ EOF
           fi
 
           # Check frontend
-          FRONTEND_STATUS=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "curl -s -o /dev/null -w '%{http_code}' http://localhost || echo '000'")
+          FRONTEND_STATUS=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'curl -s -o /dev/null -w "%{http_code}" http://localhost || echo "000"')
 
           if [ "$FRONTEND_STATUS" = "200" ] || [ "$FRONTEND_STATUS" = "301" ] || [ "$FRONTEND_STATUS" = "302" ]; then
             echo "✅ Frontend is accessible (HTTP $FRONTEND_STATUS)"
