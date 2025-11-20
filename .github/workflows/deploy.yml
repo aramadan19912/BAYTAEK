@@ -151,9 +151,15 @@ jobs:
 
       - name: Deploy Backend to VPS
         run: |
+          # Ensure directory structure exists
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            sudo mkdir -p /var/www/baytaek/backend
+            sudo chown -R $USER:$USER /var/www/baytaek
+          "
+
           # Create backup of current deployment
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
-            if [ -d /var/www/baytaek/backend ]; then
+            if [ -d /var/www/baytaek/backend ] && [ \"\$(ls -A /var/www/baytaek/backend)\" ]; then
               sudo cp -r /var/www/baytaek/backend /var/www/baytaek/backend.backup.\$(date +%Y%m%d_%H%M%S)
             fi
           "
@@ -191,9 +197,15 @@ jobs:
 
       - name: Deploy Frontend to VPS
         run: |
+          # Ensure directory structure exists
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            sudo mkdir -p /var/www/baytaek/frontend/dist/frontend/browser
+            sudo chown -R $USER:$USER /var/www/baytaek/frontend
+          "
+
           # Create backup of current frontend
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
-            if [ -d /var/www/baytaek/frontend/dist ]; then
+            if [ -d /var/www/baytaek/frontend/dist ] && [ \"\$(ls -A /var/www/baytaek/frontend/dist)\" ]; then
               sudo cp -r /var/www/baytaek/frontend/dist /var/www/baytaek/frontend/dist.backup.\$(date +%Y%m%d_%H%M%S)
             fi
           "
