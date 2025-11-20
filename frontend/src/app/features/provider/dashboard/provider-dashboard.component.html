@@ -94,7 +94,7 @@
       <div class="stat-icon">✅</div>
       <div class="stat-content">
         <span class="stat-label">{{ 'provider.dashboard.stats.completed' | translate }}</span>
-        <span class="stat-value">{{ stats?.completedBookings || 0 }}</span>
+        <span class="stat-value">{{ totalCompleted }}</span>
       </div>
     </div>
   </div>
@@ -125,11 +125,11 @@
 
       <!-- Bookings List -->
       <div *ngIf="!isLoadingBookings && recentBookings.length > 0" class="bookings-list">
-        <div *ngFor="let booking of recentBookings" class="booking-card" (click)="viewBookingDetail(booking.bookingId)">
+        <div *ngFor="let booking of recentBookings" class="booking-card" (click)="viewBookingDetail(booking.id)">
           <div class="booking-header">
             <div class="booking-info">
               <h4>{{ booking.serviceName }}</h4>
-              <p class="booking-number">{{ 'provider.bookings.bookingNumber' | translate }} #{{ booking.bookingNumber }}</p>
+              <p class="booking-number">{{ 'provider.bookings.bookingNumber' | translate }} #{{ booking.id | slice:0:8 }}</p>
             </div>
             <span class="status-badge" [class]="getBookingStatusClass(booking.status)">
               {{ 'status.' + booking.status.toLowerCase() | translate }}
@@ -143,15 +143,15 @@
             </div>
             <div class="detail-item">
               <span class="icon">📅</span>
-              <span>{{ formatDate(booking.scheduledDate) }}</span>
+              <span>{{ formatDate(booking.scheduledAt) }}</span>
             </div>
             <div class="detail-item">
               <span class="icon">🕐</span>
-              <span>{{ formatTime(booking.scheduledTime) }}</span>
+              <span>{{ formatTime(booking.scheduledAt) }}</span>
             </div>
             <div class="detail-item">
               <span class="icon">💵</span>
-              <span>{{ formatCurrency(booking.totalPrice) }}</span>
+              <span>{{ formatCurrency(booking.totalAmount) }}</span>
             </div>
           </div>
 
@@ -199,15 +199,15 @@
 
       <!-- Services Grid -->
       <div *ngIf="!isLoadingServices && activeServices.length > 0" class="services-grid">
-        <div *ngFor="let service of activeServices" class="service-card" (click)="viewServiceDetail(service.serviceId)">
+        <div *ngFor="let service of activeServices" class="service-card" (click)="viewServiceDetail(service.id)">
           <div class="service-image">
-            <img [src]="service.images && service.images[0] || 'assets/images/default-service.png'" [alt]="service.name">
+            <img [src]="service.imageUrls && service.imageUrls[0] || 'assets/images/default-service.png'" [alt]="service.nameEn">
             <span class="service-status">{{ 'status.active' | translate }}</span>
           </div>
           <div class="service-content">
-            <h4>{{ service.name }}</h4>
+            <h4>{{ service.nameEn }}</h4>
             <div class="service-meta">
-              <span class="price">{{ formatCurrency(service.price) }}</span>
+              <span class="price">{{ formatCurrency(service.basePrice) }}</span>
               <span class="rating">
                 <span class="stars">⭐</span>
                 {{ service.averageRating || 0 }}
@@ -259,15 +259,11 @@
           </div>
           <div class="stat-row">
             <span class="label">{{ 'provider.dashboard.performance.completedBookings' | translate }}</span>
-            <span class="value success">{{ stats.completedBookings || 0 }}</span>
-          </div>
-          <div class="stat-row">
-            <span class="label">{{ 'provider.dashboard.performance.cancelledBookings' | translate }}</span>
-            <span class="value danger">{{ stats.cancelledBookings || 0 }}</span>
+            <span class="value success">{{ stats.monthlyCompleted || 0 }}</span>
           </div>
           <div class="stat-row">
             <span class="label">{{ 'provider.dashboard.performance.earnings' | translate }}</span>
-            <span class="value">{{ formatCurrency(stats.monthlyEarnings || 0) }}</span>
+            <span class="value">{{ formatCurrency(stats.monthlyNetEarnings || stats.monthlyRevenue || 0) }}</span>
           </div>
         </div>
       </div>
@@ -284,12 +280,12 @@
             <span class="value">{{ stats.totalReviews || 0 }}</span>
           </div>
           <div class="stat-row">
-            <span class="label">{{ 'provider.dashboard.performance.positiveReviews' | translate }}</span>
-            <span class="value success">{{ stats.positiveReviews || 0 }}</span>
+            <span class="label">{{ 'provider.dashboard.stats.pendingBookings' | translate }}</span>
+            <span class="value danger">{{ stats.pendingBookingsCount || 0 }}</span>
           </div>
           <div class="stat-row">
-            <span class="label">{{ 'provider.dashboard.performance.responseRate' | translate }}</span>
-            <span class="value">{{ stats.responseRate || 0 }}%</span>
+            <span class="label">{{ 'provider.dashboard.stats.availableBalance' | translate }}</span>
+            <span class="value">{{ formatCurrency(stats.availableBalance || 0) }}</span>
           </div>
         </div>
       </div>

@@ -57,7 +57,7 @@
                   <div class="card-details">
                     <div class="card-brand">{{ method.cardBrand }}</div>
                     <div class="card-number">**** **** **** {{ method.cardLast4 }}</div>
-                    <div class="card-expiry">{{ 'PAYMENT.EXPIRES' | translate }}: {{ method.expiryMonth }}/{{ method.expiryYear }}</div>
+                    <div class="card-expiry">{{ 'PAYMENT.EXPIRES' | translate }}: {{ getPaymentMethodExpiry(method) }}</div>
                   </div>
                   <mat-icon *ngIf="method.isDefault" class="default-badge" color="primary">check_circle</mat-icon>
                 </div>

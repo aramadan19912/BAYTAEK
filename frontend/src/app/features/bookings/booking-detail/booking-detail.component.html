@@ -167,8 +167,8 @@
           </div>
           <div class="payment-status">
             <span class="label">{{ 'bookingDetail.payment.paymentStatus' | translate }}:</span>
-            <span class="badge" [ngClass]="getPaymentStatusClass(booking.payment.paymentStatus)">
-              {{ getPaymentStatusLabel(booking.payment.paymentStatus) }}
+            <span class="badge" [ngClass]="getPaymentStatusClass(getPaymentStatusValue())">
+              {{ getPaymentStatusLabel(getPaymentStatusValue()) }}
             </span>
           </div>
           <div class="payment-method">

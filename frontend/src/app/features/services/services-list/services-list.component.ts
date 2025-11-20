@@ -288,6 +288,10 @@ export class ServicesListComponent implements OnInit, OnDestroy {
     return this.currentLanguage === 'ar' ? service.nameAr : service.nameEn;
   }
 
+  getCategoryLabel(service: Service): string {
+    return this.currentLanguage === 'ar' ? service.categoryNameAr : service.categoryNameEn;
+  }
+
   getCategoryName(category: Category): string {
     return this.categoryService.getLocalizedName(category, this.currentLanguage);
   }
@@ -301,7 +305,7 @@ export class ServicesListComponent implements OnInit, OnDestroy {
   }
 
   trackByServiceId(index: number, service: Service): string {
-    return service.serviceId;
+    return service.id;
   }
 
   trackByCategoryId(index: number, category: Category): string {

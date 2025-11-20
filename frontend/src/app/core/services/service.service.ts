@@ -4,50 +4,77 @@ import { ApiService } from './api.service';
 
 export interface Service {
   id: string;
+  serviceId?: string;
   nameEn: string;
   nameAr: string;
   descriptionEn?: string;
   descriptionAr?: string;
   basePrice: number;
+  estimatedDurationMinutes?: number;
   averageRating: number;
   totalReviews: number;
   images?: string[];
+  imageUrls?: string[];
   categoryNameEn: string;
   categoryNameAr: string;
+  categoryName?: string;
   providerName: string;
   isVerified: boolean;
+  status?: string;
 }
 
 export interface ServiceDetail {
   id: string;
   nameEn: string;
   nameAr: string;
-  descriptionEn?: string;
-  descriptionAr?: string;
+  descriptionEn: string;
+  descriptionAr: string;
+  categoryId: string;
+  categoryNameEn: string;
+  categoryNameAr: string;
+  providerId: string;
+  providerName: string;
+  providerBusinessName?: string;
+  providerAverageRating: number;
+  providerTotalReviews: number;
+  providerCompletedBookings: number;
+  providerIsVerified: boolean;
   basePrice: number;
+  currency: string;
   estimatedDurationMinutes: number;
-  averageRating: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  imageUrls: string[];
+  videoUrl?: string;
+  availableRegions: string[];
+  requiredMaterials?: string;
+  warrantyInfo?: string;
+  recentReviews: ServiceReviewDto[];
   totalReviews: number;
-  images?: string[];
-  provider: {
-    providerId: string;
-    name: string;
-    businessName?: string;
-    rating: number;
-    totalReviews: number;
-    isVerified: boolean;
-    yearsOfExperience: number;
-  };
-  recentReviews: Review[];
+  averageRating: number;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ServiceReviewDto {
+  id: string;
+  customerName: string;
+  rating: number;
+  comment?: string;
+  imageUrls: string[];
+  createdAt: string;
+  providerResponse?: string;
 }
 
 export interface Review {
-  reviewId: string;
+  id: string;
+  reviewId?: string; // Alias for id
   rating: number;
   comment?: string;
   customerName: string;
   createdAt: string;
   images?: string[];
+  imageUrls?: string[];
   providerResponse?: string;
 }
 
@@ -83,12 +110,14 @@ export class ServiceService {
   }
 
   submitReview(review: {
-    bookingId: string;
+    serviceId?: string;
+    bookingId?: string;
     rating: number;
     comment?: string;
     images?: string[];
     isAnonymous?: boolean;
   }): Observable<any> {
-    return this.apiService.post('reviews', review);
+    const payload = { ...review };
+    return this.apiService.post('reviews', payload);
   }
 }

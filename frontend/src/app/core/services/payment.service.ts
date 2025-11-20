@@ -5,20 +5,50 @@ import { ApiService } from './api.service';
 export interface CreatePaymentIntentRequest {
   bookingId: string;
   paymentMethod: string;
+  amount: number;
+  currency?: string;
+  cardToken?: string;
+  cardLast4?: string;
+  cardBrand?: string;
+  walletId?: string;
+  customerEmail?: string;
+  customerName?: string;
+  customerPhone?: string;
+  billingAddress?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
   saveCard?: boolean;
 }
 
 export interface PaymentIntent {
-  paymentIntentId: string;
   clientSecret: string;
   amount: number;
   currency: string;
+  bookingId: string;
+  paymentIntentId?: string; // Optional for compatibility
+}
+
+export interface PaymentResponse {
+  paymentId: string;
+  transactionId: string;
   status: string;
+  amount: number;
+  currency: string;
+  paymentMethod: string;
+  createdAt: string;
+  errorMessage?: string;
+  gatewayResponse?: string;
+  requiresAction: boolean;
+  clientSecret?: string;
+  redirectUrl?: string;
 }
 
 export interface ConfirmPaymentRequest {
-  paymentIntentId: string;
+  paymentIntentId?: string;
   paymentMethodId?: string;
+  bookingId?: string;
+  paymentMethodToken?: string;
 }
 
 export interface PaymentMethod {
@@ -28,6 +58,8 @@ export interface PaymentMethod {
   cardLast4?: string;
   cardExpMonth?: number;
   cardExpYear?: number;
+  expiryMonth?: number;
+  expiryYear?: number;
   isDefault: boolean;
   createdAt: string;
 }
@@ -124,8 +156,8 @@ export class PaymentService {
   }
 
   // Get saved payment methods
-  getPaymentMethods(): Observable<{ paymentMethods: PaymentMethod[] }> {
-    return this.apiService.get<{ paymentMethods: PaymentMethod[] }>('payments/methods');
+  getPaymentMethods(): Observable<PaymentMethod[]> {
+    return this.apiService.get<PaymentMethod[]>('payments/methods');
   }
 
   // Save payment method

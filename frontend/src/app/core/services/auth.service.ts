@@ -45,6 +45,17 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  getUserRole(): string | null {
+    const user = this.getCurrentUser();
+    return user ? user.role : null;
+  }
+
+  updateCurrentUser(user: Partial<User> & Record<string, unknown>): void {
+    const updatedUser = { ...this.getCurrentUser(), ...user } as User;
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    this.currentUserSubject.next(updatedUser);
+  }
+
   private handleAuthResponse(response: AuthResponse): void {
     localStorage.setItem('token', response.token);
     localStorage.setItem('refreshToken', response.refreshToken);

@@ -106,20 +106,20 @@
     <div
       *ngFor="let service of services; trackBy: trackByServiceId"
       class="service-card"
-      [routerLink]="['/services', service.serviceId]"
+      [routerLink]="['/services', service.id]"
     >
       <!-- Image -->
       <div class="service-image">
         <img
-          [src]="service.images && service.images.length > 0 ? service.images[0] : 'assets/images/placeholder-service.jpg'"
+          [src]="(service.images && service.images[0]) || (service.imageUrls && service.imageUrls[0]) || 'assets/images/placeholder-service.jpg'"
           [alt]="getServiceName(service)"
         />
         <button
           class="favorite-btn"
-          (click)="toggleFavorite(service.serviceId, $event)"
-          [class.active]="isFavorite(service.serviceId)"
+          (click)="toggleFavorite(service.id, $event)"
+          [class.active]="isFavorite(service.id)"
         >
-          {{ isFavorite(service.serviceId) ? '❤️' : '🤍' }}
+          {{ isFavorite(service.id) ? '❤️' : '🤍' }}
         </button>
       </div>
 
@@ -134,7 +134,7 @@
             </span>
             <span class="rating-text">{{ service.averageRating.toFixed(1) }} ({{ service.totalReviews }})</span>
           </div>
-          <span class="service-category">{{ service.categoryName }}</span>
+          <span class="service-category">{{ getCategoryLabel(service) }}</span>
         </div>
 
         <div class="service-footer">

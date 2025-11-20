@@ -30,15 +30,30 @@ export interface Booking {
   status: string;
   scheduledDateTime: string;
   createdAt: string;
+  completedAt?: string;
+  serviceId: string;
   serviceNameEn: string;
   serviceNameAr: string;
   serviceImageUrl?: string;
+  serviceName?: string; // Alias for serviceNameEn
+  categoryNameEn: string;
+  categoryNameAr: string;
+  providerId: string;
   providerName: string;
+  providerProfileImageUrl?: string;
   providerRating: number;
+  isProviderVerified: boolean;
+  addressId: string;
+  addressLabel: string;
+  fullAddress: string;
+  servicePrice: number;
   totalAmount: number;
   currency: string;
   isPaid: boolean;
+  paymentStatus?: string;
   hasReviewed: boolean;
+  customerNotes?: string;
+  providerNotes?: string;
 }
 
 export interface BookingDetail {
@@ -46,29 +61,51 @@ export interface BookingDetail {
   bookingNumber: string;
   status: string;
   scheduledDateTime: string;
-  customerNotes?: string;
+  createdAt: string;
+  confirmedAt?: string;
+  startedAt?: string;
+  completedAt?: string;
+  cancelledAt?: string;
   service: {
     serviceId: string;
     nameEn: string;
     nameAr: string;
+    descriptionEn?: string;
+    descriptionAr?: string;
     imageUrl?: string;
+    categoryNameEn: string;
+    categoryNameAr: string;
+    basePrice: number;
+    estimatedDurationMinutes: number;
   };
   provider: {
     providerId: string;
     name: string;
+    businessName?: string;
     profileImageUrl?: string;
+    phoneNumber?: string;
+    email?: string;
     rating: number;
+    totalReviews: number;
     isVerified: boolean;
+    yearsOfExperience: number;
   };
   address: {
     addressId: string;
-    title: string;
-    buildingNumber: string;
-    streetName: string;
-    district: string;
+    label: string;
+    fullAddress: string;
+    buildingNumber?: string;
+    street?: string;
+    streetName?: string; // Alias for street
+    district?: string;
     city: string;
-    postalCode: string;
-    additionalDirections?: string;
+    region: string;
+    postalCode?: string;
+    latitude: number;
+    longitude: number;
+    additionalInfo?: string;
+    additionalDirections?: string; // Alias for additionalInfo
+    title?: string; // Alias for label
   };
   pricing: {
     servicePrice: number;
@@ -80,20 +117,47 @@ export interface BookingDetail {
   payment?: {
     paymentId: string;
     paymentMethod: string;
-    paymentStatus: string;
-    paymentIntentId?: string;
-    transactionId?: string;
+    status: string;
+    paymentStatus?: string; // Alias for status
+    amount: number;
     paidAt?: string;
-    cardLast4?: string;
-    cardBrand?: string;
+    transactionId?: string;
+  };
+  review?: {
+    reviewId: string;
+    rating: number;
+    comment?: string;
+    images: string[];
+    createdAt: string;
+    providerResponse?: string;
+    providerRespondedAt?: string;
   };
   timeline: TimelineItem[];
+  customerNotes?: string;
+  providerNotes?: string;
+  adminNotes?: string;
+  beforePhotos: string[];
+  afterPhotos: string[];
+  cancellationReason?: string;
+  refundAmount?: number;
+  refundStatus?: string;
 }
 
 export interface TimelineItem {
   status: string;
   timestamp: string;
   notes?: string;
+}
+
+export interface BookingHistoryParams {
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  searchTerm?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 @Injectable({
@@ -106,14 +170,7 @@ export class BookingService {
     return this.apiService.post('bookings', request);
   }
 
-  getBookingHistory(params?: {
-    status?: string;
-    startDate?: string;
-    endDate?: string;
-    searchTerm?: string;
-    pageNumber?: number;
-    pageSize?: number;
-  }): Observable<BookingHistory> {
+  getBookingHistory(params?: BookingHistoryParams): Observable<BookingHistory> {
     return this.apiService.get<BookingHistory>('bookings/history', params);
   }
 

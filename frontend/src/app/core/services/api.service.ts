@@ -11,7 +11,7 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  get<T>(endpoint: string, params?: any): Observable<T> {
+  get<T>(endpoint: string, params?: any, options?: any): Observable<T> {
     let httpParams = new HttpParams();
     if (params) {
       Object.keys(params).forEach(key => {
@@ -20,18 +20,19 @@ export class ApiService {
         }
       });
     }
-    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { params: httpParams });
+    const httpOptions = { params: httpParams, ...options };
+    return this.http.get(`${this.apiUrl}/${endpoint}`, httpOptions) as Observable<T>;
   }
 
   post<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, data);
+    return this.http.post(`${this.apiUrl}/${endpoint}`, data) as Observable<T>;
   }
 
   put<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.put<T>(`${this.apiUrl}/${endpoint}`, data);
+    return this.http.put(`${this.apiUrl}/${endpoint}`, data) as Observable<T>;
   }
 
   delete<T>(endpoint: string): Observable<T> {
-    return this.http.delete<T>(`${this.apiUrl}/${endpoint}`);
+    return this.http.delete(`${this.apiUrl}/${endpoint}`) as Observable<T>;
   }
 }

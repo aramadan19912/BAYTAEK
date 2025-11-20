@@ -10,15 +10,15 @@
   </div>
 
   <!-- Image Gallery -->
-  <div class="image-gallery" *ngIf="service.images && service.images.length > 0">
+  <div class="image-gallery" *ngIf="service.imageUrls && service.imageUrls.length > 0">
     <div class="main-image">
-      <img [src]="service.images[currentImageIndex]" [alt]="getServiceName()" />
-      <button class="nav-btn prev" (click)="previousImage()" *ngIf="service.images.length > 1">‹</button>
-      <button class="nav-btn next" (click)="nextImage()" *ngIf="service.images.length > 1">›</button>
+      <img [src]="service.imageUrls[currentImageIndex]" [alt]="getServiceName()" />
+      <button class="nav-btn prev" (click)="previousImage()" *ngIf="service.imageUrls.length > 1">‹</button>
+      <button class="nav-btn next" (click)="nextImage()" *ngIf="service.imageUrls.length > 1">›</button>
     </div>
-    <div class="thumbnail-list" *ngIf="service.images.length > 1">
+    <div class="thumbnail-list" *ngIf="service.imageUrls.length > 1">
       <img
-        *ngFor="let img of service.images; let i = index"
+        *ngFor="let img of service.imageUrls; let i = index"
         [src]="img"
         [class.active]="i === currentImageIndex"
         (click)="selectImage(i)"
@@ -59,19 +59,19 @@
       <h3>{{ 'serviceDetail.serviceProvider' | translate }}</h3>
       <div class="provider-info">
         <div class="provider-header">
-          <h4>{{ service.provider.name }}</h4>
-          <span class="verified" *ngIf="service.provider.isVerified">✓ {{ 'serviceDetail.verified' | translate }}</span>
+          <h4>{{ service.providerBusinessName || service.providerName }}</h4>
+          <span class="verified" *ngIf="service.providerIsVerified">✓ {{ 'serviceDetail.verified' | translate }}</span>
         </div>
         <div class="provider-stats">
           <div class="stat">
             <span class="stars">
-              <span *ngFor="let filled of getStarArray(service.provider.rating)" [class.filled]="filled">★</span>
+              <span *ngFor="let filled of getStarArray(service.providerAverageRating)" [class.filled]="filled">★</span>
             </span>
-            <span>{{ service.provider.rating.toFixed(1) }}</span>
+            <span>{{ service.providerAverageRating.toFixed(1) }}</span>
           </div>
           <div class="stat">
-            <span class="label">{{ 'serviceDetail.experience' | translate }}:</span>
-            <span>{{ service.provider.yearsOfExperience }} {{ 'serviceDetail.years' | translate }}</span>
+            <span class="label">{{ 'provider.services.stats.bookings' | translate }}:</span>
+            <span>{{ service.providerCompletedBookings }}</span>
           </div>
         </div>
       </div>
@@ -213,11 +213,11 @@
           </div>
           <div class="summary-item">
             <span class="label">{{ 'serviceDetail.booking.address' | translate }}:</span>
-            <span>{{ formatAddress(addresses.find(a => a.addressId === selectedAddressId)!) }}</span>
+            <span>{{ formatAddress(getSelectedAddress()) }}</span>
           </div>
           <div class="summary-item">
             <span class="label">{{ 'serviceDetail.duration' | translate }}:</span>
-            <span>{{ formatDuration(service!.estimatedDurationMinutes) }}</span>
+            <span>{{ formatDuration(service?.estimatedDurationMinutes || 0) }}</span>
           </div>
           <div class="summary-item total">
             <span class="label">{{ 'serviceDetail.booking.totalAmount' | translate }}:</span>

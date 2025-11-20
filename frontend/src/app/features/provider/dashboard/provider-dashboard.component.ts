@@ -4,15 +4,19 @@ import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { ProviderService, ProviderDashboardStats, ProviderProfile } from '../../../core/services/provider.service';
-import { BookingService, Booking } from '../../../core/services/booking.service';
-import { ServiceService, Service } from '../../../core/services/service.service';
-import { AuthService } from '../../../core/services/auth.service';
+import {
+  ProviderService as ProviderApiService,
+  ProviderDashboardStats,
+  ProviderProfile,
+  ProviderBooking,
+  ProviderService as ProviderServiceDto
+} from '../../../core/services/provider.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-provider-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslateModule],
   templateUrl: './provider-dashboard.component.html',
   styleUrls: ['./provider-dashboard.component.scss']
 })
@@ -22,8 +26,8 @@ export class ProviderDashboardComponent implements OnInit, OnDestroy {
   // Dashboard data
   stats: ProviderDashboardStats | null = null;
   profile: ProviderProfile | null = null;
-  recentBookings: Booking[] = [];
-  activeServices: Service[] = [];
+  recentBookings: ProviderBooking[] = [];
+  activeServices: ProviderServiceDto[] = [];
 
   // Loading states
   isLoadingStats = false;
@@ -35,13 +39,11 @@ export class ProviderDashboardComponent implements OnInit, OnDestroy {
   todayBookings = 0;
   weekEarnings = 0;
   pendingBookings = 0;
+  totalCompleted = 0;
   activeServicesCount = 0;
 
   constructor(
-    private providerService: ProviderService,
-    private bookingService: BookingService,
-    private serviceService: ServiceService,
-    private authService: AuthService,
+    private providerService: ProviderApiService,
     private router: Router
   ) {}
 
@@ -93,9 +95,7 @@ export class ProviderDashboardComponent implements OnInit, OnDestroy {
     this.isLoadingBookings = true;
     this.providerService.getProviderBookings({
       pageNumber: 1,
-      pageSize: 5,
-      sortBy: 'createdAt',
-      sortOrder: 'desc'
+      pageSize: 5
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (result) => {
         this.recentBookings = result.bookings;
@@ -132,9 +132,10 @@ export class ProviderDashboardComponent implements OnInit, OnDestroy {
   calculateQuickStats(): void {
     if (!this.stats) return;
 
-    this.todayBookings = this.stats.todayBookings || 0;
-    this.weekEarnings = this.stats.weeklyEarnings || 0;
-    this.pendingBookings = this.stats.pendingBookings || 0;
+    this.todayBookings = this.stats.todayBookings ?? 0;
+    this.weekEarnings = this.stats.monthlyNetEarnings ?? this.stats.monthlyRevenue ?? 0;
+    this.pendingBookings = this.stats.pendingBookingsCount ?? 0;
+    this.totalCompleted = this.stats.monthlyCompleted ?? 0;
   }
 
   // Navigation methods

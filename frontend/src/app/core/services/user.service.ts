@@ -2,25 +2,50 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { User as SharedUser } from '../../shared/models/user.model';
 
-export interface User {
-  userId: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber?: string;
-  role: string;
-  profilePictureUrl?: string;
+export type User = SharedUser & {
+  userId?: string; // Alias for id
+  profilePictureUrl?: string; // Alias for profileImageUrl
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  isEmailVerified?: boolean;
+  isPhoneVerified?: boolean;
+  twoFactorEnabled?: boolean;
+  lastLoginAt?: string;
+  createdAt?: string;
   dateOfBirth?: string;
   gender?: string;
-  preferredLanguage: string;
-  emailConfirmed: boolean;
-  phoneConfirmed: boolean;
-  isActive: boolean;
-  isSuspended: boolean;
+  bio?: string;
+  providerProfile?: ProviderProfileInfo;
+  totalBookings?: number;
+  completedBookings?: number;
+  cancelledBookings?: number;
+  emailConfirmed?: boolean;
+  phoneConfirmed?: boolean;
+  isSuspended?: boolean;
   suspendedUntil?: string;
-  registeredAt: string;
-  lastLoginAt?: string;
+  registeredAt?: string;
+  isActive?: boolean;
+};
+
+export interface ProviderProfileInfo {
+  providerId: string;
+  businessName?: string;
+  averageRating: number;
+  totalReviews: number;
+  completedBookings: number;
+  isVerified: boolean;
+  licenseNumber?: string;
+  certificationDocuments: string[];
+  portfolioImages: string[];
+  serviceCategories: ServiceCategoryInfo[];
+}
+
+export interface ServiceCategoryInfo {
+  id: string;
+  nameEn: string;
+  nameAr: string;
 }
 
 export interface UpdateProfileRequest {
@@ -31,6 +56,7 @@ export interface UpdateProfileRequest {
   gender?: string;
   preferredLanguage?: string;
   profilePictureUrl?: string;
+  bio?: string;
 }
 
 export interface ChangePasswordRequest {
@@ -135,6 +161,16 @@ export class UserService {
     const formData = new FormData();
     formData.append('file', file);
     return this.apiService.post<{ url: string }>('users/profile/picture', formData);
+  }
+
+  // Alias for compatibility
+  uploadProfileImage(formData: FormData): Observable<{ url: string }> {
+    return this.apiService.post<{ url: string }>('users/profile/picture', formData);
+  }
+
+  // Alias for compatibility
+  getUserProfile(): Observable<User> {
+    return this.getProfile();
   }
 
   // Delete profile picture

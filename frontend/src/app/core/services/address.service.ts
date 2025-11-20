@@ -12,6 +12,7 @@ export interface Address {
   city: string;
   postalCode?: string;
   additionalDetails?: string;
+  country?: string;
   latitude?: number;
   longitude?: number;
   isDefault: boolean;
@@ -26,6 +27,7 @@ export interface CreateAddressRequest {
   city: string;
   postalCode?: string;
   additionalDetails?: string;
+  country?: string;
   latitude?: number;
   longitude?: number;
   isDefault?: boolean;
@@ -38,6 +40,7 @@ export interface UpdateAddressRequest {
   city?: string;
   postalCode?: string;
   additionalDetails?: string;
+  country?: string;
   latitude?: number;
   longitude?: number;
   isDefault?: boolean;
@@ -99,6 +102,23 @@ export class AddressService {
     return this.apiService.post('addresses', request).pipe(
       tap(() => this.loadAddresses())
     );
+  }
+
+  // Alias for compatibility
+  addAddress(address: Partial<Address>): Observable<any> {
+    const request: CreateAddressRequest = {
+      label: address.label || 'Home',
+      addressLine: address.addressLine || '',
+      region: address.region || '',
+      city: address.city || '',
+      postalCode: address.postalCode,
+      additionalDetails: address.additionalDetails,
+      country: address.country,
+      latitude: address.latitude,
+      longitude: address.longitude,
+      isDefault: address.isDefault
+    };
+    return this.createAddress(request);
   }
 
   // Update an address

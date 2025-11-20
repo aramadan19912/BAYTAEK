@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { AuthService, UserProfile } from '../../core/services/auth.service';
-import { UserService, UpdateProfileRequest, ChangePasswordRequest } from '../../core/services/user.service';
+import { AuthService } from '../../core/services/auth.service';
+import { UserService, UpdateProfileRequest, ChangePasswordRequest, User as UserProfileResponse } from '../../core/services/user.service';
 import { AddressService, Address } from '../../core/services/address.service';
 import { PaymentService, PaymentMethod } from '../../core/services/payment.service';
 import { NotificationService, NotificationSettings } from '../../core/services/notification.service';
 import { ProviderService, ProviderProfile } from '../../core/services/provider.service';
 import { LanguageService } from '../../core/services/language.service';
+import { User as AuthUser, UserRole, Language, Region } from '../../shared/models/user.model';
 
 @Component({
   selector: 'app-profile',
@@ -23,7 +24,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   // User data
-  currentUser: UserProfile | null = null;
+  currentUser: (UserProfileResponse | AuthUser) | null = null;
   providerProfile: ProviderProfile | null = null;
   isProvider = false;
 
@@ -54,16 +55,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
   addresses: Address[] = [];
   isAddingAddress = false;
   editingAddress: Address | null = null;
-  addressForm: Partial<Address> = {
+  addressForm: (Partial<Address> & { country?: string }) = {
     addressLine: '',
     city: '',
     region: '',
     postalCode: '',
-    country: 'Saudi Arabia',
     isDefault: false,
-    additionalInfo: '',
+    additionalDetails: '',
     latitude: 0,
-    longitude: 0
+    longitude: 0,
+    country: 'Saudi Arabia'
   };
 
   // Payment methods
@@ -114,7 +115,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.authService.currentUser$.pipe(takeUntil(this.destroy$)).subscribe(user => {
       this.currentUser = user;
       if (user) {
-        this.isProvider = user.role === 'Provider';
+        this.isProvider = this.isProviderRole(user.role);
         if (this.isProvider) {
           this.loadProviderProfile();
         }
@@ -132,8 +133,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.isLoadingProfile = true;
     this.userService.getUserProfile().subscribe({
       next: (profile) => {
-        this.currentUser = profile;
-        this.authService.updateCurrentUser(profile);
+        const normalizedProfile = this.normalizeProfile(profile);
+        this.currentUser = normalizedProfile;
+        this.authService.updateCurrentUser(this.mapToAuthUser(normalizedProfile));
+        this.isProvider = this.isProviderRole(normalizedProfile.role);
+        if (this.isProvider) {
+          this.loadProviderProfile();
+        }
         this.initializeProfileForm();
         this.isLoadingProfile = false;
       },
@@ -147,14 +153,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
   // Initialize profile form with current user data
   initializeProfileForm(): void {
     if (this.currentUser) {
+      const profileDetails = this.currentUser as UserProfileResponse;
       this.profileForm = {
         firstName: this.currentUser.firstName,
         lastName: this.currentUser.lastName,
         phoneNumber: this.currentUser.phoneNumber || '',
-        dateOfBirth: this.currentUser.dateOfBirth || '',
-        gender: this.currentUser.gender || '',
-        bio: this.currentUser.bio || '',
-        preferredLanguage: this.currentUser.preferredLanguage || 'en'
+        dateOfBirth: profileDetails.dateOfBirth || '',
+        gender: profileDetails.gender || '',
+        bio: profileDetails.bio || '',
+        preferredLanguage: this.getPreferredLanguageCode(this.currentUser.preferredLanguage)
       };
     }
   }
@@ -324,18 +331,22 @@ export class ProfileComponent implements OnInit, OnDestroy {
       city: '',
       region: '',
       postalCode: '',
-      country: 'Saudi Arabia',
       isDefault: false,
-      additionalInfo: '',
+      additionalDetails: '',
       latitude: 0,
-      longitude: 0
+      longitude: 0,
+      country: 'Saudi Arabia'
     };
   }
 
   editAddress(address: Address): void {
     this.isAddingAddress = true;
     this.editingAddress = address;
-    this.addressForm = { ...address };
+    this.addressForm = {
+      ...address,
+      additionalDetails: address.additionalDetails,
+      country: address.country ?? 'Saudi Arabia'
+    };
   }
 
   cancelAddingAddress(): void {
@@ -366,7 +377,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       });
     } else {
       // Add new address
-      this.addressService.addAddress(this.addressForm as Address).subscribe({
+      this.addressService.addAddress(this.addressForm).subscribe({
         next: () => {
           this.loadAddresses();
           this.isAddingAddress = false;
@@ -428,8 +439,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   loadPaymentMethods(): void {
     this.isLoadingPaymentMethods = true;
     this.paymentService.getPaymentMethods().subscribe({
-      next: (result) => {
-        this.paymentMethods = result.paymentMethods;
+      next: (methods) => {
+        this.paymentMethods = methods;
         this.isLoadingPaymentMethods = false;
       },
       error: (error) => {
@@ -549,5 +560,71 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   getCurrentLanguage(): string {
     return this.languageService.getCurrentLanguage();
+  }
+
+  private normalizeProfile(profile: UserProfileResponse): UserProfileResponse {
+    return {
+      ...profile,
+      phoneNumber: profile.phoneNumber || '',
+      profileImageUrl: profile.profileImageUrl || profile.profilePictureUrl,
+      profilePictureUrl: profile.profilePictureUrl || profile.profileImageUrl,
+      emailVerified: profile.emailVerified ?? profile.isEmailVerified ?? false,
+      phoneVerified: profile.phoneVerified ?? profile.isPhoneVerified ?? false,
+      emailConfirmed: profile.emailConfirmed ?? profile.emailVerified,
+      phoneConfirmed: profile.phoneConfirmed ?? profile.phoneVerified,
+      registeredAt: profile.registeredAt ?? profile.createdAt,
+      role: this.resolveUserRole(profile.role),
+      preferredLanguage: this.resolveLanguage(profile.preferredLanguage),
+      region: this.resolveRegion(profile.region)
+    };
+  }
+
+  private mapToAuthUser(profile: UserProfileResponse): Partial<AuthUser> {
+    return {
+      id: profile.id || profile.userId || '',
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      email: profile.email,
+      phoneNumber: profile.phoneNumber || '',
+      role: this.resolveUserRole(profile.role),
+      preferredLanguage: this.resolveLanguage(profile.preferredLanguage),
+      region: this.resolveRegion(profile.region),
+      profileImageUrl: profile.profileImageUrl || profile.profilePictureUrl,
+      isEmailVerified: profile.isEmailVerified ?? profile.emailVerified ?? false,
+      isPhoneVerified: profile.isPhoneVerified ?? profile.phoneVerified ?? false
+    };
+  }
+
+  private isProviderRole(role?: string | UserRole): boolean {
+    return this.resolveUserRole(role) === UserRole.ServiceProvider;
+  }
+
+  private resolveUserRole(role?: string | UserRole): UserRole {
+    if (!role) return UserRole.Customer;
+    const value = role.toString();
+    return value === UserRole.ServiceProvider || value.toLowerCase() === 'serviceprovider'
+      ? UserRole.ServiceProvider
+      : UserRole.Customer;
+  }
+
+  private resolveLanguage(value?: string | Language): Language {
+    if (!value) {
+      return this.languageService.getCurrentLanguage() === 'ar' ? Language.Arabic : Language.English;
+    }
+    const normalized = value.toString().toLowerCase();
+    return normalized === 'ar' || normalized === 'arabic' ? Language.Arabic : Language.English;
+  }
+
+  private resolveRegion(value?: string | Region): Region {
+    if (!value) {
+      return Region.SaudiArabia;
+    }
+    const normalized = value.toString().toLowerCase();
+    return normalized.includes('egypt') ? Region.Egypt : Region.SaudiArabia;
+  }
+
+  private getPreferredLanguageCode(value?: string | Language): string {
+    const resolved = this.resolveLanguage(value);
+    return resolved === Language.Arabic ? 'ar' : 'en';
   }
 }

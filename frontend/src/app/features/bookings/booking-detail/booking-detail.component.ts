@@ -186,7 +186,7 @@ export class BookingDetailComponent implements OnInit, OnDestroy {
 
     this.submittingReview = true;
     this.serviceService.submitReview({
-      serviceId: this.booking.service.serviceId,
+      bookingId: this.booking.bookingId,
       rating: this.reviewRating,
       comment: this.reviewComment
     })
@@ -304,19 +304,20 @@ export class BookingDetailComponent implements OnInit, OnDestroy {
   }
 
   canRetryPayment(): boolean {
-    if (!this.booking || !this.booking.payment) return false;
-
-    // Allow retry if payment failed or is pending
-    const paymentStatus = this.booking.payment.paymentStatus;
+    const paymentStatus = this.getPaymentStatusValue();
+    if (!paymentStatus) return false;
     return paymentStatus === 'Failed' || paymentStatus === 'Pending';
   }
 
   isPendingPayment(): boolean {
-    if (!this.booking || !this.booking.payment) return true;
-
-    // Check if booking is created but payment is not completed
-    const paymentStatus = this.booking.payment.paymentStatus;
+    const paymentStatus = this.getPaymentStatusValue();
+    if (!paymentStatus) return false;
     return paymentStatus === 'Pending' || paymentStatus === 'Failed';
+  }
+
+  getPaymentStatusValue(): string {
+    if (!this.booking?.payment) return '';
+    return this.booking.payment.paymentStatus || this.booking.payment.status || '';
   }
 
   // Helper methods

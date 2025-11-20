@@ -6,6 +6,7 @@ export enum Currency {
 
 export interface Service {
   id: string;
+  serviceId?: string; // Alias for id
   categoryId: string;
   name: string;
   description: string;

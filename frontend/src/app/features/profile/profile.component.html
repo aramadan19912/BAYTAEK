@@ -269,7 +269,7 @@
               <p class="address-line">{{ address.addressLine }}</p>
               <p>{{ address.city }}, {{ address.region }} {{ address.postalCode }}</p>
               <p>{{ address.country }}</p>
-              <p *ngIf="address.additionalInfo" class="additional-info">{{ address.additionalInfo }}</p>
+              <p *ngIf="address.additionalDetails" class="additional-info">{{ address.additionalDetails }}</p>
             </div>
             <div class="address-actions">
               <button class="btn btn-sm btn-secondary" (click)="editAddress(address)">{{ 'profile.addresses.edit' | translate }}</button>
@@ -322,7 +322,7 @@
 
           <div class="form-group">
             <label>{{ 'profile.addresses.additionalInfo' | translate }}</label>
-            <textarea [(ngModel)]="addressForm.additionalInfo" class="form-control" rows="2"
+            <textarea [(ngModel)]="addressForm.additionalDetails" class="form-control" rows="2"
               [placeholder]="'profile.addresses.additionalInfoPlaceholder' | translate"></textarea>
           </div>
 

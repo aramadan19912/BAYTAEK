@@ -68,7 +68,8 @@ export class PaymentCheckoutComponent implements OnInit {
           this.booking = booking;
 
           // Check if booking is already paid
-          if (booking.payment && booking.payment.paymentStatus === 'Paid') {
+          const paymentStatus = booking.payment?.paymentStatus || booking.payment?.status;
+          if (paymentStatus && paymentStatus.toLowerCase() === 'paid') {
             this.translate.get('PAYMENT.ALREADY_PAID').subscribe(msg => {
               this.snackBar.open(msg, '', { duration: 3000 });
             });
@@ -219,6 +220,14 @@ export class PaymentCheckoutComponent implements OnInit {
     if (!this.booking?.address) return '';
 
     const addr = this.booking.address;
-    return `${addr.buildingNumber} ${addr.streetName}, ${addr.district}, ${addr.city} ${addr.postalCode}`;
+    const parts = [
+      addr.buildingNumber,
+      addr.streetName || addr.street,
+      addr.district,
+      addr.city,
+      addr.region,
+      addr.postalCode
+    ].filter(part => !!part);
+    return parts.join(', ');
   }
 }

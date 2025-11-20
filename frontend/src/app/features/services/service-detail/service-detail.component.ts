@@ -259,7 +259,7 @@ export class ServiceDetailComponent implements OnInit, OnDestroy {
 
     const bookingRequest: CreateBookingRequest = {
       serviceId: this.serviceId,
-      providerId: this.service.provider.providerId,
+      providerId: this.service.providerId,
       addressId: this.selectedAddressId,
       scheduledDateTime: scheduledDateTime,
       customerNotes: this.customerNotes || undefined,
@@ -321,17 +321,17 @@ export class ServiceDetailComponent implements OnInit, OnDestroy {
 
   // Image gallery
   previousImage(): void {
-    if (!this.service || !this.service.images) return;
+    if (!this.service || !this.service.imageUrls) return;
     this.currentImageIndex =
       this.currentImageIndex === 0
-        ? this.service.images.length - 1
+        ? this.service.imageUrls.length - 1
         : this.currentImageIndex - 1;
   }
 
   nextImage(): void {
-    if (!this.service || !this.service.images) return;
+    if (!this.service || !this.service.imageUrls) return;
     this.currentImageIndex =
-      this.currentImageIndex === this.service.images.length - 1
+      this.currentImageIndex === this.service.imageUrls.length - 1
         ? 0
         : this.currentImageIndex + 1;
   }
@@ -354,7 +354,8 @@ export class ServiceDetailComponent implements OnInit, OnDestroy {
   }
 
   formatPrice(price: number): string {
-    return `SAR ${price.toFixed(2)}`;
+    const currency = this.service?.currency || 'SAR';
+    return `${currency} ${price.toFixed(2)}`;
   }
 
   formatDuration(minutes: number): string {
@@ -378,8 +379,26 @@ export class ServiceDetailComponent implements OnInit, OnDestroy {
     this.reviewRating = rating;
   }
 
-  formatAddress(address: Address): string {
+  formatAddress(address?: Address | null): string {
+    if (!address) {
+      return '';
+    }
     return this.addressService.formatAddress(address);
+  }
+
+  getSelectedAddress(): Address | undefined {
+    return this.addresses.find(a => a.addressId === this.selectedAddressId);
+  }
+
+  formatDate(date?: string): string {
+    if (!date) {
+      return '';
+    }
+    return new Date(date).toLocaleDateString(this.currentLanguage === 'ar' ? 'ar-SA' : 'en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   }
 
   getMinScheduleDate(): string {

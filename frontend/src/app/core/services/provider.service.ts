@@ -6,17 +6,73 @@ export interface ProviderProfile {
   providerId: string;
   businessName?: string;
   businessLicenseNumber?: string;
-  yearsOfExperience: number;
+  yearsOfExperience?: number;
   bio?: string;
-  services: string[];
-  serviceRegions: string[];
+  services?: string[];
+  serviceRegions?: string[];
+  averageRating?: number;
+  totalReviews?: number;
+  isVerified?: boolean;
+  verificationStatus?: string;
+  verificationNotes?: string;
+  businessType?: string;
+  businessDescription?: string;
+  commercialRegistrationNumber?: string;
+  taxNumber?: string;
+  experienceYears?: number;
+  verificationDocuments?: string[];
+  bankAccountInfo?: string;
+  instantBookingEnabled?: boolean;
+  acceptsOnlinePayment?: boolean;
+  acceptsCashPayment?: boolean;
+}
+
+export interface ProviderDashboardStats {
+  providerId: string;
+  providerName: string;
   averageRating: number;
   totalReviews: number;
   isVerified: boolean;
-  verificationStatus: string;
-  instantBookingEnabled: boolean;
-  acceptsOnlinePayment: boolean;
-  acceptsCashPayment: boolean;
+  todayBookings: number;
+  todayCompleted: number;
+  weeklyBookings: number;
+  weeklyCompleted: number;
+  monthlyBookings: number;
+  monthlyCompleted: number;
+  monthlyRevenue: number;
+  monthlyNetEarnings: number;
+  availableBalance: number;
+  pendingPayouts: number;
+  pendingBookingsCount: number;
+  unrespondedReviewsCount: number;
+  pendingBookings: PendingBookingDto[];
+  upcomingBookings: UpcomingBookingDto[];
+  recentReviews: RecentReviewDto[];
+}
+
+export interface PendingBookingDto {
+  bookingId: string;
+  serviceName: string;
+  scheduledAt: string;
+  amount: number;
+  createdAt: string;
+}
+
+export interface UpcomingBookingDto {
+  bookingId: string;
+  serviceName: string;
+  scheduledAt: string;
+  amount: number;
+}
+
+export interface RecentReviewDto {
+  reviewId: string;
+  customerName: string;
+  serviceName: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  hasResponse: boolean;
 }
 
 export interface CreateServiceRequest {
@@ -45,35 +101,50 @@ export interface UpdateServiceRequest {
 }
 
 export interface ProviderService {
-  serviceId: string;
-  nameEn: string;
-  nameAr: string;
-  descriptionEn?: string;
-  descriptionAr?: string;
+  id: string;
+  categoryId: string;
   categoryNameEn: string;
   categoryNameAr: string;
+  nameEn: string;
+  nameAr: string;
+  descriptionEn: string;
+  descriptionAr: string;
   basePrice: number;
+  currency: string;
   estimatedDurationMinutes: number;
+  availableRegions: string[];
+  requiredMaterials?: string;
+  warrantyInfo?: string;
+  imageUrls: string[];
+  videoUrl?: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  totalBookings: number;
   averageRating: number;
   totalReviews: number;
-  totalBookings: number;
-  images?: string[];
-  isActive: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface ProviderBooking {
-  bookingId: string;
-  bookingNumber: string;
-  serviceName: string;
-  customerName: string;
-  customerPhone?: string;
-  customerAddress: string;
-  scheduledDateTime: string;
+  id: string;
   status: string;
+  customerId: string;
+  customerName: string;
+  customerPhone: string;
+  customerProfileImage?: string;
+  serviceId: string;
+  serviceName: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  scheduledAt: string;
+  startedAt?: string;
+  completedAt?: string;
   totalAmount: number;
-  paymentStatus: string;
-  customerNotes?: string;
+  currency: string;
+  isPaid: boolean;
+  specialInstructions?: string;
   createdAt: string;
 }
 
@@ -217,17 +288,30 @@ export class ProviderService {
     return this.apiService.get<ProviderProfile>('provider/profile');
   }
 
+  getProviderProfile(): Observable<ProviderProfile> {
+    return this.getProfile();
+  }
+
   updateProfile(profile: Partial<ProviderProfile>): Observable<any> {
     return this.apiService.put('provider/profile', profile);
   }
 
+  getDashboardStats(): Observable<ProviderDashboardStats> {
+    return this.apiService.get<ProviderDashboardStats>('provider/dashboard');
+  }
+
   // Service Management
-  getMyServices(): Observable<{ services: ProviderService[]; totalCount: number }> {
-    return this.apiService.get('provider/services');
+  getMyServices(params?: any): Observable<{ services: ProviderService[]; totalCount: number }> {
+    return this.apiService.get('provider/services', params);
   }
 
   getServiceById(serviceId: string): Observable<ProviderService> {
     return this.apiService.get<ProviderService>(`provider/services/${serviceId}`);
+  }
+
+
+  getProviderServices(params?: any): Observable<{ services: ProviderService[]; totalCount: number }> {
+    return this.getMyServices(params);
   }
 
   createService(service: CreateServiceRequest): Observable<any> {
@@ -246,6 +330,10 @@ export class ProviderService {
     return this.apiService.put(`provider/services/${serviceId}/status`, { isActive });
   }
 
+  updateServiceStatus(serviceId: string, status: string): Observable<any> {
+    return this.apiService.put(`provider/services/${serviceId}/status`, { status });
+  }
+
   // Booking Management
   getBookings(params?: {
     status?: string;
@@ -255,6 +343,16 @@ export class ProviderService {
     pageSize?: number;
   }): Observable<{ bookings: ProviderBooking[]; totalCount: number }> {
     return this.apiService.get('provider/bookings', params);
+  }
+
+  getProviderBookings(params?: {
+    status?: string;
+    startDate?: string;
+    endDate?: string;
+    pageNumber?: number;
+    pageSize?: number;
+  }): Observable<{ bookings: ProviderBooking[]; totalCount: number }> {
+    return this.getBookings(params);
   }
 
   getBookingDetails(bookingId: string): Observable<ProviderBookingDetail> {

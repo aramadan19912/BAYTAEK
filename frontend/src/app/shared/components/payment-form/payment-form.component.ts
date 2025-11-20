@@ -99,6 +99,14 @@ export class PaymentFormComponent implements OnInit {
       }
     });
   }
+  getPaymentMethodExpiry(method: PaymentMethod): string {
+    const month = method.expiryMonth ?? method.cardExpMonth;
+    const year = method.expiryYear ?? method.cardExpYear;
+    if (!month || !year) {
+      return 'N/A';
+    }
+    return `${month.toString().padStart(2, '0')}/${year.toString().slice(-2)}`;
+  }
 
   setupCardValidation(): void {
     const cardNumberControl = this.paymentForm.get('cardNumber');
