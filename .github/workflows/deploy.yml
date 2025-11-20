@@ -31,7 +31,7 @@ jobs:
         working-directory: ./backend
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore --runtime linux-x64
+        run: dotnet build --configuration Release --no-restore
         working-directory: ./backend
 
       - name: Run tests
@@ -40,7 +40,7 @@ jobs:
         continue-on-error: true
 
       - name: Publish
-        run: dotnet publish --configuration Release --output ./publish --runtime linux-x64 --self-contained true
+        run: dotnet publish src/HomeService.API/HomeService.API.csproj --configuration Release --output ./publish --runtime linux-x64 --self-contained true
         working-directory: ./backend
 
       - name: Upload backend artifact
