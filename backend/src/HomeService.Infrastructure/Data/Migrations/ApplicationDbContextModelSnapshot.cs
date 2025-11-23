@@ -231,6 +231,9 @@ namespace HomeService.Infrastructure.Data.Migrations
                     b.Property<Guid>("BookingId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("BookingId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("ChangeReason")
                         .HasColumnType("nvarchar(max)");
 
@@ -264,6 +267,8 @@ namespace HomeService.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BookingId");
+
+                    b.HasIndex("BookingId1");
 
                     b.HasIndex("ChangedById");
 
@@ -1403,6 +1408,7 @@ namespace HomeService.Infrastructure.Data.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.Property<decimal?>("SentimentScore")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -1410,6 +1416,9 @@ namespace HomeService.Infrastructure.Data.Migrations
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("VideoUrls")
                         .IsRequired()
@@ -1423,6 +1432,8 @@ namespace HomeService.Infrastructure.Data.Migrations
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("ProviderId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Reviews");
                 });
@@ -2004,14 +2015,19 @@ namespace HomeService.Infrastructure.Data.Migrations
             modelBuilder.Entity("HomeService.Domain.Entities.BookingHistory", b =>
                 {
                     b.HasOne("HomeService.Domain.Entities.Booking", "Booking")
-                        .WithMany("History")
+                        .WithMany()
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("HomeService.Domain.Entities.Booking", null)
+                        .WithMany("History")
+                        .HasForeignKey("BookingId1");
 
                     b.HasOne("HomeService.Domain.Entities.User", "ChangedBy")
                         .WithMany()
-                        .HasForeignKey("ChangedById");
+                        .HasForeignKey("ChangedById")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Booking");
 
@@ -2317,20 +2333,24 @@ namespace HomeService.Infrastructure.Data.Migrations
                     b.HasOne("HomeService.Domain.Entities.Booking", "Booking")
                         .WithOne("Review")
                         .HasForeignKey("HomeService.Domain.Entities.Review", "BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("HomeService.Domain.Entities.User", "Customer")
-                        .WithMany("Reviews")
+                        .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("HomeService.Domain.Entities.ServiceProvider", "Provider")
                         .WithMany()
                         .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("HomeService.Domain.Entities.User", null)
+                        .WithMany("Reviews")
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Booking");
 

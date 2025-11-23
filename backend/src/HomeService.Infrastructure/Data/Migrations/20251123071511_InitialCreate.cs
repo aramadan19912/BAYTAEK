@@ -620,6 +620,7 @@ namespace HomeService.Infrastructure.Data.Migrations
                     ChangeReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ChangedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BookingId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -634,12 +635,18 @@ namespace HomeService.Infrastructure.Data.Migrations
                         column: x => x.BookingId,
                         principalTable: "Bookings",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_BookingHistories_Bookings_BookingId1",
+                        column: x => x.BookingId1,
+                        principalTable: "Bookings",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_BookingHistories_Users_ChangedById",
                         column: x => x.ChangedById,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -840,8 +847,9 @@ namespace HomeService.Infrastructure.Data.Migrations
                     ProviderRespondedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsVerified = table.Column<bool>(type: "bit", nullable: false),
                     IsVisible = table.Column<bool>(type: "bit", nullable: false),
-                    SentimentScore = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    SentimentScore = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     HelpfulCount = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -857,19 +865,24 @@ namespace HomeService.Infrastructure.Data.Migrations
                         column: x => x.BookingId,
                         principalTable: "Bookings",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Reviews_ServiceProviders_ProviderId",
                         column: x => x.ProviderId,
                         principalTable: "ServiceProviders",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Reviews_Users_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Reviews_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1118,6 +1131,11 @@ namespace HomeService.Infrastructure.Data.Migrations
                 column: "BookingId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BookingHistories_BookingId1",
+                table: "BookingHistories",
+                column: "BookingId1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BookingHistories_ChangedById",
                 table: "BookingHistories",
                 column: "ChangedById");
@@ -1341,6 +1359,11 @@ namespace HomeService.Infrastructure.Data.Migrations
                 name: "IX_Reviews_ProviderId",
                 table: "Reviews",
                 column: "ProviderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reviews_UserId",
+                table: "Reviews",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceCategories_ParentCategoryId",
