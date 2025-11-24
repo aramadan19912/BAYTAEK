@@ -1,0 +1,28 @@
+{
+  "/api": {
+    "target": "http://localhost:9000",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api": ""
+    }
+  },
+  "/hubs": {
+    "target": "http://localhost:9000",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true,
+    "ws": true
+  },
+  "/health": {
+    "target": "http://localhost:9000",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/swagger": {
+    "target": "http://localhost:9000",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

@@ -145,10 +145,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "http://localhost:3000") // Add your frontend URLs
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials(); // Required for SignalR
+        policy.WithOrigins(
+            "http://localhost:4200",  // Angular dev server
+            "http://localhost:3000",  // Alternative dev port
+            "http://localhost:5001",  // Production frontend
+            "https://localhost:5001"  // Production frontend (HTTPS)
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials(); // Required for SignalR
     });
 });
 
@@ -229,7 +234,7 @@ if (app.Environment.IsDevelopment() && enableHangfire)
             StatsPollingInterval = 10000, // 10 seconds
             DisplayStorageConnectionString = false
         });
-        Console.WriteLine("Hangfire Dashboard: http://localhost:5000/hangfire");
+        Console.WriteLine("Hangfire Dashboard: http://localhost:9000/hangfire");
     }
     catch (Exception ex)
     {
@@ -275,12 +280,7 @@ app.MapHub<HomeService.API.Hubs.BookingHub>("/hubs/bookings");
 
 app.MapControllers();
 
-// Apply migrations on startup (development only)
-if (app.Environment.IsDevelopment())
-{
-    using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await dbContext.Database.MigrateAsync();
-}
+// Initialize database (apply migrations and seed data for dev/staging)
+await app.InitializeDatabaseAsync();
 
 app.Run();

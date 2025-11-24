@@ -147,6 +147,7 @@ jobs:
           Restart=always
           RestartSec=5
           Environment=ASPNETCORE_ENVIRONMENT=Production
+          Environment=ASPNETCORE_URLS=http://0.0.0.0:9000
 
           [Install]
           WantedBy=multi-user.target
@@ -243,14 +244,9 @@ jobs:
           # Wait for application to fully start
           sleep 10
 
-          # Check backend health (try multiple endpoints)
+          # Check backend health (try port 9000)
           echo "Checking backend health..."
-          BACKEND_STATUS=$(ssh vps 'curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health || echo "000"')
-
-          if [ "$BACKEND_STATUS" = "000" ]; then
-            # Try alternative port 5001 (HTTPS default)
-            BACKEND_STATUS=$(ssh vps 'curl -sk -o /dev/null -w "%{http_code}" https://localhost:5001/health || echo "000"')
-          fi
+          BACKEND_STATUS=$(ssh vps 'curl -s -o /dev/null -w "%{http_code}" http://localhost:9000/health || echo "000"')
 
           if [ "$BACKEND_STATUS" = "200" ]; then
             echo "✅ Backend is healthy (HTTP $BACKEND_STATUS)"
