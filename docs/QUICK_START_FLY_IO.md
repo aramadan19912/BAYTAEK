@@ -1,4 +1,8 @@
-# Quick Start - Deploy to Fly.io in 5 Minutes
+# Quick Start - Deploy to Fly.io in 2 Minutes
+
+## 🎉 Super Simple Setup!
+
+The deployment is now **fully automated**! You only need to add your Fly.io token to GitHub, and everything else happens automatically.
 
 ## ✅ Step 1: Add Fly.io Token to GitHub Secrets (REQUIRED)
 
@@ -33,54 +37,15 @@ gh auth login
 gh secret set FLY_API_TOKEN --body "YOUR_TOKEN_HERE"
 ```
 
-## ✅ Step 2: Create Fly.io Apps (First Time Only)
+## ✅ Step 2: Trigger Deployment (Automatic!)
 
-You need to create the apps on Fly.io before deployment.
+The code is already pushed to GitHub! Once you add the `FLY_API_TOKEN` secret, GitHub Actions will automatically:
 
-### Install Fly CLI
-
-**Windows (PowerShell)**:
-```powershell
-powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
-```
-
-After install, close and reopen your terminal.
-
-### Authenticate
-
-```bash
-flyctl auth token YOUR_TOKEN_HERE
-```
-
-### Create Backend App
-
-```bash
-cd backend
-flyctl apps create baytaek-api --org personal
-```
-
-### Create Frontend App
-
-```bash
-cd ../frontend
-flyctl apps create baytaek-frontend --org personal
-```
-
-### Create Backend Volume (for SQLite database)
-
-```bash
-flyctl volumes create baytaek_data --region fra --size 1 --app baytaek-api
-```
-
-## ✅ Step 3: Deploy via GitHub Actions
-
-### Push to GitHub
-
-```bash
-git add .
-git commit -m "Add Fly.io deployment configuration"
-git push origin main
-```
+1. ✅ Create the `baytaek-api` app (if not exists)
+2. ✅ Create the `baytaek-frontend` app (if not exists)
+3. ✅ Create the persistent volume for database (if not exists)
+4. ✅ Deploy the backend
+5. ✅ Deploy the frontend
 
 ### Watch Deployment
 
@@ -99,7 +64,14 @@ git push origin main
    ✅ Frontend: https://baytaek-frontend.fly.dev
    ```
 
-## ✅ Step 4: Test Your Deployment
+**Or trigger manually**:
+```bash
+# Trigger a new deployment
+git commit --allow-empty -m "Deploy to Fly.io"
+git push origin main
+```
+
+## ✅ Step 3: Test Your Deployment
 
 ### Test Backend
 
