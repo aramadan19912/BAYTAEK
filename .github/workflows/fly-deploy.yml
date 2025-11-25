@@ -60,8 +60,8 @@ jobs:
           echo "Waiting for backend to start..."
           sleep 30
 
-          # Get backend URL
-          BACKEND_URL=$(flyctl apps info baytaek-api --json | jq -r '.Hostname')
+          # Backend URL is predictable on Fly.io
+          BACKEND_URL="baytaek-api.fly.dev"
           echo "Backend URL: https://$BACKEND_URL"
 
           # Health check
@@ -72,7 +72,7 @@ jobs:
           else
             echo "⚠️  Backend health check returned HTTP $HEALTH_STATUS"
             echo "Checking logs..."
-            flyctl logs -a baytaek-api --lines 50
+            flyctl logs -a baytaek-api --lines 50 || true
           fi
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -144,8 +144,8 @@ jobs:
           echo "Waiting for frontend to start..."
           sleep 20
 
-          # Get frontend URL
-          FRONTEND_URL=$(flyctl apps info baytaek-frontend --json | jq -r '.Hostname')
+          # Frontend URL is predictable on Fly.io
+          FRONTEND_URL="baytaek-frontend.fly.dev"
           echo "Frontend URL: https://$FRONTEND_URL"
 
           # Health check
@@ -156,7 +156,7 @@ jobs:
           else
             echo "⚠️  Frontend returned HTTP $FRONTEND_STATUS"
             echo "Checking logs..."
-            flyctl logs -a baytaek-frontend --lines 50
+            flyctl logs -a baytaek-frontend --lines 50 || true
           fi
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -179,9 +179,9 @@ jobs:
           echo "=================================================="
           echo ""
 
-          # Get URLs
-          BACKEND_URL=$(flyctl apps info baytaek-api --json | jq -r '.Hostname' 2>/dev/null || echo "baytaek-api.fly.dev")
-          FRONTEND_URL=$(flyctl apps info baytaek-frontend --json | jq -r '.Hostname' 2>/dev/null || echo "baytaek-frontend.fly.dev")
+          # Fly.io URLs are predictable
+          BACKEND_URL="baytaek-api.fly.dev"
+          FRONTEND_URL="baytaek-frontend.fly.dev"
 
           echo "📱 Application URLs:"
           echo "   Backend API:    https://$BACKEND_URL"
