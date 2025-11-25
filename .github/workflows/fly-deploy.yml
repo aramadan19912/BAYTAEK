@@ -29,17 +29,24 @@ jobs:
           # Check if app exists, if not use launch, otherwise use deploy
           if ! flyctl apps list 2>/dev/null | grep -q "baytaek-api"; then
             echo "🚀 First deployment - launching app..."
+
+            # Launch without --org to use default organization
             flyctl launch --now \
               --name baytaek-api \
               --region fra \
               --ha=false \
               --yes \
               --copy-config \
-              --remote-only
+              --no-deploy \
+              --internal-port 9000
 
-            # Create volume after launch
+            # Create volume before first deploy
             echo "📦 Creating persistent volume for database..."
             flyctl volumes create baytaek_data --region fra --size 1 --app baytaek-api --yes
+
+            # Now deploy with the configuration
+            echo "🚀 Deploying backend..."
+            flyctl deploy --remote-only --ha=false
           else
             echo "♻️  App exists - deploying update..."
 
@@ -118,13 +125,19 @@ jobs:
           # Check if app exists, if not use launch, otherwise use deploy
           if ! flyctl apps list 2>/dev/null | grep -q "baytaek-frontend"; then
             echo "🚀 First deployment - launching app..."
+
+            # Launch without --org to use default organization
             flyctl launch --now \
               --name baytaek-frontend \
               --region fra \
               --ha=false \
               --yes \
               --copy-config \
-              --remote-only
+              --no-deploy
+
+            # Now deploy with the configuration
+            echo "🚀 Deploying frontend..."
+            flyctl deploy --remote-only --ha=false
           else
             echo "♻️  App exists - deploying update..."
             flyctl deploy --remote-only --ha=false
