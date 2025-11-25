@@ -141,13 +141,15 @@ jobs:
 
           [Service]
           Type=simple
-          User=www-data
+          User=root
           WorkingDirectory=/var/www/baytaek/backend
           ExecStart=/var/www/baytaek/backend/HomeService.API
           Restart=always
-          RestartSec=5
+          RestartSec=10
           Environment=ASPNETCORE_ENVIRONMENT=Production
           Environment=ASPNETCORE_URLS=http://0.0.0.0:9000
+          Environment="ConnectionStrings__DefaultConnection=Data Source=/var/www/baytaek/backend/homeservice.db"
+          Environment=DOTNET_CLI_HOME=/tmp
 
           [Install]
           WantedBy=multi-user.target
