@@ -28,8 +28,6 @@ FROM build AS publish
 RUN dotnet publish "HomeService.API.csproj" \
     -c Release \
     -o /app/publish \
-    --no-restore \
-    --no-build \
     /p:UseAppHost=false
 
 # ============================================
