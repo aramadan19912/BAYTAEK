@@ -132,39 +132,33 @@ jobs:
 
       - name: Ensure backend service exists
         run: |
-          ssh vps '
-            if ! systemctl list-unit-files | grep -q "^baytaek-api.service"; then
-              cat <<EOF | sudo tee /etc/systemd/system/baytaek-api.service
+          # Always recreate the service file to ensure correct configuration
+          ssh vps "
+            cat <<'EOF' | sudo tee /etc/systemd/system/baytaek-api.service
           [Unit]
           Description=Baytaek API
           After=network.target
 
           [Service]
           Type=simple
-          User=root
+          User=www-data
+          Group=www-data
           WorkingDirectory=/var/www/baytaek/backend
           ExecStart=/var/www/baytaek/backend/HomeService.API
           Restart=always
           RestartSec=10
           Environment=ASPNETCORE_ENVIRONMENT=Production
           Environment=ASPNETCORE_URLS=http://0.0.0.0:9000
-          Environment="ConnectionStrings__DefaultConnection=Data Source=/var/www/baytaek/backend/homeservice.db"
           Environment=DOTNET_CLI_HOME=/tmp
+          StandardOutput=journal
+          StandardError=journal
+          SyslogIdentifier=baytaek-api
 
           [Install]
           WantedBy=multi-user.target
           EOF
-              sudo systemctl daemon-reload
-              sudo systemctl enable baytaek-api.service
-            fi
-          '
-
-          # Update existing service if needed
-          ssh vps "
-            if systemctl list-unit-files | grep -q '^baytaek-api.service'; then
-              sudo sed -i 's|ExecStart=/usr/bin/dotnet /var/www/baytaek/backend/HomeService.API.dll|ExecStart=/var/www/baytaek/backend/HomeService.API|g' /etc/systemd/system/baytaek-api.service
-              sudo systemctl daemon-reload
-            fi
+            sudo systemctl daemon-reload
+            sudo systemctl enable baytaek-api.service
           "
 
       - name: Deploy Backend to VPS
@@ -199,10 +193,22 @@ jobs:
             sudo chmod +x /var/www/baytaek/backend/HomeService.API
           "
 
-          # Run database migrations
+          # Configure SQLite connection string directly in appsettings.json
           ssh vps "
             cd /var/www/baytaek/backend
-            sudo -u www-data dotnet ef database update --no-build || echo 'Migration skipped or failed'
+            # Backup original appsettings
+            sudo cp appsettings.json appsettings.json.bak
+            # Update connection string to use SQLite
+            sudo sed -i 's|\"DefaultConnection\":.*|\"DefaultConnection\": \"Data Source=/var/www/baytaek/backend/homeservice.db\"|g' appsettings.json
+            # Verify the change
+            grep DefaultConnection appsettings.json
+          "
+
+          # Create empty database file with correct permissions
+          ssh vps "
+            sudo touch /var/www/baytaek/backend/homeservice.db
+            sudo chown www-data:www-data /var/www/baytaek/backend/homeservice.db
+            sudo chmod 664 /var/www/baytaek/backend/homeservice.db
           "
 
           # Start the backend service
@@ -216,6 +222,14 @@ jobs:
 
       - name: Deploy Frontend to VPS
         run: |
+          # Ensure serve is installed globally
+          ssh vps "
+            if ! command -v serve &> /dev/null; then
+              echo 'Installing serve...'
+              sudo npm install -g serve
+            fi
+          "
+
           # Ensure directory structure exists
           ssh vps "
             sudo mkdir -p /var/www/baytaek/frontend/dist/frontend/browser
@@ -236,6 +250,34 @@ jobs:
           ssh vps "
             sudo chown -R www-data:www-data /var/www/baytaek/frontend
             sudo chmod -R 755 /var/www/baytaek/frontend
+          "
+
+          # Ensure frontend service exists and is correct
+          ssh vps "
+            cat <<'EOF' | sudo tee /etc/systemd/system/baytaek-frontend.service
+          [Unit]
+          Description=Baytaek Frontend
+          After=network.target
+
+          [Service]
+          Type=simple
+          User=www-data
+          Group=www-data
+          WorkingDirectory=/var/www/baytaek/frontend/dist/frontend/browser
+          ExecStart=/usr/bin/serve -s . -l 5001
+          Restart=always
+          RestartSec=10
+          Environment=NODE_ENV=production
+          StandardOutput=journal
+          StandardError=journal
+          SyslogIdentifier=baytaek-frontend
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+            sudo systemctl daemon-reload
+            sudo systemctl enable baytaek-frontend.service
+            sudo systemctl restart baytaek-frontend
           "
 
           # Reload Nginx
