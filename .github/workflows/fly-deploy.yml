@@ -22,34 +22,36 @@ jobs:
       - name: Setup Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Create Backend App (if not exists)
-        run: |
-          # Check if app exists
-          if ! flyctl apps list | grep -q "baytaek-api"; then
-            echo "Creating backend app..."
-            flyctl apps create baytaek-api --org personal || true
-          else
-            echo "Backend app already exists"
-          fi
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-      - name: Create Volume (if not exists)
-        run: |
-          # Check if volume exists
-          if ! flyctl volumes list -a baytaek-api | grep -q "baytaek_data"; then
-            echo "Creating persistent volume for database..."
-            flyctl volumes create baytaek_data --region fra --size 1 --app baytaek-api --yes || true
-          else
-            echo "Volume already exists"
-          fi
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
       - name: Deploy Backend
         run: |
           cd backend
-          flyctl deploy --remote-only --ha=false
+
+          # Check if app exists, if not use launch, otherwise use deploy
+          if ! flyctl apps list 2>/dev/null | grep -q "baytaek-api"; then
+            echo "🚀 First deployment - launching app..."
+            flyctl launch --now \
+              --name baytaek-api \
+              --region fra \
+              --ha=false \
+              --yes \
+              --copy-config \
+              --remote-only
+
+            # Create volume after launch
+            echo "📦 Creating persistent volume for database..."
+            flyctl volumes create baytaek_data --region fra --size 1 --app baytaek-api --yes
+          else
+            echo "♻️  App exists - deploying update..."
+
+            # Ensure volume exists
+            if ! flyctl volumes list -a baytaek-api 2>/dev/null | grep -q "baytaek_data"; then
+              echo "📦 Creating persistent volume for database..."
+              flyctl volumes create baytaek_data --region fra --size 1 --app baytaek-api --yes
+            fi
+
+            # Deploy update
+            flyctl deploy --remote-only --ha=false
+          fi
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
@@ -109,22 +111,24 @@ jobs:
       - name: Setup Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Create Frontend App (if not exists)
-        run: |
-          # Check if app exists
-          if ! flyctl apps list | grep -q "baytaek-frontend"; then
-            echo "Creating frontend app..."
-            flyctl apps create baytaek-frontend --org personal || true
-          else
-            echo "Frontend app already exists"
-          fi
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
       - name: Deploy Frontend
         run: |
           cd frontend
-          flyctl deploy --remote-only --ha=false
+
+          # Check if app exists, if not use launch, otherwise use deploy
+          if ! flyctl apps list 2>/dev/null | grep -q "baytaek-frontend"; then
+            echo "🚀 First deployment - launching app..."
+            flyctl launch --now \
+              --name baytaek-frontend \
+              --region fra \
+              --ha=false \
+              --yes \
+              --copy-config \
+              --remote-only
+          else
+            echo "♻️  App exists - deploying update..."
+            flyctl deploy --remote-only --ha=false
+          fi
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
