@@ -38,10 +38,13 @@ RUN dotnet publish "HomeService.API.csproj" \
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-# Install curl for health checks and CA certificates
+# Install curl for health checks, CA certificates, and SQLite
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates && \
+    apt-get install -y --no-install-recommends curl ca-certificates sqlite3 && \
     rm -rf /var/lib/apt/lists/*
+
+# Create directory for SQLite database with proper permissions
+RUN mkdir -p /app/data && chmod 777 /app/data
 
 # Create non-root user for security
 RUN groupadd -r appuser && \
@@ -54,19 +57,19 @@ COPY --from=publish --chown=appuser:appuser /app/publish .
 # Switch to non-root user
 USER appuser
 
-# Expose ports (8080 for HTTP, 8081 for HTTPS)
-EXPOSE 8080
-EXPOSE 8081
+# Expose port 9000 (Fly.io will map this internally)
+EXPOSE 9000
 
 # Environment variables
-ENV ASPNETCORE_URLS=http://+:8080 \
+ENV ASPNETCORE_URLS=http://0.0.0.0:9000 \
     ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_RUNNING_IN_CONTAINER=true \
-    DOTNET_USE_POLLING_FILE_WATCHER=true
+    DOTNET_USE_POLLING_FILE_WATCHER=true \
+    ConnectionStrings__DefaultConnection="Data Source=/app/data/homeservice.db"
 
 # Health check configuration
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl --fail http://localhost:8080/health || exit 1
+    CMD curl --fail http://localhost:9000/health || exit 1
 
 # Entry point
 ENTRYPOINT ["dotnet", "HomeService.API.dll"]

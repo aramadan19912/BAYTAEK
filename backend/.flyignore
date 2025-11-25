@@ -1,0 +1,55 @@
+# Fly.io ignore file for backend
+
+# Build artifacts
+bin/
+obj/
+publish/
+*.dll
+*.pdb
+*.exe
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+
+# Tests
+**/Tests/
+**/*.Tests/
+
+# Node modules (if any)
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Database files (don't include in image)
+*.db
+*.db-shm
+*.db-wal
+
+# Temporary files
+tmp/
+temp/
+*.tmp
