@@ -22,42 +22,35 @@ jobs:
       - name: Setup Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Deploy Backend
+      - name: Launch or Deploy Backend
+        working-directory: ./backend
         run: |
-          cd backend
+          # First, try a simple deploy
+          set +e
+          flyctl deploy --config fly.toml --ha=false 2>&1 | tee deploy_output.txt
+          DEPLOY_EXIT=$?
+          set -e
 
-          # Check if app exists, if not use launch, otherwise use deploy
-          if ! flyctl apps list 2>/dev/null | grep -q "baytaek-api"; then
-            echo "🚀 First deployment - launching app..."
+          # Check if app needs to be created
+          if grep -q "Could not find App\|does not exist" deploy_output.txt; then
+            echo "📝 Creating new app with launch..."
 
-            # Launch without --org to use default organization
-            flyctl launch --now \
-              --name baytaek-api \
-              --region fra \
-              --ha=false \
-              --yes \
-              --copy-config \
-              --no-deploy \
-              --internal-port 9000
+            # Use launch to create the app
+            flyctl launch --yes --no-deploy --copy-config --name baytaek-api --region fra
 
-            # Create volume before first deploy
-            echo "📦 Creating persistent volume for database..."
-            flyctl volumes create baytaek_data --region fra --size 1 --app baytaek-api --yes
+            # Create volume
+            flyctl volumes create baytaek_data --region fra --size 1 --yes || true
 
-            # Now deploy with the configuration
-            echo "🚀 Deploying backend..."
-            flyctl deploy --remote-only --ha=false
+            # Now deploy
+            flyctl deploy --config fly.toml --ha=false
+          elif [ $DEPLOY_EXIT -ne 0 ]; then
+            echo "❌ Deployment failed"
+            cat deploy_output.txt
+            exit 1
           else
-            echo "♻️  App exists - deploying update..."
-
+            echo "✅ Deployment successful"
             # Ensure volume exists
-            if ! flyctl volumes list -a baytaek-api 2>/dev/null | grep -q "baytaek_data"; then
-              echo "📦 Creating persistent volume for database..."
-              flyctl volumes create baytaek_data --region fra --size 1 --app baytaek-api --yes
-            fi
-
-            # Deploy update
-            flyctl deploy --remote-only --ha=false
+            flyctl volumes create baytaek_data --region fra --size 1 --yes 2>/dev/null || echo "Volume already exists"
           fi
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -118,29 +111,30 @@ jobs:
       - name: Setup Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Deploy Frontend
+      - name: Launch or Deploy Frontend
+        working-directory: ./frontend
         run: |
-          cd frontend
+          # First, try a simple deploy
+          set +e
+          flyctl deploy --config fly.toml --ha=false 2>&1 | tee deploy_output.txt
+          DEPLOY_EXIT=$?
+          set -e
 
-          # Check if app exists, if not use launch, otherwise use deploy
-          if ! flyctl apps list 2>/dev/null | grep -q "baytaek-frontend"; then
-            echo "🚀 First deployment - launching app..."
+          # Check if app needs to be created
+          if grep -q "Could not find App\|does not exist" deploy_output.txt; then
+            echo "📝 Creating new app with launch..."
 
-            # Launch without --org to use default organization
-            flyctl launch --now \
-              --name baytaek-frontend \
-              --region fra \
-              --ha=false \
-              --yes \
-              --copy-config \
-              --no-deploy
+            # Use launch to create the app
+            flyctl launch --yes --no-deploy --copy-config --name baytaek-frontend --region fra
 
-            # Now deploy with the configuration
-            echo "🚀 Deploying frontend..."
-            flyctl deploy --remote-only --ha=false
+            # Now deploy
+            flyctl deploy --config fly.toml --ha=false
+          elif [ $DEPLOY_EXIT -ne 0 ]; then
+            echo "❌ Deployment failed"
+            cat deploy_output.txt
+            exit 1
           else
-            echo "♻️  App exists - deploying update..."
-            flyctl deploy --remote-only --ha=false
+            echo "✅ Deployment successful"
           fi
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
